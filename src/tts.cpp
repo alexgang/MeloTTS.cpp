@@ -148,6 +148,7 @@ namespace melo {
         catch (...) {
             std::cerr << "Unknown exception caught" << std::endl;
         }
+        return {};
     }
     /*
      * @brief Splits a given text into pieces based on Chinese and English punctuation marks.
