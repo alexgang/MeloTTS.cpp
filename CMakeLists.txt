@@ -21,6 +21,9 @@ endif()
 
 find_package(OpenVINO REQUIRED COMPONENTS Runtime)
 
+# Paths to libtorch libs and include files
+set(LIBTORCH_DIR "${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/libtorch")
+
 # Include directories
 include_directories(${CMAKE_SOURCE_DIR}/src)
 
@@ -45,6 +48,20 @@ set(SOURCE_FILES
     src/text_normalization/quantifier.cpp     
     ${CMAKE_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin.cc
     ${CMAKE_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin_csrc_utils.cc
+    src/text_normalization/text_normalization.cpp
+    src/text_normalization/char_convert.cpp
+    src/text_normalization/chronology.cpp
+    src/text_normalization/constants.cpp
+    src/text_normalization/num.cpp
+    src/text_normalization/phonecode.cpp
+    src/text_normalization/quantifier.cpp
+    src/noisefilter.cpp
+    src/deepfilter.cpp
+    src/dfnet_model.cpp
+    src/multiframe.cpp
+    src/tone_sandhi.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin_csrc_utils.cc
 )
 
 # Header files
@@ -60,20 +77,47 @@ set(HEADER_FILES
     src/language_modules/cmudict.h
     src/language_modules/chinese_mix.h
     src/language_modules/tone_sandhi.h
-    src/text_normalization/text_normalization.h 
-    src/text_normalization/char_convert.h 
-    src/text_normalization/chronology.h 
-    src/text_normalization/constant.h 
+    src/text_normalization/text_normalization.h
+    src/text_normalization/char_convert.h
+    src/text_normalization/chronology.h
+    src/text_normalization/constant.h
     src/text_normalization/number.h
-    src/text_normalization/phonecode.h 
+    src/text_normalization/phonecode.h
     src/text_normalization/quantifier.h
     ${CMAKE_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin.h
     ${CMAKE_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin_csrc_utils.h
+    src/noisefilter.h
+    src/deepfilter.h
+    src/multiframe.h
+    src/dfnet_model.h
+    src/tone_sandhi.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin_csrc_utils.h
 )
 include_directories(${CMAKE_SOURCE_DIR}/thirdParty/eigen)
 
 # Define the executable
 add_executable(meloTTS_ov ${SOURCE_FILES} ${HEADER_FILES})
+
+# Find libraries
+find_library(TORCH_LIB torch PATHS ${LIBTORCH_DIR}/lib)
+if (NOT TORCH_LIB)
+    message(FATAL_ERROR "torch.lib not found")
+endif()
+
+find_library(C10_LIB c10 PATHS ${LIBTORCH_DIR}/lib)
+if (NOT C10_LIB)
+    message(FATAL_ERROR "c10.lib not found")
+endif()
+
+find_library(TORCH_CPU_LIB torch_cpu PATHS ${LIBTORCH_DIR}/lib)
+if (NOT TORCH_CPU_LIB)
+    message(FATAL_ERROR "torch_cpu.lib not found")
+endif()
+
+target_link_directories(meloTTS_ov PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/libtorch/lib")
+target_include_directories(meloTTS_ov PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/libtorch/include)
+target_include_directories(meloTTS_ov PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/libtorch/include/torch/csrc/api/include)
 
 # Define DEBUG macro for Debug configuration
 target_compile_definitions(meloTTS_ov PRIVATE "$<$<CONFIG:DEBUG>:DEBUG>")
@@ -81,8 +125,16 @@ target_include_directories(meloTTS_ov PRIVATE ${CMAKE_SOURCE_DIR}/thirdParty/eig
 target_include_directories(meloTTS_ov PRIVATE ${CMAKE_SOURCE_DIR}/thirdParty/cppjieba)
 target_include_directories(meloTTS_ov PRIVATE ${CMAKE_SOURCE_DIR}/thirdParty/cppjieba/include)
 target_include_directories(meloTTS_ov PRIVATE ${CMAKE_SOURCE_DIR}/thirdParty/cppinyin/csrc)
+target_include_directories(meloTTS_ov PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/eigen)
+target_include_directories(meloTTS_ov PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppjieba)
+target_include_directories(meloTTS_ov PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppjieba/include)
+target_include_directories(meloTTS_ov PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc)
+if("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64")
+    set(ADDITIONAL_LIBRARY_DEPENDENCIES "torch.lib" "c10.lib" "torch_cpu.lib")
+endif()
 target_link_libraries(meloTTS_ov
     PRIVATE openvino::runtime  # Link OpenVINO Runtime privately
+            "${ADDITIONAL_LIBRARY_DEPENDENCIES}"
 )
 if (UNIX)
     target_link_libraries(meloTTS_ov PRIVATE pthread)
