@@ -1,5 +1,5 @@
 /**
- * Copyright      2024    Tong Qiu (tong.qiu@intel.com)
+ * Copyright      2024    Tong Qiu (tong.qiu@intel.com) Vincent Liu (vincent1.liu@intel.com)
  *
  * See LICENSE for clarification regarding multiple authors
  *
