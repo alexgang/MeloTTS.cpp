@@ -22,10 +22,10 @@
 #include "info_data.h"
 #include "chinese_mix.h"
 namespace melo {
-    TTS::TTS(std::unique_ptr<ov::Core>& core, const std::filesystem::path & tts_ir_path, const std::string & tts_device,
+    TTS::TTS(std::unique_ptr<ov::Core>& core, const std::filesystem::path & tts_ir_path, const std::string & tts_device, const ov::AnyMap& tts_config,
         const std::filesystem::path& bert_ir_path, const std::string& bert_device, const std::filesystem::path& tokenizer_data_path,
         const std::filesystem::path& punctuation_dict_path, const std::string language, bool disable_bert):_language(language),_disable_bert(disable_bert),
-        tts_model(core,tts_ir_path,tts_device,language), tokenizer(std::make_shared<Tokenizer>(tokenizer_data_path)){
+        tts_model(core,tts_ir_path,tts_device,tts_config, language), tokenizer(std::make_shared<Tokenizer>(tokenizer_data_path)){
 
         assert((core.get() != nullptr) && "core should not be null!");
         assert((std::filesystem::exists(tts_ir_path) && std::filesystem::exists(tokenizer_data_path))

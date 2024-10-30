@@ -9,6 +9,8 @@
 #include <chrono>
 #include <numeric>
 #include <filesystem>
+#include "openvino/runtime/intel_gpu/properties.hpp"
+#include "openvino/openvino.hpp"
 
 // This utils module defines a collection of utility functions that are
 // used throughout the program
@@ -58,4 +60,61 @@ const auto printVec = [](const auto& vec, const std::string& vecName) {
 std::vector<std::string> read_file_lines(const std::filesystem::path& file_path);
 
 std::vector<std::string> split_utf8_chinese(const std::string& str);
+
+// This function mimics Python's len() function.
+// It counts each character, treating both letters, Chinese characters and space as 1 unit of length.
+// use utf-8 Chinese characters
+// no punctuation here!
+inline size_t str_len(const std::string& s) {
+    int strSize = s.size();
+    int i = 0;
+    int cnt =0;
+    while (i < strSize)
+    {
+        //English letters
+        if (s[i] <= 'z' && s[i] >= 'a' || s[i]<= 'Z' && s[i] >= 'A') {
+            ++cnt;
+            ++i;
+        }
+        else{ //Chinese characters
+            int len = 1;
+            for (int j = 0; j < 6 && (s[i] & (0x80 >> j)); j++)
+            {
+                len = j + 1;
+            }
+            ++cnt;
+            i += len;
+        }
+    }
+    return cnt;
+}
+
+inline ov::AnyMap set_tts_config(const std::string& device_name, bool quantize = false) {
+    ov::AnyMap device_config = {};
+    if (device_name.find("CPU") != std::string::npos)
+    {
+        device_config[ov::cache_dir.name()] = "cache";
+        device_config[ov::hint::scheduling_core_type.name()] = ov::hint::SchedulingCoreType::PCORE_ONLY;
+        device_config[ov::hint::enable_hyper_threading.name()] = false;
+        device_config[ov::hint::enable_cpu_pinning.name()] = true;
+        device_config[ov::enable_profiling.name()] = false;
+        // device_config[ov::inference_num_threads.name()] = 1;
+    }
+    if (device_name.find("GPU") != std::string::npos)
+    {
+        device_config[ov::cache_dir.name()] = "cache";
+        device_config[ov::intel_gpu::hint::queue_throttle.name()] = ov::intel_gpu::hint::ThrottleLevel::MEDIUM;
+        device_config[ov::intel_gpu::hint::queue_priority.name()] = ov::hint::Priority::MEDIUM;
+        device_config[ov::intel_gpu::hint::host_task_priority.name()] = ov::hint::Priority::HIGH;
+        device_config[ov::hint::enable_cpu_pinning.name()] = true;
+        device_config[ov::enable_profiling.name()] = false;
+        device_config[ov::intel_gpu::hint::enable_kernels_reuse.name()] = true;
+        // For accurate inference with this model, currently it's necessary to set both FP16 and FP32 models to run in FP32 mode on the GPU
+        if(!quantize){
+            device_config[ov::hint::inference_precision.name()] = ov::element::f32;
+            std::cout << "TTS: set ov::hint::inference_precision as f32\n";
+        }
+    }
+    return  device_config;
+}
 #endif //  UTILS_H

@@ -26,25 +26,6 @@
 
 namespace melo
 {
-
-    // Constuctor 
-    AbstractOpenvinoModel::AbstractOpenvinoModel(std::unique_ptr<ov::Core>& core_ptr, const std::string& model_path, const std::string& device) {
-        _device = device;
-        // Reduce CPU infer memory
-        if(device.find("CPU") != std::string::npos){
-            core_ptr->set_property("CPU", {{"CPU_RUNTIME_CACHE_CAPACITY", "0"}});
-            std::cout << "Set CPU_RUNTIME_CACHE_CAPACITY 0\n";
-        }
-
-        // Compiled OV model
-        auto startTime = Time::now();
-        _compiled_model = std::make_unique<ov::CompiledModel>(core_ptr->compile_model(model_path, device, set_ov_config(device)));
-        auto compileTime = get_duration_ms_till_now(startTime);
-        std::cout << std::format("compile model {} on {}", model_path, device) << std::endl;
-        get_ov_info(core_ptr, device);
-        _infer_request = std::make_unique<ov::InferRequest>(_compiled_model->create_infer_request());
-
-    }
     // Constuctor 
     AbstractOpenvinoModel::AbstractOpenvinoModel(std::unique_ptr<ov::Core>& core_ptr, const std::filesystem::path& model_path, const std::string& device) {
         assert(std::filesystem::exists(model_path) && "model_path does not exit!");
@@ -69,9 +50,8 @@ namespace melo
         ov::serialize(runtime_model, "exec_graph.xml");
 #endif // MELO_DEBUG
     }
-
-    // Constuctor 
-    AbstractOpenvinoModel::AbstractOpenvinoModel(std::shared_ptr<ov::Core>& core_ptr, const std::string& model_path, const std::string& device) {
+    AbstractOpenvinoModel::AbstractOpenvinoModel(std::unique_ptr<ov::Core>& core_ptr, const std::filesystem::path& model_path, const std::string& device, const ov::AnyMap& config) {
+        assert(std::filesystem::exists(model_path) && "model_path does not exit!");
         _device = device;
         // Reduce CPU infer memory
         if (device.find("CPU") != std::string::npos) {
@@ -81,11 +61,11 @@ namespace melo
 
         // Compiled OV model
         auto startTime = Time::now();
-        _compiled_model = std::make_unique<ov::CompiledModel>(core_ptr->compile_model(model_path, device, set_ov_config(device)));
+        _compiled_model = std::make_unique<ov::CompiledModel>(core_ptr->compile_model(model_path.string(), device, config));
         auto compileTime = get_duration_ms_till_now(startTime);
-        std::cout << std::format("compile model {} on {}", model_path, device) << std::endl;
-        get_ov_info(core_ptr, device);
         _infer_request = std::make_unique<ov::InferRequest>(_compiled_model->create_infer_request());
+        std::cout << std::format("compile model {} on {}", model_path.string(), device) << std::endl;
+        get_ov_info(core_ptr, device);
     }
 
     void AbstractOpenvinoModel::print_input_names() const {
