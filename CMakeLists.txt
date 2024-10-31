@@ -36,6 +36,13 @@ set(SOURCE_FILES
     src/openvoice_tts.cpp
     src/tts.cpp
     src/tone_sandhi.cpp
+    src/Text_normlization.cpp   
+    src/char_convert.cpp     
+    src/chronology.cpp     
+    src/constants.cpp     
+    src/num.cpp     
+    src/phonecode.cpp     
+    src/quantifier.cpp     
     ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin_csrc_utils.cc
 )
@@ -53,6 +60,13 @@ set(HEADER_FILES
     src/openvoice_tts.h
     src/tts.h
     src/tone_sandhi.h
+    src/Text_normlization.h 
+    src/char_convert.h 
+    src/chronology.h 
+    src/constant.h 
+    src/number.h 
+    src/phonecode.h 
+    src/quantifier.h
     ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin.h
     ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin_csrc_utils.h
 )
@@ -74,13 +88,13 @@ if (UNIX)
     target_link_libraries(meloTTS_ov PRIVATE pthread)
 endif()
 
-add_executable(test_char_convert src/char_convert.cpp) 
-add_executable(test_chronology src/chronology.cpp)
-#add_executable(test_constant src/constants.cpp)
-add_executable(test_num src/num.cpp)
-add_executable(test_phonecode src/phonecode.cpp)
-add_executable(test_quantifier src/quantifier.cpp)
-#add_executable(test_text_normlization src/Text_normlization.cpp)
+#add_executable(test_char_convert src/char_convert.cpp src/char_convert.h) 
+#add_executable(test_chronology src/chronology.cpp src/chronology.h src/num.cpp src/number.h)
+#add_executable(test_constant src/constants.cpp src/constant.h)
+#add_executable(test_num src/num.cpp src/number.h)
+#add_executable(test_phonecode src/phonecode.cpp src/phonecode.h src/num.cpp src/number.h)
+#add_executable(test_quantifier src/quantifier.cpp src/quantifier.h src/num.cpp src/number.h)
+#add_executable(test_text_normlization src/Text_normlization.cpp src/Text_normlization.h src/char_convert.cpp src/char_convert.h src/chronology.cpp src/chronology.h src/constants.cpp src/constant.h src/num.cpp src/number.h src/phonecode.cpp src/phonecode.h src/quantifier.cpp src/quantifier.h)
 
 
 #option(ENABLE_TESTS "Enable tests" ON) # Disable the tests by default

@@ -49,17 +49,23 @@ namespace melo {
         const float& sdp_ratio, const float& noise_scale, const float& noise_scale_w ){
         std::vector<float> audio;
         try {
-            std::vector<std::string> texts = split_sentences_into_pieces(text,false);
-            for(const auto & t:texts){
-                // structured binding
-                auto startTime = Time::now();
-                auto [phone_level_feature, phones_ids, tones, lang_ids] = get_text_for_tts_infer(t);
-                auto preProcess = get_duration_ms_till_now(startTime);
-                startTime = Time::now();
-                std::vector<float> wav_data = tts_model.tts_infer(phones_ids, tones, lang_ids, phone_level_feature, speed, speaker_id, this->_disable_bert);
-                auto ttsInferTime = get_duration_ms_till_now(startTime);
-                audio_concat(audio,wav_data,speed, sampling_rate_);
-                std::cout << "preProcess Time: " << preProcess << "ms\t"<< "ttsInferTime: "<< ttsInferTime << "ms\n";
+            std::vector<std::wstring> normalized_sentences = normalizer.normalize(string_to_wstring(text));
+            for (const auto& sentence : normalized_sentences) {
+                std::cout << wstring_to_string(sentence) << std::endl;
+                std::vector<std::string> texts = split_sentences_into_pieces(wstring_to_string(sentence), false);
+                //std::vector<std::string> texts = split_sentences_into_pieces(text, false);         
+                for (const auto& t : texts) {
+                    // structured binding
+                    auto startTime = Time::now();
+                    auto [phone_level_feature, phones_ids, tones, lang_ids] = get_text_for_tts_infer(t);
+
+                    auto preProcess = get_duration_ms_till_now(startTime);
+                    startTime = Time::now();
+                    std::vector<float> wav_data = tts_model.tts_infer(phones_ids, tones, lang_ids, phone_level_feature, speed, speaker_id, this->_disable_bert);
+                    auto ttsInferTime = get_duration_ms_till_now(startTime);
+                    audio_concat(audio, wav_data, speed, sampling_rate_);
+                    std::cout << "preProcess Time: " << preProcess << "ms\t" << "ttsInferTime: " << ttsInferTime << "ms\n";
+                }
             }
             write_wave(output_path.string(), audio, sampling_rate_);
             //release memory buffer
@@ -81,18 +87,23 @@ namespace melo {
 
     void TTS::tts_to_file(const std::string& text, std::vector<float>& output_audio, const int& speaker_id, const float& speed,
         const float& sdp_ratio, const float& noise_scale, const float& noise_scale_w) {
-        try {
-            std::vector<std::string> texts = split_sentences_into_pieces(text, false);
-            for (const auto& t : texts) {
-                // structured binding
-                auto startTime = Time::now();
-                auto [phone_level_feature, phones_ids, tones, lang_ids] = get_text_for_tts_infer(t);
-                auto preProcess = get_duration_ms_till_now(startTime);
-                startTime = Time::now();
-                std::vector<float> wav_data = tts_model.tts_infer(phones_ids, tones, lang_ids, phone_level_feature, speed, speaker_id, this->_disable_bert);
-                auto ttsInferTime = get_duration_ms_till_now(startTime);
-                audio_concat(output_audio, wav_data, speed, sampling_rate_);
-                std::cout << "preProcess Time: " << preProcess << "ms\t" << "ttsInferTime: " << ttsInferTime << "ms\n";
+        try {                   
+            std::vector<std::wstring> normalized_sentences = normalizer.normalize(string_to_wstring(text));
+            for (const auto& sentence : normalized_sentences) {
+                std::cout << wstring_to_string(sentence) << std::endl;
+                std::vector<std::string> texts = split_sentences_into_pieces(wstring_to_string(sentence), false);
+                //std::vector<std::string> texts = split_sentences_into_pieces(text, false);
+                for (const auto& t : texts) {
+                    // structured binding
+                    auto startTime = Time::now();
+                    auto [phone_level_feature, phones_ids, tones, lang_ids] = get_text_for_tts_infer(t);
+                    auto preProcess = get_duration_ms_till_now(startTime);
+                    startTime = Time::now();
+                    std::vector<float> wav_data = tts_model.tts_infer(phones_ids, tones, lang_ids, phone_level_feature, speed, speaker_id, this->_disable_bert);
+                    auto ttsInferTime = get_duration_ms_till_now(startTime);
+                    audio_concat(output_audio, wav_data, speed, sampling_rate_);
+                    std::cout << "preProcess Time: " << preProcess << "ms\t" << "ttsInferTime: " << ttsInferTime << "ms\n";
+                }
             }
             //release memory buffer
             tts_model.release_infer_memory();

@@ -4,139 +4,153 @@
 #include <vector>
 #include <sstream>
 #include <unordered_map>
+#include <cwctype>  // 包含 iswdigit 所需的头文件
+#include"number.h"
 
+#ifdef _WIN32
+#include <iostream>
+#include <locale>
+#define NOMINMAX
+#define NOGDI
+#define NOCRYPT
+#include <windows.h>
+#endif
 using namespace std;
+//wregex re_mobile_phone(LR"((?<!\d)((\+?86 ?)?1([38]\d|5[0-35-9]|7[678]|9[89])\d{8})(?!\d))");
+//wregex re_telephone(LR"((?<!\d)((0(10|2[1-3]|[3-9]\d{2})-?)?[1-9]\d{6,7})(?!\d))");
+//wregex re_national_uniform_number(LR"((400)(-)?\d{3}(-)?\d{4}))");
+std::wregex re_mobile_phone(LR"((\+?86 ?)?1([38]\d|5[0-35-9]|7[678]|9[89])\d{8})");
+std::wregex re_telephone(LR"((0(10|2[1-3]|[3-9]\d{2})-?)?[1-9]\d{6,7})");
+std::wregex re_national_uniform_number(LR"(400-?\d{3}-?\d{4})");
 
-unordered_map<string, string> DIGITS = {
-    {"0", "零"}, {"1", "一"}, {"2", "二"}, {"3", "三"}, {"4", "四"},
-    {"5", "五"}, {"6", "六"}, {"7", "七"}, {"8", "八"}, {"9", "九"}
-};
 
-string verbalize_digit(const string& value_string, bool alt_one = false) {
-    string result;
-    for (const char& digit : value_string) {
-        result += DIGITS[string(1, digit)];
+// 手动检查是否有前后数字
+bool is_valid_phone_number(const std::wstring& text, const std::wsmatch& match) {
+    // 检查手机号前面和后面的字符是否为数字
+    if (match.position() > 0 && std::iswdigit(text[match.position() - 1])) {
+        return false;  // 前面有数字，不符合要求
     }
-    if (alt_one) {
-        size_t pos = 0;
-        while ((pos = result.find("一", pos)) != string::npos) {
-            result.replace(pos, 1, "幺");
-            pos += 1;
-        }
+    if (match.position() + match.length() < text.size() && std::iswdigit(text[match.position() + match.length()])) {
+        return false;  // 后面有数字，不符合要求
     }
-    return result;
+    return true;
 }
 
-string phone2str(const string& phone_string, bool mobile = true) {
-    string result;
+wstring phone2str(const wstring& phone_string, bool mobile = true) {
+    wstring result;
     if (mobile) {
-        stringstream ss(phone_string);
-        string part;
-        vector<string> parts;
-        while (getline(ss, part, ' ')) {
+        wstringstream ss(phone_string);
+        wstring part;
+        vector<wstring> parts;
+        while (getline(ss, part, L' ')) {
             parts.push_back(verbalize_digit(part, true));
         }
         for (size_t i = 0; i < parts.size(); ++i) {
             result += parts[i];
             if (i != parts.size() - 1) {
-                result += "，";
+                result += L"，";
             }
         }
     }
     else {
-        stringstream ss(phone_string);
-        string part;
-        vector<string> parts;
-        while (getline(ss, part, '-')) {
+        wstringstream ss(phone_string);
+        wstring part;
+        vector<wstring> parts;
+        while (getline(ss, part, L'-')) {
             parts.push_back(verbalize_digit(part, true));
         }
         for (size_t i = 0; i < parts.size(); ++i) {
             result += parts[i];
             if (i != parts.size() - 1) {
-                result += "，";
+                result += L"，";
             }
         }
     }
     return result;
 }
 
-string replace_phone(const smatch& match) {
+wstring replace_phone(const wsmatch& match) {
     return phone2str(match.str(0), false);
 }
 
-string replace_mobile(const smatch& match) {
+wstring replace_mobile(const wsmatch& match) {
     return phone2str(match.str(0));
 }
 
-string process_mobile_number(const string& phone) {
+wstring process_mobile_number(const wstring& phone) {
     // 匹配并处理国家代码部分
-    regex re_country_code(R"(\+?86 ?)");
-    string result = regex_replace(phone, re_country_code, "中国，");
+    wregex re_country_code(LR"(\+?86 ?)");
+    wstring result = regex_replace(phone, re_country_code, L"中国，");
 
     // 剩下的手机号部分
-    regex re_mobile_body(R"(\d{11})");
-    smatch match;
+    wregex re_mobile_body(LR"(\d{11})");
+    wsmatch match;
     if (regex_search(result, match, re_mobile_body)) {
-        string mobile_number = match.str(0);
+        wstring mobile_number = match.str(0);
         result = regex_replace(result, re_mobile_body, phone2str(mobile_number, true)); // 使用 verbalize_digit 处理数字
     }
 
     return result;
 }
 
-string process_landline_number(const string& phone) {
+wstring process_landline_number(const wstring& phone) {
     // 匹配区号部分
-    regex re_area_code(R"(0\d{2,3})");
-    smatch match;
-    string result = phone;
+    wregex re_area_code(LR"(0\d{2,3})");
+    wsmatch match;
+    wstring result = phone;
 
     if (regex_search(phone, match, re_area_code)) {
-        string area_code = match.str(0);
-        result = regex_replace(result, re_area_code, verbalize_digit(area_code) + "，");
+        wstring area_code = match.str(0);
+        result = regex_replace(result, re_area_code, verbalize_digit(area_code) + L"，");
     }
 
     // 匹配剩余的电话号码部分
-    regex re_phone_body(R"(\d{6,8})");
+    wregex re_phone_body(LR"(\d{6,8})");
     if (regex_search(result, match, re_phone_body)) {
-        string phone_body = match.str(0);
+        wstring phone_body = match.str(0);
         result = regex_replace(result, re_phone_body, verbalize_digit(phone_body, true));
     }
 
     return result;
 }
 
-string process_uniform_number(const string& phone) {
+wstring process_uniform_number(const wstring& phone) {
     // 匹配400号码
-    regex re_400(R"(400)");
-    smatch match;
-    string result = phone;
+    wregex re_400(LR"(400)");
+    wsmatch match;
+    wstring result = phone;
 
     if (regex_search(phone, match, re_400)) {
-        result = regex_replace(result, re_400, "四，零，零");
+        result = regex_replace(result, re_400, L"四，零，零");
     }
 
     // 匹配剩余的号码部分
-    regex re_phone_body(R"(\d{3}-\d{4})");
+    wregex re_phone_body(LR"(\d{3}-\d{4})");
     if (regex_search(result, match, re_phone_body)) {
-        string phone_body = match.str(0);
+        wstring phone_body = match.str(0);
         result = regex_replace(result, re_phone_body, verbalize_digit(phone_body, true));
     }
 
     return result;
 }
 
-int main() {
-    // 手机号码示例
-    string mobile_example = "+8613912345678";
-    cout << "处理后的手机号: " << process_mobile_number(mobile_example) << endl;
-
-    // 固定电话号码示例
-    string telephone_example = "010-12345678";
-    cout << "处理后的固定电话: " << process_landline_number(telephone_example) << endl;
-
-    // 全国统一号码示例
-    string national_uniform_number_example = "400-123-4567";
-    cout << "处理后的400号码: " << process_uniform_number(national_uniform_number_example) << endl;
-
-    return 0;
-}
+//int main() {
+//    #ifdef _WIN32
+//        SetConsoleOutputCP(CP_UTF8);
+//        // 使用系统默认区域设置
+//        std::wcout.imbue(std::locale(""));
+//    #endif
+//    // 手机号码示例
+//    wstring mobile_example = L"+8613912345678";
+//    wcout << L"处理后的手机号: " << process_mobile_number(mobile_example) << endl;
+//
+//    // 固定电话号码示例
+//    wstring telephone_example = L"010-12345678";
+//    wcout << L"处理后的固定电话: " << process_landline_number(telephone_example) << endl;
+//
+//    // 全国统一号码示例
+//    wstring national_uniform_number_example = L"400-123-4567";
+//    wcout << L"处理后的400号码: " << process_uniform_number(national_uniform_number_example) << endl;
+//
+//    return 0;
+//}

@@ -6,97 +6,154 @@
 #include <vector>
 #include <sstream>
 #include <functional>
-
+#include <cwctype>  // 用于 iswdigit 等函数
+#include "number.h"
+#ifdef _WIN32
+#include <iostream>
+#include <locale>
+#define NOMINMAX
+#define NOGDI
+#define NOCRYPT
+#include <windows.h>
+#endif
 using namespace std;
 
-unordered_map<char, string> DIGITS = {
-    {'0', "零"}, {'1', "一"}, {'2', "二"}, {'3', "三"}, {'4', "四"},
-    {'5', "五"}, {'6', "六"}, {'7', "七"}, {'8', "八"}, {'9', "九"}
+
+// 数字和单位的映射
+std::unordered_map<wchar_t, std::wstring> DIGITS = {
+    {L'0', L"零"}, {L'1', L"一"}, {L'2', L"二"}, {L'3', L"三"}, {L'4', L"四"},
+    {L'5', L"五"}, {L'6', L"六"}, {L'7', L"七"}, {L'8', L"八"}, {L'9', L"九"}
 };
 
-map<int, string> UNITS = {
-    {1, "十"}, {2, "百"}, {3, "千"}, {4, "万"}, {8, "亿"}
+std::map<int, std::wstring> UNITS = {
+    {1, L"十"}, {2, L"百"}, {3, L"千"}, {4, L"万"}, {8, L"亿"}
 };
 
-string num2str(const string& value_string);
+std::unordered_map<wchar_t, std::wstring> asmd_map = {
+    {L'+', L"加"}, {L'-', L"减"}, {L'×', L"乘"}, {L'÷', L"除"}, {L'=', L"等于"}
+};
 
-string replace_frac(const smatch& match) {
-    string sign = match.str(1);
-    string nominator = match.str(2);
-    string denominator = match.str(3);
-    sign = sign.empty() ? "" : "负";
+// 各种正则表达式
+std::wregex re_frac(L"(-?)(\\d+)/(\\d+)");
+std::wregex re_percentage(L"(-?)(\\d+(\\.\\d+)?)%");
+std::wregex re_negative_num(L"(-)(\\d+)");
+std::wregex re_default_num(L"\\d{3}\\d*");
+std::wregex re_asmd(L"((-?)((\\d+)(\\.\\d+)?)|(\\.(\\d+)))([\\+\\-\\×\\÷=])((-?)((\\d+)(\\.\\d+)?)|(\\.(\\d+)))");
+std::wregex re_positive_quantifier(L"(\\d+)([多余几\\+])?(封|艘|把|目|套|段|人|所|朵|匹|张|座|回|场|尾|条|个|首|阙|阵|网|炮|顶|丘|棵|只|支|袭|辆|挑|担|颗|壳|窠|曲|墙|群|腔|砣|座|客|贯|扎|捆|刀|令|打|手|罗|坡|山|岭|江|溪|钟|队|单|双|对|出|口|头|脚|板|跳|枝|件|贴|针|线|管|名|位|身|堂|课|本|页|家|户|层|丝|毫|厘|分|钱|两|斤|担|铢|石|钧|锱|忽|(千|毫|微)克|毫|厘|(公)分|分|寸|尺|丈|里|寻|常|铺|程|(千|分|厘|毫|微)米|米|撮|勺|合|升|斗|石|盘|碗|碟|叠|桶|笼|盆|盒|杯|钟|斛|锅|簋|篮|盘|桶|罐|瓶|壶|卮|盏|箩|箱|煲|啖|袋|钵|年|月|日|季|刻|时|周|天|秒|分|小时|旬|纪|岁|世|更|夜|春|夏|秋|冬|代|伏|辈|丸|泡|粒|颗|幢|堆|条|根|支|道|面|片|张|颗|块|元|(亿|千万|百万|万|千|百)|(亿|千万|百万|万|千|百|美|)元|(亿|千万|百万|万|千|百|十|)吨|(亿|千万|百万|万|千|百|)块|角|毛|分)");
+std::wregex re_number(L"(-?)((\\d+)(\\.\\d+)?)|(\\.(\\d+))");
+//wregex re_range(R"((?<![\d\+\-\×÷=])((-?)((\d+)(\.\d+)?))[-~]((-?)((\d+)(\.\d+)?))(?![\d\+\-\×÷=]))"); running error
+
+std::wregex re_range(LR"((\b(-?\d+(\.\d+)?)\b[-~]\b(-?\d+(\.\d+)?)\b))");
+//wregex re_to_range(R"(((-?)((\d+)(\.\d+)?)|(\.(\d+)))(%|°C|℃|度|摄氏度|cm2|cm²|cm3|cm³|cm|db|ds|kg|km|m2|m²|m³|m3|ml|m|mm|s)[~]((-?)((\d+)(\.\d+)?)|(\.(\d+)))(%|°C|℃|度|摄氏度|cm2|cm²|cm3|cm³|cm|db|ds|kg|km|m2|m²|m³|m3|ml|m|mm|s))");  running error
+
+std::wregex re_to_range(LR"((-?\d+(\.\d+)?)([~])(-?\d+(\.\d+)?)([%°C℃度|摄氏度|cm2|cm²|cm3|cm³|cm|db|ds|kg|km|m2|m²|m³|m3|ml|m|mm|s]?))");
+
+
+// 替换分数
+std::wstring replace_frac(const std::wsmatch& match) {
+    std::wstring sign = match.str(1);
+    std::wstring nominator = match.str(2);
+    std::wstring denominator = match.str(3);
+    sign = sign.empty() ? L"" : L"负";
     nominator = num2str(nominator);
     denominator = num2str(denominator);
-    return sign + denominator + "分之" + nominator;
+    return match.prefix().str() + sign + denominator + L"分之" + nominator + match.suffix().str();
 }
 
-string replace_percentage(const smatch& match) {
-    string sign = match.str(1);
-    string percent = match.str(2);
-    sign = sign.empty() ? "" : "负";
+// 替换百分比
+std::wstring replace_percentage(const std::wsmatch& match) {
+    std::wstring sign = match.str(1);
+    std::wstring percent = match.str(2);
+    sign = sign.empty() ? L"" : L"负";
     percent = num2str(percent);
-    return sign + "百分之" + percent;
+    return match.prefix().str() + sign + L"百分之" + percent + match.suffix().str();
 }
 
-string replace_negative_num(const smatch& match) {
-    string sign = match.str(1);
-    string number = match.str(2);
-    sign = sign.empty() ? "" : "负";
+// 替换负数
+std::wstring replace_negative_num(const std::wsmatch& match) {
+    std::wstring sign = match.str(1);
+    std::wstring number = match.str(2);
+    sign = sign.empty() ? L"" : L"负";
     number = num2str(number);
-    return sign + number;
+    return match.prefix().str() + sign + number + match.suffix().str();
 }
 
-string replace_default_num(const smatch& match) {
-    string number = match.str(0);
-    string result;
-    for (char digit : number) {
+// 默认数字替换
+std::wstring replace_default_num(const std::wsmatch& match) {
+    std::wstring number = match.str(0);
+    std::wstring result;
+    for (wchar_t digit : number) {
         result += DIGITS[digit];
     }
-    return result;
+    return match.prefix().str() + result + match.suffix().str();
 }
 
-unordered_map<char, string> asmd_map = {
-    {'+', "加"}, {'-', "减"}, {'×', "乘"}, {'÷', "除"}, {'=', "等于"}
-};
-
-string replace_asmd(const smatch& match) {
-    string result = match.str(1) + asmd_map[match.str(8)[0]] + match.str(9);
-    return result;
+// 四则运算替换
+std::wstring replace_asmd(const std::wsmatch& match) {
+    std::wstring result = match.str(1) + asmd_map[match.str(8)[0]] + match.str(9);
+    return match.prefix().str() + result + match.suffix().str();
 }
 
-string replace_positive_quantifier(const smatch& match) {
-    string number = match.str(1);
-    string match_2 = match.str(2);
-    if (match_2 == "+") {
-        match_2 = "多";
+// 量词替换
+std::wstring replace_positive_quantifier(const std::wsmatch& match) {
+    std::wstring number = match.str(1);
+    std::wstring match_2 = match.str(2);
+    if (match_2 == L"+") {
+        match_2 = L"多";
     }
-    string quantifiers = match.str(3);
+    std::wstring quantifiers = match.str(3);
     number = num2str(number);
-    return number + match_2 + quantifiers;
+    return match.prefix().str() + number + match_2 + quantifiers + match.suffix().str();
 }
 
-string replace_number(const smatch& match) {
-    string sign = match.str(1);
-    string number = match.str(2);
-    string pure_decimal = match.str(5);
+// 数字替换
+std::wstring replace_number(const std::wsmatch& match) {
+    std::wstring sign = match.str(1);
+    std::wstring number = match.str(2);
+    std::wstring pure_decimal = match.str(5);
+
+
     if (!pure_decimal.empty()) {
-        return num2str(pure_decimal);
+        return match.prefix().str() + num2str(pure_decimal) + match.suffix().str();
     }
     else {
-        sign = sign.empty() ? "" : "负";
+        sign = sign.empty() ? L"" : L"负";
         number = num2str(number);
-        return sign + number;
+        return match.prefix().str() + sign + number + match.suffix().str();
+        ;
     }
 }
 
-string replace_with_callback(const string& input, const regex& re, const function<string(const smatch&)>& callback) {
-    string output;
-    auto begin = sregex_iterator(input.begin(), input.end(), re);
-    auto end = sregex_iterator();
+// 区间替换
+std::wstring replace_range(const std::wsmatch& match) {
+    std::wstring first = match.str(2);
+    std::wstring second = match.str(4);
+
+    std::wregex re(L"(-?)((\\d+)(\\.\\d+)?)|(\\.(\\d+))");
+
+    // 使用回调替换 first 和 second
+    first = replace_with_callback(first, re, replace_number);
+    second = replace_with_callback(second, re, replace_number);
+
+    return match.prefix().str() + first + L"到" + second + match.suffix().str();
+}
+
+// 使用"至"替换
+std::wstring replace_to_range(const std::wsmatch& match) {
+    std::wstring result = match.str(0);
+    result.replace(result.find(L'~'), 1, L"至");
+    return match.prefix().str() + result + match.suffix().str();
+}
+
+// 工具函数：带回调的替换
+std::wstring replace_with_callback(const std::wstring& input, const std::wregex& re, const std::function<std::wstring(const std::wsmatch&)>& callback) {
+    std::wstring output;
+    auto begin = std::wsregex_iterator(input.begin(), input.end(), re);
+    auto end = std::wsregex_iterator();
 
     size_t last_pos = 0;
     for (auto it = begin; it != end; ++it) {
-        smatch match = *it;
+        std::wsmatch match = *it;
         output += input.substr(last_pos, match.position() - last_pos); // 复制未匹配部分
         output += callback(match); // 使用回调函数替换匹配项
         last_pos = match.position() + match.length(); // 移动最后的位置
@@ -104,35 +161,15 @@ string replace_with_callback(const string& input, const regex& re, const functio
     output += input.substr(last_pos); // 复制剩余的未匹配部分
     return output;
 }
-
-string replace_range(const smatch& match) {
-    string first = match.str(1);
-    string second = match.str(6);
-
-    regex re("(-?)((\\d+)(\\.\\d+)?)|(\\.(\\d+))");
-
-    // 使用回调替换 first 和 second
-    first = replace_with_callback(first, re, replace_number);
-    second = replace_with_callback(second, re, replace_number);
-
-    return first + "到" + second;
-}
-
-string replace_to_range(const smatch& match) {
-    string result = match.str(0);
-    result.replace(result.find('~'), 1, "至");
-    return result;
-}
-
-vector<string> _get_value(const string& value_string, bool use_zero = true) {
-    string stripped = value_string;
-    stripped.erase(0, min(stripped.find_first_not_of('0'), stripped.size() - 1));
+vector<wstring> _get_value(const wstring& value_string, bool use_zero) {
+    wstring stripped = value_string;
+    stripped.erase(0, min(stripped.find_first_not_of(L'0'), stripped.size() - 1));
     if (stripped.empty()) {
         return {};
     }
     else if (stripped.size() == 1) {
         if (use_zero && stripped.size() < value_string.size()) {
-            return { DIGITS['0'], DIGITS[stripped[0]] };
+            return { DIGITS[L'0'], DIGITS[stripped[0]] };
         }
         else {
             return { DIGITS[stripped[0]] };
@@ -140,64 +177,70 @@ vector<string> _get_value(const string& value_string, bool use_zero = true) {
     }
     else {
         int largest_unit = 0;
-        for (auto it = UNITS.rbegin(); it != UNITS
-            .rend(); ++it) {
+        for (auto it = UNITS.rbegin(); it != UNITS.rend(); ++it) {
             if (it->first < stripped.size()) {
                 largest_unit = it->first;
                 break;
             }
         }
-        string first_part = value_string.substr(0, value_string.size() - largest_unit);
-        string second_part = value_string.substr(value_string.size() - largest_unit);
-        vector<string> result = _get_value(first_part);
+        wstring first_part = value_string.substr(0, value_string.size() - largest_unit);
+        wstring second_part = value_string.substr(value_string.size() - largest_unit);
+        vector<wstring> result = _get_value(first_part);
         result.push_back(UNITS[largest_unit]);
-        vector<string> second_result = _get_value(second_part);
+        vector<wstring> second_result = _get_value(second_part);
+
+        // 添加判断以避免在特定情况下返回"零"
+        if (second_part == L"0") {
+            // second_part 是 "0" 的情况下，不添加 "零"
+            return result; // 返回的结果仅包含前半部分和单位
+        }
         result.insert(result.end(), second_result.begin(), second_result.end());
         return result;
     }
 }
 
-string verbalize_cardinal(const string& value_string) {
+wstring verbalize_cardinal(const wstring& value_string) {
     if (value_string.empty()) {
-        return "";
+        return L"";
     }
 
-    string stripped = value_string;
-    stripped.erase(0, min(stripped.find_first_not_of('0'), stripped.size() - 1));
+    wstring stripped = value_string;
+    stripped.erase(0, min(stripped.find_first_not_of(L'0'), stripped.size() - 1));
     if (stripped.empty()) {
-        return DIGITS['0'];
+        return DIGITS[L'0'];
     }
 
-    vector<string> result_symbols = _get_value(value_string);
-    if (result_symbols.size() >= 2 && result_symbols[0] == DIGITS['1'] && result_symbols[1] == UNITS[1]) {
+    vector<wstring> result_symbols = _get_value(value_string);
+    if (result_symbols.size() >= 2 && result_symbols[0] == DIGITS[L'1'] && result_symbols[1] == UNITS[1]) {
         result_symbols.erase(result_symbols.begin());
     }
-    string result;
-    for (const string& symbol : result_symbols) {
+    wstring result;
+    for (const wstring& symbol : result_symbols) {
         result += symbol;
     }
     return result;
 }
 
-string verbalize_digit(const string& value_string, bool alt_one = false) {
-    string result;
-    for (char digit : value_string) {
+wstring verbalize_digit(const wstring& value_string, bool alt_one) {
+    wstring result;
+    for (wchar_t digit : value_string) {
         result += DIGITS[digit];
     }
+    // 替换 "一" 为 "幺"
     if (alt_one) {
-        size_t pos = result.find("一");
-        while (pos != string::npos) {
-            result.replace(pos, 1, "幺");
-            pos = result.find("一", pos + 1);
+        size_t pos = result.find(L"一");
+        while (pos != wstring::npos) {
+            result.replace(pos, 1, L"幺");
+            pos = result.find(L"一", pos + 2); // 更新位置，跳过刚替换的字符
         }
     }
     return result;
 }
-
-string num2str(const string& value_string) {
-    size_t point_pos = value_string.find('.');
-    string integer, decimal;
-    if (point_pos == string::npos) {
+// 数字转字符串
+std::wstring num2str(const std::wstring& value_string) {
+    size_t point_pos = value_string.find(L'.');
+    std::wstring integer, decimal;
+    if (point_pos == std::wstring::npos) {
         integer = value_string;
     }
     else {
@@ -205,83 +248,71 @@ string num2str(const string& value_string) {
         decimal = value_string.substr(point_pos + 1);
     }
 
-    string result = verbalize_cardinal(integer);
+    std::wstring result = verbalize_cardinal(integer);
 
-    decimal.erase(decimal.find_last_not_of('0') + 1);
+    decimal.erase(decimal.find_last_not_of(L'0') + 1);
     if (!decimal.empty()) {
-        result = result.empty() ? "零" : result;
-        result += "点" + verbalize_digit(decimal);
+        result = result.empty() ? L"零" : result;
+        result += L"点" + verbalize_digit(decimal);
     }
     return result;
 }
-
-int main() {
-    // 测试示例
-    string test_frac = "3/4";
-    string test_percentage = "50%";
-    string test_negative_num = "-10";
-    string test_default_num = "00078";
-    string test_asmd = "3+2";
-    string test_positive_quantifier = "3个";
-    string test_number = "3.14";
-    string test_range = "1-10";
-    string test_to_range = "1~10%";
-
-    regex re_frac(R"((-?)(\d+)/(\d+))");
-    regex re_percentage(R"((-?)(\d+(\.\d+)?)%)");
-    regex re_negative_num(R"((-)(\d+))");
-    regex re_default_num(R"(\d{3}\d*)");
-    regex re_asmd(R"(((-?)((\d+)(\.\d+)?)|(\.(\d+)))([\+\-\×÷=])((-?)((\d+)(\.\d+)?)|(\.(\d+))))");
-    regex re_positive_quantifier(R"((\d+)([多余几\+])?(封|艘|把|目|套|段|人|所|朵|匹|张|座|回|场|尾|条|个|首|阙|阵|网|炮|顶|丘|棵|只|支|袭|辆|挑|担|颗|壳|窠|曲|墙|群|腔|砣|座|客|贯|扎|捆|刀|令|打|手|罗|坡|山|岭|江|溪|钟|队|单|双|对|出|口|头|脚|板|跳|枝|件|贴|针|线|管|名|位|身|堂|课|本|页|家|户|层|丝|毫|厘|分|钱|两|斤|担|铢|石|钧|锱|忽|(千|毫|微)克|毫|厘|(公)分|分|寸|尺|丈|里|寻|常|铺|程|(千|分|厘|毫|微)米|米|撮|勺|合|升|斗|石|盘|碗|碟|叠|桶|笼|盆|盒|杯|钟|斛|锅|簋|篮|盘|桶|罐|瓶|壶|卮|盏|箩|箱|煲|啖|袋|钵|年|月|日|季|刻|时|周|天|秒|分|小时|旬|纪|岁|世|更|夜|春|夏|秋|冬|代|伏|辈|丸|泡|粒|颗|幢|堆|条|根|支|道|面|片|张|颗|块|元|(亿|千万|百万|万|千|百)|(亿|千万|百万|万|千|百|美|)元|(亿|千万|百万|万|千|百|十|)吨|(亿|千万|百万|万|千|百|)块|角|毛|分))");
-    regex re_number(R"((-?)((\d+)(\.\d+)?)|(\.(\d+)))");
-    //regex re_range(R"((?<![\d\+\-\×÷=])((-?)((\d+)(\.\d+)?))[-~]((-?)((\d+)(\.\d+)?))(?![\d\+\-\×÷=]))");
-    regex re_range(R"((-?\d+(\.\d+)?)[-~](-?\d+(\.\d+)?))");
-    regex re_to_range(R"(((-?)((\d+)(\.\d+)?)|(\.(\d+)))(%|°C|℃|度|摄氏度|cm2|cm²|cm3|cm³|cm|db|ds|kg|km|m2|m²|m³|m3|ml|m|mm|s)[~]((-?)((\d+)(\.\d+)?)|(\.(\d+)))(%|°C|℃|度|摄氏度|cm2|cm²|cm3|cm³|cm|db|ds|kg|km|m2|m²|m³|m3|ml|m|mm|s))");
-
-    smatch match;
-
-    if (regex_search(test_frac, match, re_frac)) {
-        cout << test_frac << " Fraction: " << replace_frac(match) << endl;
-    }
-
-    if (regex_search(test_percentage, match, re_percentage)) {
-        cout << test_percentage << " Percentage: " << replace_percentage(match) << endl;
-    }
-
-    if (regex_search(test_negative_num, match, re_negative_num)) {
-        cout << test_negative_num << " Negative Number: " << replace_negative_num(match) << endl;
-    }
-
-    if (regex_search(test_default_num, match, re_default_num)) {
-        cout << test_default_num << " Default Number: " << replace_default_num(match) << endl;
-    }
-
-    if (regex_search(test_asmd, match, re_asmd)) {
-        cout << test_asmd << " ASMD: " << replace_asmd(match) << endl;
-    }
-
-    if (regex_search(test_positive_quantifier, match, re_positive_quantifier)) {
-        cout << test_positive_quantifier << " Positive Quantifier: " << replace_positive_quantifier(match) << endl;
-    }
-
-    if (regex_search(test_number, match, re_number)) {
-        cout << test_number << " Number: " << replace_number(match) << endl;
-    }
-
-    if (regex_search(test_range, match, re_range)) {
-        size_t pos = match.position(0);
-        if ((pos == 0 || !isdigit(test_range[pos - 1])) &&
-            (pos + match.length(0) == test_range.length() || !isdigit(test_range[pos + match.length(0)]))) {
-                cout << test_range << " Range: " << replace_range(match) << endl;
-        }
-        else {
-            cout << "前后有非法字符，匹配无效" << endl;
-        }
-    }
-
-    if (regex_search(test_to_range, match, re_to_range)) {
-        cout << test_to_range << " To Range: " << replace_to_range(match) << endl;
-    }
-
-    return 0;
-}
+//
+//int main() {
+//
+//#ifdef _WIN32
+//        SetConsoleOutputCP(CP_UTF8);
+//        // 使用系统默认区域设置
+//        std::wcout.imbue(std::locale(""));
+//#endif
+//        // 测试示例
+//        wstring test_frac = L"3/4";
+//        wstring test_percentage = L"51%";
+//        wstring test_negative_num = L"-10.2";
+//        wstring test_default_num = L"100078";
+//        wstring test_asmd = L"3+2";
+//        wstring test_positive_quantifier = L"3个";
+//        wstring test_number = L"-3.14";
+//        wstring test_range = L"1-10";
+//        wstring test_to_range = L"1~10%";
+//
+//        wsmatch match;
+//
+//        if (regex_search(test_frac, match, re_frac)) {
+//            wcout << test_frac << L" Fraction: " << replace_frac(match) << endl;
+//        }
+//
+//        if (regex_search(test_percentage, match, re_percentage)) {
+//            wcout << test_percentage << L" Percentage: " << replace_percentage(match) << endl;
+//        }
+//
+//        if (regex_search(test_negative_num, match, re_negative_num)) {
+//            wcout << test_negative_num << L" Negative Number: " << replace_negative_num(match) << endl;
+//        }
+//
+//        if (regex_search(test_default_num, match, re_default_num)) {
+//            wcout << test_default_num << L" Default Number: " << replace_default_num(match) << endl;
+//        }
+//
+//        if (regex_search(test_asmd, match, re_asmd)) {
+//            wcout << test_asmd << L" ASMD: " << replace_asmd(match) << endl;
+//        }
+//
+//        if (regex_search(test_positive_quantifier, match, re_positive_quantifier)) {
+//            wcout << test_positive_quantifier << L" Positive Quantifier: " << replace_positive_quantifier(match) << endl;
+//        }
+//
+//        if (regex_search(test_number, match, re_number)) {
+//            wcout << test_number << L" Number: " << replace_number(match) << endl;
+//        }
+//
+//        if (regex_search(test_range, match, re_range)) {
+//                wcout << test_range << L" Range: " << replace_range(match) << endl;
+//        }
+//
+//        if (regex_search(test_to_range, match, re_to_range)) {
+//            wcout << test_to_range << L" To Range: " << replace_to_range(match) << endl;
+//        }
+//
+//        return 0;
+//}

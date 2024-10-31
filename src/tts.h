@@ -24,6 +24,7 @@
 #include "Jieba.hpp"
 #include "cmudict.h"
 #include "darts.h"
+#include "Text_normlization.h"
 namespace melo {
     class TTS {
         public:
@@ -57,6 +58,7 @@ namespace melo {
             std::string _language = "ZH";
             Darts::DoubleArray _da;// punctuation dict use to split sentence
             bool _disable_bert = false;
+            TextNormalizer normalizer;
 
     };
 }
