@@ -22,10 +22,10 @@
 #include "info_data.h"
 #include "chinese_mix.h"
 namespace melo {
-    TTS::TTS(std::unique_ptr<ov::Core>& core, const std::filesystem::path & tts_ir_path, const std::string & tts_device,
+    TTS::TTS(std::unique_ptr<ov::Core>& core, const std::filesystem::path & tts_ir_path, const std::string & tts_device, const ov::AnyMap& tts_config,
         const std::filesystem::path& bert_ir_path, const std::string& bert_device, const std::filesystem::path& tokenizer_data_path,
         const std::filesystem::path& punctuation_dict_path, const std::string language, bool disable_bert):_language(language),_disable_bert(disable_bert),
-        tts_model(core,tts_ir_path,tts_device,language), tokenizer(std::make_shared<Tokenizer>(tokenizer_data_path)){
+        tts_model(core,tts_ir_path,tts_device,tts_config, language), tokenizer(std::make_shared<Tokenizer>(tokenizer_data_path)){
 
         assert((core.get() != nullptr) && "core should not be null!");
         assert((std::filesystem::exists(tts_ir_path) && std::filesystem::exists(tokenizer_data_path))
@@ -148,6 +148,7 @@ namespace melo {
         catch (...) {
             std::cerr << "Unknown exception caught" << std::endl;
         }
+        return {};
     }
     /*
      * @brief Splits a given text into pieces based on Chinese and English punctuation marks.
@@ -155,33 +156,74 @@ namespace melo {
         "，", "。", "！", "？", "、", "；", "：", "“", "”", "‘", "’", "（", "）", "【", "】", "《", "》", "——", "……", "·",
         ",", ".", "!", "?", ";", ":", "\"", "\"", "'", "'", "(", ")", "[", "]", "<", ">", "-", "...", ".", "\n", "\t", "\r",
         };
-     * 1. all above punctuation marks are filtered.
+       std::unordered_set<std::string> sentence_splitter = {
+           "，", "。", "！", "？","；",
+           ",", ".", "!", "?", ";",
+        };
+        std::unordered_set<std::string> spaces = {
+            "\n", "\t", "\r",
+        };
+     * 1. sentence_splitter is split flag; space is space flag; all other punctuaiton marks are filtered
      * 2. In order to keep English word segmentation, whitespace is not included in punctuation marks.
      * 3. If you want to update the puncuation, please use darts.h file (see tests/test_darts.cpp as an example)
     */
-    std::vector<std::string> TTS::split_sentences_into_pieces(const std::string& text, bool quiet) {
-        std::vector<std::string> pieces;
+    std::vector<std::string> TTS::split_sentences_zh(const std::string& text, size_t min_len) {
+        std::vector<std::string> sentences;
         int n = text.length();
-        int MAX_HIT = 1; // only hit one punctuation marks each time
-        int left = 0;
-
-        for (int right = 0; right < n;) {
-            const char* query = text.data() + right;
+        int MAX_HIT = 1;
+        std::string tmp;
+        for (int i = 0; i < n; ) {
+            const char* query = text.data() + i;
             std::vector<Darts::DoubleArray::result_pair_type> results(MAX_HIT);
             size_t num_matches = _da.commonPrefixSearch(query, results.data(), MAX_HIT);
             if (!num_matches) {
-                ++right;
-                continue;
+                tmp += text[i++];
             }
-            // Avoid including the punctuation marks themselves.
-            if (left < right)
-                pieces.emplace_back(text.substr(left, right - left));
-            right += results[0].length;
-            left = right;
+            else if (results.front().value == 2) { // text splitter
+                sentences.emplace_back(std::move(tmp));
+                tmp.clear();
+                i += results.front().length;
+            }
+            else if (results.front().value == 1) { //skip some punctuations like "'"
+                i += results.front().length;
+            }
+            else if (results.front().value == 3) { // space it is meaningful to english words
+                tmp += " ";
+                i += results.front().length;
+            }
+            else
+                std::cerr << "split_sentences_zh: puncutation dictionary value failes!\n";
         }
-        if (left != n) //Text without punctuation at the end
-            pieces.emplace_back(text.substr(left, n - left));
+        if (tmp.size())
+            sentences.emplace_back(std::move(tmp));
 
+        std::vector<std::string> new_sentences;
+        size_t count_len = 0;
+        std::string new_sent;
+        int m = sentences.size();
+        for (int i = 0; i < m; ++i) {
+            new_sent += sentences[i] + " ";
+            count_len += str_len(sentences[i]);
+            if (count_len > min_len || i == m - 1) {
+
+                if (new_sent.back() == ' ') new_sent.pop_back();
+                new_sentences.emplace_back(std::move(new_sent));
+                new_sent.clear();
+                count_len = 0;
+            }
+        }
+        // merge_short_sentences_zh
+        // here we fix use the default min_len, so only need to check if the len(new_sentences[-1])<= 2 ;consistent with the Python code
+        if (new_sentences.size() >= 2 && str_len(new_sentences.back()) <= 2) {
+            new_sentences[new_sentences.size() - 2] += new_sentences.back();
+            new_sentences.pop_back();
+        }
+        return new_sentences;
+
+    }
+
+    std::vector<std::string> TTS::split_sentences_into_pieces(const std::string& text, bool quiet) {
+        auto pieces = split_sentences_zh(text);
         if (!quiet) {
             std::cout << " > Text split to sentences." << std::endl;
             for (const auto& piece : pieces) {

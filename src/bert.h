@@ -25,13 +25,7 @@
 namespace melo {
     class Bert : public AbstractOpenvinoModel {
     public:
-        Bert(std::unique_ptr<ov::Core>& core_ptr, const std::string& model_path, const std::string& device,
-            std::string language, std::shared_ptr<Tokenizer> tokenizer) :
-            AbstractOpenvinoModel(core_ptr, model_path, device), _language(language), _tokenizer(tokenizer){}
         Bert(std::unique_ptr<ov::Core>& core_ptr, const std::filesystem::path& model_path, const std::string& device,
-            std::string language, std::shared_ptr<Tokenizer> tokenizer) :
-            AbstractOpenvinoModel(core_ptr, model_path, device), _language(language), _tokenizer(tokenizer) {}
-        Bert(std::shared_ptr<ov::Core>& core_ptr, const std::string& model_path, const std::string& device,
             std::string language, std::shared_ptr<Tokenizer> tokenizer) :
             AbstractOpenvinoModel(core_ptr, model_path, device), _language(language), _tokenizer(tokenizer) {}
         Bert() = default;

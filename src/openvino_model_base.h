@@ -35,9 +35,10 @@ namespace melo
      class AbstractOpenvinoModel 
      {
 	 public:
-		 AbstractOpenvinoModel(std::unique_ptr<ov::Core> & core_ptr, const std::string& model_path, const std::string& device);
+
 		 AbstractOpenvinoModel(std::unique_ptr<ov::Core>& core_ptr, const std::filesystem::path& model_path, const std::string& device);
-		 AbstractOpenvinoModel(std::shared_ptr<ov::Core>& core_ptr, const std::string& model_path, const std::string& device);
+		 AbstractOpenvinoModel(std::unique_ptr<ov::Core>& core_ptr, const std::filesystem::path& model_path, const std::string& device, const ov::AnyMap& config);
+
 		 AbstractOpenvinoModel() = default;
 		 virtual ~AbstractOpenvinoModel() = default;
 
@@ -62,7 +63,7 @@ namespace melo
 			 std::cout << "Model Device info:" << core_ptr->get_versions(device_name) << std::endl;
 		 }
 		 // TODO How to set AUTO device?
-		 inline ov::AnyMap set_ov_config(const std::string & device_name) {
+		 virtual ov::AnyMap set_ov_config(const std::string & device_name) {
 			 ov::AnyMap device_config = {};
 			 if (device_name.find("CPU") != std::string::npos)
 			 {

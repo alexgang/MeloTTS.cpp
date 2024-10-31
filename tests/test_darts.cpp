@@ -4,6 +4,7 @@
 #include <darts.h>
 #include <string>
 #include <algorithm>
+#include <unordered_set>
 #ifdef _WIN32
 #include <codecvt>
 #include <fcntl.h>
@@ -26,6 +27,14 @@ int main(int argc, char** argv)
     std::vector<std::string>punctuation = {
     "，", "。", "！", "？", "、", "；", "：", "“", "”", "‘", "’", "（", "）", "【", "】", "《", "》", "——", "……", "·",
     ",", ".", "!", "?", ";", ":", "\"", "\"", "'", "'", "(", ")", "[", "]", "<", ">", "-", "...", ".", "\n", "\t", "\r",
+    "」","「","~","～","—","】","【","$","¥ ",
+    };
+    std::unordered_set<std::string> sentence_splitter = {
+       "，", "。", "！", "？","；",
+       ",", ".", "!", "?", ";",
+    };
+    std::unordered_set<std::string> spaces = {
+        "\n", "\t", "\r",
     };
     //std::cout << punctuation[1].size()<<std::endl;
    // std::vector<std::string>chinese_punctuation = { "，", "。" };
@@ -33,12 +42,19 @@ int main(int argc, char** argv)
     int n = punctuation.size();
     std::vector<const char*> keys;
     std::vector<size_t> length;
+    std::vector<Darts::DoubleArray::result_type> values(n, 1);// normal punctuation flag is 1
     for (int i = 0; i < n; ++i) {
         keys.emplace_back(punctuation[i].c_str());
         length.emplace_back(punctuation[i].size());
+        if (sentence_splitter.contains(punctuation[i])) {
+            values[i] = 2;// sentence splitter flag
+        }
+        else if (spaces.contains(punctuation[i])) {
+            values[i] = 3;// space flag
+        }
     }
 
-    std::vector<Darts::DoubleArray::result_type> values(n,1);
+    
     //std::iota(values.begin(),values.end(),1);
     // build 
     Darts::DoubleArray da;
@@ -66,12 +82,12 @@ int main(int argc, char** argv)
     cout << "found:" << num << endl;
 
     // save to file
-    da.save("punc.dic");
+    da.save("punc_.dic");
     da.clear();
 
     // load from file and commonPrefixSearch
     Darts::DoubleArray da2;
-    da2.open("punc.dic");
+    da2.open("punc_.dic");
     num = da2.commonPrefixSearch("。逗号这种都不要了", result_pair, sizeof(result_pair));
     cout << "found:" << num << endl;
     da2.clear();

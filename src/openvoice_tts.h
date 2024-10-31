@@ -22,12 +22,9 @@
 namespace melo {
     class OpenVoiceTTS : public AbstractOpenvinoModel {
     public:
-        OpenVoiceTTS(std::unique_ptr<ov::Core>& core_ptr, const std::string& model_path, const std::string& device, const std::string& language) :
-            AbstractOpenvinoModel(core_ptr, model_path, device), _language(language) {}
-        OpenVoiceTTS(std::unique_ptr<ov::Core>& core_ptr, const std::filesystem::path& model_path, const std::string& device, const std::string& language) :
-            AbstractOpenvinoModel(core_ptr, model_path, device), _language(language) {}
-        OpenVoiceTTS(std::shared_ptr<ov::Core>& core_ptr, const std::string& model_path, const std::string& device, const std::string& language) :
-            AbstractOpenvinoModel(core_ptr, model_path, device), _language(language) {}
+        OpenVoiceTTS(std::unique_ptr<ov::Core>& core_ptr, const std::filesystem::path& model_path, const std::string& device, const ov::AnyMap& config, const std::string& language) :
+            AbstractOpenvinoModel(core_ptr, model_path, device, config), _language(language) {}
+
         OpenVoiceTTS() = default;
         std::vector<float> tts_infer(std::vector<int64_t>& phones, std::vector<int64_t>& tones, std::vector<int64_t>& lang_ids, 
             const std::vector<std::vector<float>>& phone_level_feature, const float& speed = 1.0,

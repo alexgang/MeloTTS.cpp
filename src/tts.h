@@ -27,7 +27,7 @@
 namespace melo {
     class TTS {
         public:
-            explicit TTS(std::unique_ptr<ov::Core>& core, const std::filesystem::path& tts_ir_path, const std::string& tts_device, 
+            explicit TTS(std::unique_ptr<ov::Core>& core, const std::filesystem::path& tts_ir_path, const std::string& tts_device, const ov::AnyMap& tts_config,
                 const std::filesystem::path& bert_ir_path, const std::string& bert_device,
                 const std::filesystem::path& tokenizer_data_path, const std::filesystem::path& punctuation_dict_path, const std::string language, bool disable_bert = false);
             ~TTS() = default;
@@ -42,6 +42,7 @@ namespace melo {
             void tts_to_file(const std::vector<std::string>& texts, const std::filesystem::path& output_path, const int& speaker_id, const float& speed = 1.0f,
                 const float& sdp_ratio = 0.2f, const float& noise_scale = 0.6f, const float& noise_scale_w = 0.8f);
             std::vector<std::string> split_sentences_into_pieces(const std::string& text, bool quiet = false);
+            std::vector<std::string> split_sentences_zh(const std::string& text, size_t max_len = 10);
             static void audio_concat(std::vector<float>& output, std::vector<float>& segment, const float& speed, const int32_t& sampling_rate);
             static void write_wave(const std::filesystem::path& output_path, const std::vector<float>& wave, const int32_t& sampling_rate);
             static constexpr int32_t sampling_rate_ = 44100; 
