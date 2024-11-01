@@ -34,10 +34,10 @@ std::wstring readFile(const std::string& filename) {
     return buffer.str();
 }
 // 保存映射到二进制文件
-void save_map_to_binary_file(const std::unordered_map<wchar_t, wchar_t>& map, const std::wstring& filename) {
+void save_map_to_binary_file(const std::unordered_map<wchar_t, wchar_t>& map, const std::string& filename) {
     std::ofstream file(filename, std::ios::binary);
-    if (!file) {
-        std::cerr << "无法打开文件: " << std::string(filename.begin(), filename.end()) << std::endl;
+    if (!file.is_open()) {
+        std::cerr << "[ERORR]save_map_to_binary_file:: Cannot openfile: " <<  filename<< std::endl;
         return;
     }
 
@@ -51,11 +51,11 @@ void save_map_to_binary_file(const std::unordered_map<wchar_t, wchar_t>& map, co
     file.close();
 }
 // 从二进制文件加载映射
-std::unordered_map<wchar_t, wchar_t> load_map_from_binary_file(const std::wstring& filename) {
+std::unordered_map<wchar_t, wchar_t> load_map_from_binary_file(const std::string& filename) {
     std::unordered_map<wchar_t, wchar_t> map;
     std::ifstream file(filename, std::ios::binary);
-    if (!file) {
-        std::cerr << "无法打开文件: " << std::string(filename.begin(), filename.end()) << std::endl;
+    if (!file.is_open()) {
+        std::cerr << "[ERORR] load_map_from_binary_file:: Cannot openfile: " << filename << std::endl;
         return map;
     }
 
@@ -135,8 +135,8 @@ std::wstring simplified_to_traditional(const std::wstring& text) {
 }
 void initialize_char_maps() {
         // 从二进制文件加载映射
-    s2t_dict = load_map_from_binary_file(L"s2t_map.bin");
-    t2s_dict = load_map_from_binary_file(L"t2s_map.bin");
+    s2t_dict = load_map_from_binary_file("s2t_map.bin");
+    t2s_dict = load_map_from_binary_file("t2s_map.bin");
 }
 //int main() {
 //

@@ -14,9 +14,9 @@
 		// 将简体转换为繁体
 		std::wstring simplified_to_traditional(const std::wstring& text);
 		// 保存映射到二进制文件
-		void save_map_to_binary_file(const std::unordered_map<wchar_t, wchar_t>& map, const std::wstring& filename);
+		void save_map_to_binary_file(const std::unordered_map<wchar_t, wchar_t>& map, const std::string& filename);
 		// 从二进制文件加载映射
-		std::unordered_map<wchar_t, wchar_t> load_map_from_binary_file(const std::wstring& filename);
+		std::unordered_map<wchar_t, wchar_t> load_map_from_binary_file(const std::string& filename);
 		std::string wstring_to_string(const std::wstring& wstr);
 		std::wstring string_to_wstring(const std::string& str);
 

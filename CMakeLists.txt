@@ -36,7 +36,7 @@ set(SOURCE_FILES
     src/openvoice_tts.cpp
     src/tts.cpp
     src/tone_sandhi.cpp
-    src/Text_normlization.cpp   
+    src/text_normlization.cpp   
     src/char_convert.cpp     
     src/chronology.cpp     
     src/constants.cpp     
@@ -60,7 +60,7 @@ set(HEADER_FILES
     src/openvoice_tts.h
     src/tts.h
     src/tone_sandhi.h
-    src/Text_normlization.h 
+    src/text_normlization.h 
     src/char_convert.h 
     src/chronology.h 
     src/constant.h 
