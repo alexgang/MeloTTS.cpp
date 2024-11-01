@@ -11,7 +11,6 @@
 #ifdef _WIN32
 #include <iostream>
 #include <locale>
-#define NOMINMAX
 #define NOGDI
 #define NOCRYPT
 #include <windows.h>
@@ -120,7 +119,7 @@ std::wstring replace_number(const std::wsmatch& match) {
         sign = sign.empty() ? L"" : L"负";
         number = num2str(number);
         return match.prefix().str() + sign + number + match.suffix().str();
-        ;
+        
     }
 }
 
@@ -190,7 +189,9 @@ vector<wstring> _get_value(const wstring& value_string, bool use_zero) {
         vector<wstring> second_result = _get_value(second_part);
 
         // 添加判断以避免在特定情况下返回"零"
-        if (second_part == L"0") {
+        //if (second_part == L"0") {
+        // 判断第二部分是否全为 '0'，如果是，则不再递归处理
+        if (second_part.find_first_not_of(L'0') == wstring::npos) {
             // second_part 是 "0" 的情况下，不添加 "零"
             return result; // 返回的结果仅包含前半部分和单位
         }
@@ -257,7 +258,7 @@ std::wstring num2str(const std::wstring& value_string) {
     }
     return result;
 }
-//
+
 //int main() {
 //
 //#ifdef _WIN32
@@ -272,7 +273,7 @@ std::wstring num2str(const std::wstring& value_string) {
 //        wstring test_default_num = L"100078";
 //        wstring test_asmd = L"3+2";
 //        wstring test_positive_quantifier = L"3个";
-//        wstring test_number = L"-3.14";
+//        wstring test_number = L"-180000.34";
 //        wstring test_range = L"1-10";
 //        wstring test_to_range = L"1~10%";
 //

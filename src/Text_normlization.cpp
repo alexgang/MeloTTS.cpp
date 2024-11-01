@@ -16,7 +16,6 @@
 #include <iostream>
 #include <locale>
 // 避免 <windows.h> 定义 byte
-#define NOMINMAX
 #define NOGDI
 #define NOCRYPT
 #include <windows.h>
