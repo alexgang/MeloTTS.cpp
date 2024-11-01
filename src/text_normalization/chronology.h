@@ -4,12 +4,13 @@
 #include <regex>
 #include <unordered_map>
 
+namespace text_normalization {
     //// 数字映射
-    //std::unordered_map<char, std::string> DIGITS = {
-    //    {'0', "零"}, {'1', "一"}, {'2', "二"}, {'3', "三"},
-    //    {'4', "四"}, {'5', "五"}, {'6', "六"}, {'7', "七"},
-    //    {'8', "八"}, {'9', "九"} };
-    // 时刻表达式
+//std::unordered_map<char, std::string> DIGITS = {
+//    {'0', "零"}, {'1', "一"}, {'2', "二"}, {'3', "三"},
+//    {'4', "四"}, {'5', "五"}, {'6', "六"}, {'7', "七"},
+//    {'8', "八"}, {'9', "九"} };
+// 时刻表达式
     extern std::wregex RE_TIME;
     // 时间范围，如8:30-12:30
     extern std::wregex RE_TIME_RANGE;
@@ -26,7 +27,5 @@
     //std::string num2str(const std::string& num);
     //std::string verbalize_digit(const std::string& num);
     //std::string verbalize_cardinal(const std::string& num);
-
-
-
+}
 #endif

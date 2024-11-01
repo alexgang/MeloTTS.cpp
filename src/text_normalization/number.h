@@ -10,7 +10,7 @@
 #include <sstream>
 #include <functional>
 
-//    using namespace std;
+namespace text_normalization {
 	extern std::unordered_map<wchar_t, std::wstring> DIGITS;
 	extern std::map<int, std::wstring> UNITS;
 	extern std::unordered_map<wchar_t, std::wstring> asmd_map;
@@ -40,4 +40,6 @@
 	std::vector<std::wstring> _get_value(const std::wstring& value_string, bool use_zero = true);
 	std::wstring verbalize_cardinal(const std::wstring& value_string);
 	std::wstring verbalize_digit(const std::wstring& value_string, bool alt_one = false);
+}
+
 #endif

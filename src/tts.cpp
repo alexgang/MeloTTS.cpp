@@ -20,7 +20,7 @@
 #include <cmath>
 #include "tts.h"
 #include "info_data.h"
-#include "chinese_mix.h"
+#include "language_modules/chinese_mix.h"
 namespace melo {
     TTS::TTS(std::unique_ptr<ov::Core>& core, const std::filesystem::path & tts_ir_path, const std::string & tts_device, const ov::AnyMap& tts_config,
         const std::filesystem::path& bert_ir_path, const std::string& bert_device, const std::filesystem::path& tokenizer_data_path,
@@ -49,10 +49,10 @@ namespace melo {
         const float& sdp_ratio, const float& noise_scale, const float& noise_scale_w ){
         std::vector<float> audio;
         try {
-            std::vector<std::wstring> normalized_sentences = normalizer.normalize(string_to_wstring(text));
+            std::vector<std::wstring> normalized_sentences = normalizer.normalize(text_normalization::string_to_wstring(text));
             for (const auto& sentence : normalized_sentences) {
-                std::cout << wstring_to_string(sentence) << std::endl;
-                std::vector<std::string> texts = split_sentences_into_pieces(wstring_to_string(sentence), false);
+                std::cout << text_normalization::wstring_to_string(sentence) << std::endl;
+                std::vector<std::string> texts = split_sentences_into_pieces(text_normalization::wstring_to_string(sentence), false);
                 //std::vector<std::string> texts = split_sentences_into_pieces(text, false);         
                 for (const auto& t : texts) {
                     // structured binding
@@ -88,10 +88,10 @@ namespace melo {
     void TTS::tts_to_file(const std::string& text, std::vector<float>& output_audio, const int& speaker_id, const float& speed,
         const float& sdp_ratio, const float& noise_scale, const float& noise_scale_w) {
         try {                   
-            std::vector<std::wstring> normalized_sentences = normalizer.normalize(string_to_wstring(text));
+            std::vector<std::wstring> normalized_sentences = normalizer.normalize(text_normalization::string_to_wstring(text));
             for (const auto& sentence : normalized_sentences) {
-                std::cout << wstring_to_string(sentence) << std::endl;
-                std::vector<std::string> texts = split_sentences_into_pieces(wstring_to_string(sentence), false);
+                std::cout << text_normalization::wstring_to_string(sentence) << std::endl;
+                std::vector<std::string> texts = split_sentences_into_pieces(text_normalization::wstring_to_string(sentence), false);
                 //std::vector<std::string> texts = split_sentences_into_pieces(text, false);
                 for (const auto& t : texts) {
                     // structured binding

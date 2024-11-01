@@ -29,20 +29,20 @@ set(SOURCE_FILES
     melo.cpp
     src/openvino_model_base.cpp
     src/tokenizer.cpp
-    src/cmudict.cpp
     src/utils.cpp
     src/bert.cpp
-    src/chinese_mix.cpp
     src/openvoice_tts.cpp
     src/tts.cpp
-    src/tone_sandhi.cpp
-    src/text_normlization.cpp   
-    src/char_convert.cpp     
-    src/chronology.cpp     
-    src/constants.cpp     
-    src/num.cpp     
-    src/phonecode.cpp     
-    src/quantifier.cpp     
+    src/language_modules/cmudict.cpp
+    src/language_modules/chinese_mix.cpp
+    src/language_modules/tone_sandhi.cpp
+    src/text_normalization/text_normalization.cpp   
+    src/text_normalization/char_convert.cpp     
+    src/text_normalization/chronology.cpp     
+    src/text_normalization/constants.cpp     
+    src/text_normalization/num.cpp     
+    src/text_normalization/phonecode.cpp     
+    src/text_normalization/quantifier.cpp     
     ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin_csrc_utils.cc
 )
@@ -50,23 +50,23 @@ set(SOURCE_FILES
 # Header files
 set(HEADER_FILES
     src/parse_args.h
-    src/cmudict.h
     src/openvino_model_base.h
     src/info_data.h
     src/tokenizer.h
     src/utils.h
     src/bert.h
-    src/chinese_mix.h
     src/openvoice_tts.h
     src/tts.h
-    src/tone_sandhi.h
-    src/text_normlization.h 
-    src/char_convert.h 
-    src/chronology.h 
-    src/constant.h 
-    src/number.h 
-    src/phonecode.h 
-    src/quantifier.h
+    src/language_modules/cmudict.h
+    src/language_modules/chinese_mix.h
+    src/language_modules/tone_sandhi.h
+    src/text_normalization/text_normalization.h 
+    src/text_normalization/char_convert.h 
+    src/text_normalization/chronology.h 
+    src/text_normalization/constant.h 
+    src/text_normalization/number.h
+    src/text_normalization/phonecode.h 
+    src/text_normalization/quantifier.h
     ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin.h
     ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin_csrc_utils.h
 )

@@ -37,7 +37,7 @@
 
 #include "utils.h"
 #include "tts.h"
-#include "chinese_mix.h"
+#include "language_modules/chinese_mix.h"
 #include "parse_args.h"
 
 #if defined(_WIN32) && defined(DEBUG_MEMORY)

@@ -3,7 +3,7 @@
 #define CONSTANT_H
 #include <unordered_map>
 
-
+namespace text_normalization {
 	// 初始化全角 -> 半角 映射表
 	extern std::unordered_map<wchar_t, wchar_t> F2H_ASCII_LETTERS;
 	extern std::unordered_map<wchar_t, wchar_t> H2F_ASCII_LETTERS;
@@ -17,5 +17,7 @@
 	void initialize_constant_maps();
 	std::wstring fullwidth_to_halfwidth(const std::wstring& input);
 	std::wstring halfwidth_to_fullwidth(const std::wstring& input);
+}
+
 
 #endif
