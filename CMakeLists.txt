@@ -88,13 +88,7 @@ if (UNIX)
     target_link_libraries(meloTTS_ov PRIVATE pthread)
 endif()
 
-#add_executable(test_char_convert src/char_convert.cpp src/char_convert.h) 
-#add_executable(test_chronology src/chronology.cpp src/chronology.h src/num.cpp src/number.h)
-#add_executable(test_constant src/constants.cpp src/constant.h)
-#add_executable(test_num src/num.cpp src/number.h)
-#add_executable(test_phonecode src/phonecode.cpp src/phonecode.h src/num.cpp src/number.h)
-#add_executable(test_quantifier src/quantifier.cpp src/quantifier.h src/num.cpp src/number.h)
-#add_executable(test_text_normlization src/Text_normlization.cpp src/Text_normlization.h src/char_convert.cpp src/char_convert.h src/chronology.cpp src/chronology.h src/constants.cpp src/constant.h src/num.cpp src/number.h src/phonecode.cpp src/phonecode.h src/quantifier.cpp src/quantifier.h)
+
 
 
 #option(ENABLE_TESTS "Enable tests" ON) # Disable the tests by default
@@ -141,5 +135,12 @@ if (${ENABLE_TESTS})
 
     add_executable(test_split_sentence tests/test_split_sentence.cpp ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc/darts.h)
     target_include_directories(test_split_sentence  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc)
+    #add_executable(test_char_convert src/char_convert.cpp src/char_convert.h) 
+    #add_executable(test_chronology src/chronology.cpp src/chronology.h src/num.cpp src/number.h)
+    #add_executable(test_constant src/constants.cpp src/constant.h)
+    #add_executable(test_num src/num.cpp src/number.h)
+    #add_executable(test_phonecode src/phonecode.cpp src/phonecode.h src/num.cpp src/number.h)
+    #add_executable(test_quantifier src/quantifier.cpp src/quantifier.h src/num.cpp src/number.h)
+    #add_executable(test_text_normlization src/Text_normlization.cpp src/Text_normlization.h src/char_convert.cpp src/char_convert.h src/chronology.cpp src/chronology.h src/constants.cpp src/constant.h src/num.cpp src/number.h src/phonecode.cpp src/phonecode.h src/quantifier.cpp src/quantifier.h)
                                                      
 endif()
