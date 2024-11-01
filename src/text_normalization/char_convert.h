@@ -2,11 +2,12 @@
 #ifndef CHAR_CONVERT_H
 #define CHAR_CONVERT_H
 #include <unordered_map>
+#include <filesystem>
 namespace text_normalization {
 	extern std::unordered_map<wchar_t, wchar_t> s2t_dict;
 	extern std::unordered_map<wchar_t, wchar_t> t2s_dict;
 
-	void initialize_char_maps();
+	void initialize_char_maps(const std::filesystem::path& char_map_folder);
 	// 从文件中读取字符串
 	std::wstring readFile(const std::string& filename);
 	// 将繁体转换为简体

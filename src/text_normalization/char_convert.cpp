@@ -17,15 +17,14 @@
 #include <windows.h>
 #endif
 
-
 namespace text_normalization {
     std::unordered_map<wchar_t, wchar_t> s2t_dict;
     std::unordered_map<wchar_t, wchar_t> t2s_dict;
     // 从文件中读取字符串
     std::wstring readFile(const std::string& filename) {
         std::wifstream file(filename);
-        if (!file) {
-            std::cerr << "无法打开文件: " << filename << std::endl;
+        if (!file.is_open()) {
+            std::cerr << "[ERORR] text_normalization::readFile:: Cannot openfile:  " << filename << std::endl;
             return L"";
         }
         // 设置 locale 以处理 UTF-8 编码
@@ -135,10 +134,12 @@ namespace text_normalization {
 
         return result;
     }
-    void initialize_char_maps() {
+    void initialize_char_maps(const std::filesystem::path& char_map_folder) {
+        std::filesystem::path s2t_path = char_map_folder / "s2t_map.bin";
+        std::filesystem::path t2s_map = char_map_folder / "t2s_map.bin";
         // 从二进制文件加载映射
-        s2t_dict = load_map_from_binary_file("s2t_map.bin");
-        t2s_dict = load_map_from_binary_file("t2s_map.bin");
+        s2t_dict = load_map_from_binary_file(s2t_path.string());
+        t2s_dict = load_map_from_binary_file(t2s_map.string());
     }
 }
 

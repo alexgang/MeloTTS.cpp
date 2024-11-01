@@ -38,6 +38,7 @@
 #include "utils.h"
 #include "tts.h"
 #include "language_modules/chinese_mix.h"
+#include "text_normalization/text_normalization.h"
 #include "parse_args.h"
 
 #if defined(_WIN32) && defined(DEBUG_MEMORY)
@@ -73,7 +74,8 @@ int main(int argc, char** argv)
     melo::chinese_mix::pinyin_to_symbol_map = melo::chinese_mix::readPinyinFile(args.pinyin_to_symbol_map_path);
     melo::chinese_mix::pinyin = std::make_shared<cppinyin::PinyinEncoder>(args.cppinyin_resource);
     std::cout <<"Init language Module\n";
-
+    //Text Normalizer
+    melo::TTS::normalizer = std::make_shared<text_normalization::TextNormalizer>(args.model_dir);
     // Init core
     std::unique_ptr<ov::Core> core_ptr = std::make_unique<ov::Core>();
     auto startTime = Time::now();

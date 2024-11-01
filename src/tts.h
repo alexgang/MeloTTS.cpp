@@ -47,7 +47,7 @@ namespace melo {
             static void audio_concat(std::vector<float>& output, std::vector<float>& segment, const float& speed, const int32_t& sampling_rate);
             static void write_wave(const std::filesystem::path& output_path, const std::vector<float>& wave, const int32_t& sampling_rate);
             static constexpr int32_t sampling_rate_ = 44100; 
-
+            static std::shared_ptr<text_normalization::TextNormalizer> normalizer;
         protected:
             std::tuple<std::vector<std::vector<float>>, std::vector<int64_t>, std::vector<int64_t>, std::vector<int64_t>>
                 get_text_for_tts_infer(const std::string& text);
@@ -58,7 +58,6 @@ namespace melo {
             std::string _language = "ZH";
             Darts::DoubleArray _da;// punctuation dict use to split sentence
             bool _disable_bert = false;
-            text_normalization::TextNormalizer normalizer;
     };
 }
 

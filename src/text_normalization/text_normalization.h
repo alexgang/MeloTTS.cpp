@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <filesystem>
 
 #include"char_convert.h"
 #include"constant.h"
@@ -15,7 +16,7 @@
 namespace text_normalization {
     class TextNormalizer {
     public:
-        TextNormalizer();
+        explicit TextNormalizer(const std::filesystem::path& char_map_folder);
         std::vector<std::wstring> split(const std::wstring& text, const std::wstring& lang = L"zh");
         std::wstring post_replace(const std::wstring& sentence);
         std::wstring normalize_sentence(const std::wstring& sentence);

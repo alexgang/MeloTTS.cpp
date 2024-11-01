@@ -49,7 +49,7 @@ namespace melo {
         const float& sdp_ratio, const float& noise_scale, const float& noise_scale_w ){
         std::vector<float> audio;
         try {
-            std::vector<std::wstring> normalized_sentences = normalizer.normalize(text_normalization::string_to_wstring(text));
+            std::vector<std::wstring> normalized_sentences = normalizer->normalize(text_normalization::string_to_wstring(text));
             for (const auto& sentence : normalized_sentences) {
                 std::cout << text_normalization::wstring_to_string(sentence) << std::endl;
                 std::vector<std::string> texts = split_sentences_into_pieces(text_normalization::wstring_to_string(sentence), false);
@@ -88,7 +88,7 @@ namespace melo {
     void TTS::tts_to_file(const std::string& text, std::vector<float>& output_audio, const int& speaker_id, const float& speed,
         const float& sdp_ratio, const float& noise_scale, const float& noise_scale_w) {
         try {                   
-            std::vector<std::wstring> normalized_sentences = normalizer.normalize(text_normalization::string_to_wstring(text));
+            std::vector<std::wstring> normalized_sentences = normalizer->normalize(text_normalization::string_to_wstring(text));
             for (const auto& sentence : normalized_sentences) {
                 std::cout << text_normalization::wstring_to_string(sentence) << std::endl;
                 std::vector<std::string> texts = split_sentences_into_pieces(text_normalization::wstring_to_string(sentence), false);
@@ -313,4 +313,5 @@ namespace melo {
             std::cerr << "Unknown exception caught" << std::endl;
         }
     }
+     std::shared_ptr<text_normalization::TextNormalizer> TTS::normalizer;
 }
