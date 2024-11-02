@@ -100,8 +100,8 @@ if (${ENABLE_TESTS})
     target_include_directories(test_tokenizer PRIVATE src/tokenizer.h)
     #set_target_properties(bert_tokenizer_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tests")
 
-    add_executable(test_cmudict tests/test_cmudict.cpp src/cmudict.cpp)
-    target_include_directories(test_cmudict PRIVATE src/cmudict.h)
+    add_executable(test_cmudict tests/test_cmudict.cpp src/language_modules/cmudict.cpp)
+    target_include_directories(test_cmudict PRIVATE src/language_modules/cmudict.h)
 
     add_executable(test_bert tests/test_bert.cpp src/tokenizer.cpp src/openvino_model_base.cpp src/bert.cpp  src/utils.cpp)
     target_link_libraries(test_bert PRIVATE openvino::runtime) 
@@ -111,10 +111,10 @@ if (${ENABLE_TESTS})
     target_link_libraries(test_openvoice_tts PRIVATE openvino::runtime) 
     target_include_directories(test_openvoice_tts PRIVATE src/openvoice_tts.h src/openvino_model_base.h src/utils.h src/tokenizer.h src/bert.h src/info_data.h )
 
-    add_executable(test_chinese_mix tests/test_chinese_mix.cpp src/chinese_mix.cpp src/tokenizer.cpp src/utils.cpp 
+    add_executable(test_chinese_mix tests/test_chinese_mix.cpp src/language_modules/chinese_mix.cpp src/tokenizer.cpp src/utils.cpp 
                     ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin.cc 
                     ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin_csrc_utils.cc
-                    src/chinese_mix.h src/tokenizer.h src/tokenizer.h src/utils.h)
+                    src/language_modules/chinese_mix.h src/tokenizer.h src/tokenizer.h src/utils.h)
     target_include_directories(test_chinese_mix PRIVATE 
                         ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppjieba 
                         ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppjieba/include
