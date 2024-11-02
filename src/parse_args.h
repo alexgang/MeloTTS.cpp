@@ -145,7 +145,12 @@ inline Args parse_args(int argc, char** argv)
 }
 
 inline void Args::generate_init_file_paths() {
-    zh_bert_path = model_dir / "bert_ZH_int8.xml";
+    if (bert_device == "NPU") {
+        // NPU device runs the static shape model in Meteor Lake and Lunar Lake.
+        zh_bert_path = model_dir / "bert_ZH_static_int8.xml";
+    }
+    else
+        zh_bert_path = model_dir / "bert_ZH_int8.xml";
     if (quantize) {
         zh_tts_path = model_dir / "tts_zn_mix_en_int8.xml";
         //zh_bert_path = model_dir / "bert_ZH_int8.xml";

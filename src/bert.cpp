@@ -32,6 +32,13 @@ namespace melo {
         size_t n = _input_ids.size();
         _attention_mask = std::vector<int64_t>(n, 1);
         _token_type_ids = std::vector<int64_t>(n, 0);
+
+        if(_static_shape){
+             std::cout << "[INFO]:Bert::get_bert_feature: static shape bert\n";
+            _input_ids = to_static_1d_shape(_input_ids);
+            _attention_mask = to_static_1d_shape(_attention_mask);
+            _token_type_ids = to_static_1d_shape(_token_type_ids);
+        }
 #ifdef MELO_DEBUG
         for (const auto& word : strs) std::cout << word << " ";
         std::cout << std::endl;
@@ -133,4 +140,17 @@ namespace melo {
     }
 
 
+    std::vector<int64_t> Bert::to_static_1d_shape(const std::vector<int64_t>& dynamic_input, size_t shape_size) {
+        std::vector<int64_t> static_output(shape_size,0);
+        size_t n = dynamic_input.size();
+        // Pad with 0 if the length of dynamic_input is less than or equal to the model input size.
+        if (n <= shape_size) {
+            std::copy(dynamic_input.begin(),dynamic_input.end(),static_output.begin());
+        }
+        else { //Truncate and output a warning if the length of dynamic_input is greater than input size
+            std::copy(dynamic_input.begin(),dynamic_input.begin()+shape_size,static_output.begin());
+            std::cout << "[Warning]Bert::to_static_1d_shape: dynamic_input is longer than model input size. Truncating to fit." << std::endl;
+        }
+        return static_output;
+    }
 }
