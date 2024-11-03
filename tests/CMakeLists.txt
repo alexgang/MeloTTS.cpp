@@ -6,9 +6,6 @@ target_include_directories(test_tokenizer PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/..
 add_executable(test_cmudict ${CMAKE_CURRENT_SOURCE_DIR}/test_cmudict.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../src/language_modules/cmudict.cpp)
 target_include_directories(test_cmudict PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../src/language_modules/cmudict.h)
 
-add_executable(test_bert ${CMAKE_CURRENT_SOURCE_DIR}/test_bert.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../src/tokenizer.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../src/openvino_model_base.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../src/bert.cpp  ${CMAKE_CURRENT_SOURCE_DIR}/../src/utils.cpp)
-target_link_libraries(test_bert PRIVATE openvino::runtime) 
-target_include_directories(test_bert PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../src/tokenizer.h ${CMAKE_CURRENT_SOURCE_DIR}/../src/openvino_model_base.h ${CMAKE_CURRENT_SOURCE_DIR}/../src/bert.h  ${CMAKE_CURRENT_SOURCE_DIR}/../src/utils.h)
 
 add_executable(test_openvoice_tts ${CMAKE_CURRENT_SOURCE_DIR}/test_openvoice_tts.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../src/openvino_model_base.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../src/openvoice_tts.cpp  ${CMAKE_CURRENT_SOURCE_DIR}/../src/utils.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../src/tokenizer.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../src/bert.cpp )
 target_link_libraries(test_openvoice_tts PRIVATE openvino::runtime) 
@@ -38,3 +35,25 @@ target_include_directories(test_darts  PRIVATE ${CMAKE_SOURCE_DIR}/thirdParty/cp
 
 add_executable(test_split_sentence ${CMAKE_CURRENT_SOURCE_DIR}/test_split_sentence.cpp ${CMAKE_SOURCE_DIR}/thirdParty/cppinyin/csrc/darts.h)
 target_include_directories(test_split_sentence  PRIVATE ${CMAKE_SOURCE_DIR}/thirdParty/cppinyin/csrc/)
+
+
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  GIT_REPOSITORY https://github.com/google/googletest.git
+  GIT_TAG release-1.12.1
+)
+# For Windows: Prevent overriding the parent project's compiler/linker settings
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+
+add_executable(test_bert
+               test_bert.cpp
+               ../src/tokenizer.cpp 
+               ../src/openvino_model_base.cpp 
+               ../src/bert.cpp  
+               ../src/utils.cpp)
+target_link_libraries(test_bert PRIVATE gtest_main openvino::runtime)
+
+include(GoogleTest)
+gtest_discover_tests(test_bert)

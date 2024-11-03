@@ -7,8 +7,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # for env witout setting utf-8 for Chinese 
 if(WIN32)
-    add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/execution-charset:utf-8>")
-    add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/source-charset:utf-8>")
+    add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>") #https://learn.microsoft.com/en-us/cpp/build/reference/utf-8-set-source-and-executable-character-sets-to-utf-8?view=msvc-170
+    #add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/source-charset:utf-8>")
     add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/bigobj>")
 endif()
 
@@ -91,9 +91,10 @@ endif()
 
 
 
-option(ENABLE_TESTS "Enable tests" OFF) # Disable the tests by default
+option(ENABLE_TEST "Enable tests" OFF) # Disable the tests by default
 
-if (${ENABLE_TESTS})
+if (${ENABLE_TEST})
+    enable_testing()
     add_subdirectory(tests)
 endif()
 
