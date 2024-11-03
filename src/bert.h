@@ -41,6 +41,7 @@ namespace melo {
         static constexpr size_t BATCH_SIZE = 1;
         static constexpr size_t NPU_BERT_STATIC_SHAPE_SIZE = 64;
         std::vector<int64_t> to_static_1d_shape(const std::vector<int64_t>& input, size_t shape_size = NPU_BERT_STATIC_SHAPE_SIZE);
+        [[maybe_unused]] inline void set_static_shape(){ _static_shape = true; } // intended for testing purposes only
     private:
         bool _static_shape = false;
         std::string _language;

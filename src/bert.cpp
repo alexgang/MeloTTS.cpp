@@ -48,8 +48,7 @@ namespace melo {
 #endif
         ov_infer();
  
-       get_output(word2ph, berts);
-       //get_output(berts);
+        get_output(word2ph, berts);
 
     }
 
@@ -87,12 +86,19 @@ namespace melo {
         //size_t output_size = _input_ids.size();//_infer_request->GetOutputTensorSize(0);
         size_t frame_num = output_tensor.get_shape()[0];
 
-        //const ov::Tensor& output_tensor = _infer_request->get_output_tensor(0);
-        //const float* output_data = _infer_request->get_output_tensor(0).data<const float>();
-        //ov::Shape output_tensor_shape = output_tensor.get_shape();
-       // int frame_num = output_tensor_shape[0];
         assert(frame_num == _input_ids.size() && "[ERROR] Should be frame_num == _input_ids.size()");
-        //std::cout << " output_tensor_shape"<<  output_tensor_shape << std::endl;
+#if defined(MELO_DEBUG) || defined(MELO_TEST)
+        ov::Shape output_tensor_shape = output_tensor.get_shape();
+        std::cout << " output_tensor_shape"<<  output_tensor_shape << std::endl;
+        for (const auto& x : cal_row_mean(output_tensor, false)) {
+            std::cout << x <<' ';
+        }
+        std::cout << std::endl;
+        for (const auto& x : cal_row_variance(output_tensor, false)) {
+            std::cout << x << ' ';
+        }
+        std::cout << std::endl;
+# endif
         std::vector<std::vector<float>> res(frame_num, std::vector<float>(768, 0.0));
         for (int i = 0; i < frame_num; ++i)
         {
