@@ -38,6 +38,9 @@ namespace melo {
         // Refer to https://github.com/sammysun0711/ov_llm_bench/blob/6a03a1aacab550ec7e3b84948abf1c7fe186e652/inference_engine.py#L215-L220
         [[maybe_unused]] inline void get_profiling_info() {
             std::vector<ov::ProfilingInfo> perfs_count_list = _infer_request->get_profiling_info();
+            perfs_count_list.erase(std::remove_if(perfs_count_list.begin(),perfs_count_list.end(),
+                    [](ov::ProfilingInfo info){return info.status == ov::ProfilingInfo::Status::NOT_RUN;}), perfs_count_list.end());
+            std::sort(perfs_count_list.begin(),perfs_count_list.end(),[&](ov::ProfilingInfo x, ov::ProfilingInfo y){return x.real_time>y.real_time;});
             std::cout << std::endl;
             for (const auto& x : perfs_count_list) {
                 if (x.status == ov::ProfilingInfo::Status::NOT_RUN) continue;
