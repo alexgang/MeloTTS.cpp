@@ -28,7 +28,6 @@ git clone https://github.com/apinge/MeloTTS.cpp.git
 ```
 <OpenVINO_DIR>\setupvars.bat
 cd MeloTTS.cpp
-unzip libtorch.zip in MeloTTS.cpp\thirdParty
 cmake -S . -B build && cmake --build build --config Release
 .\build\Release\meloTTS_ov.exe --model_dir ov_models --input_file inputs.txt  --output_file audio.wav
 ```

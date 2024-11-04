@@ -59,7 +59,6 @@ set(SOURCE_FILES
     src/deepfilter.cpp
     src/dfnet_model.cpp
     src/multiframe.cpp
-    src/tone_sandhi.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin_csrc_utils.cc
 )
@@ -90,7 +89,6 @@ set(HEADER_FILES
     src/deepfilter.h
     src/multiframe.h
     src/dfnet_model.h
-    src/tone_sandhi.h
     ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin.h
     ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin_csrc_utils.h
 )
@@ -98,6 +96,20 @@ include_directories(${CMAKE_SOURCE_DIR}/thirdParty/eigen)
 
 # Define the executable
 add_executable(meloTTS_ov ${SOURCE_FILES} ${HEADER_FILES})
+
+# unzip libtorch
+set(LIBTORCH_DIR  ${CMAKE_SOURCE_DIR}/thirdParty/libtorch)
+
+if(NOT EXISTS ${LIBTORCH_DIR})
+    message(STATUS "libtorch directory does not exist, will perform unzip.")
+    add_custom_target(unZip ALL)
+    execute_process(
+        COMMAND ${CMAKE_COMMAND} -E tar xzf libtorch.tar.gz 
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/thirdParty
+    )
+else()
+    message(STATUS "libtorch folder already exists, skipping unzip.")
+endif()
 
 # Find libraries
 find_library(TORCH_LIB torch PATHS ${LIBTORCH_DIR}/lib)
