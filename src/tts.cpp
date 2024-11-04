@@ -20,7 +20,7 @@
 #include <cmath>
 #include "tts.h"
 #include "info_data.h"
-#include "chinese_mix.h"
+#include "language_modules/chinese_mix.h"
 namespace melo {
     TTS::TTS(std::unique_ptr<ov::Core>& core, const std::filesystem::path & tts_ir_path, const std::string & tts_device, const ov::AnyMap& tts_config,
         const std::filesystem::path& bert_ir_path, const std::string& bert_device, const std::filesystem::path& tokenizer_data_path,
@@ -49,23 +49,20 @@ namespace melo {
         const float& sdp_ratio, const float& noise_scale, const float& noise_scale_w ){
         std::vector<float> audio;
         try {
-            std::vector<std::wstring> normalized_sentences = normalizer.normalize(string_to_wstring(text));
-            for (const auto& sentence : normalized_sentences) {
-                std::cout << wstring_to_string(sentence) << std::endl;
-                std::vector<std::string> texts = split_sentences_into_pieces(wstring_to_string(sentence), false);
-                //std::vector<std::string> texts = split_sentences_into_pieces(text, false);         
-                for (const auto& t : texts) {
-                    // structured binding
-                    auto startTime = Time::now();
-                    auto [phone_level_feature, phones_ids, tones, lang_ids] = get_text_for_tts_infer(t);
+            std::vector<std::string> sentences = split_sentences_into_pieces(text, false);
+            for (const auto& sentence : sentences) {
+                std::string normalized_sentence = text_normalization::wstring_to_string(normalizer->normalize_sentence(text_normalization::string_to_wstring(sentence)));
+                std::cout << normalized_sentence  <<std::endl;
+                // structured binding
+                auto startTime = Time::now();
+                auto [phone_level_feature, phones_ids, tones, lang_ids] = get_text_for_tts_infer(normalized_sentence);
 
-                    auto preProcess = get_duration_ms_till_now(startTime);
-                    startTime = Time::now();
-                    std::vector<float> wav_data = tts_model.tts_infer(phones_ids, tones, lang_ids, phone_level_feature, speed, speaker_id, this->_disable_bert);
-                    auto ttsInferTime = get_duration_ms_till_now(startTime);
-                    audio_concat(audio, wav_data, speed, sampling_rate_);
-                    std::cout << "preProcess Time: " << preProcess << "ms\t" << "ttsInferTime: " << ttsInferTime << "ms\n";
-                }
+                auto preProcess = get_duration_ms_till_now(startTime);
+                startTime = Time::now();
+                std::vector<float> wav_data = tts_model.tts_infer(phones_ids, tones, lang_ids, phone_level_feature, speed, speaker_id, this->_disable_bert);
+                auto ttsInferTime = get_duration_ms_till_now(startTime);
+                audio_concat(audio, wav_data, speed, sampling_rate_);
+                std::cout << "preProcess Time: " << preProcess << "ms\t" << "ttsInferTime: " << ttsInferTime << "ms\n";
             }
             write_wave(output_path.string(), audio, sampling_rate_);
             //release memory buffer
@@ -88,22 +85,20 @@ namespace melo {
     void TTS::tts_to_file(const std::string& text, std::vector<float>& output_audio, const int& speaker_id, const float& speed,
         const float& sdp_ratio, const float& noise_scale, const float& noise_scale_w) {
         try {                   
-            std::vector<std::wstring> normalized_sentences = normalizer.normalize(string_to_wstring(text));
-            for (const auto& sentence : normalized_sentences) {
-                std::cout << wstring_to_string(sentence) << std::endl;
-                std::vector<std::string> texts = split_sentences_into_pieces(wstring_to_string(sentence), false);
-                //std::vector<std::string> texts = split_sentences_into_pieces(text, false);
-                for (const auto& t : texts) {
-                    // structured binding
-                    auto startTime = Time::now();
-                    auto [phone_level_feature, phones_ids, tones, lang_ids] = get_text_for_tts_infer(t);
-                    auto preProcess = get_duration_ms_till_now(startTime);
-                    startTime = Time::now();
-                    std::vector<float> wav_data = tts_model.tts_infer(phones_ids, tones, lang_ids, phone_level_feature, speed, speaker_id, this->_disable_bert);
-                    auto ttsInferTime = get_duration_ms_till_now(startTime);
-                    audio_concat(output_audio, wav_data, speed, sampling_rate_);
-                    std::cout << "preProcess Time: " << preProcess << "ms\t" << "ttsInferTime: " << ttsInferTime << "ms\n";
-                }
+           // std::vector<std::wstring> normalized_sentences = normalizer->normalize(text_normalization::string_to_wstring(text));
+            std::vector<std::string> sentences = split_sentences_into_pieces(text,false);
+            for (const auto& sentence : sentences) {
+                std::string normalized_sentence = text_normalization::wstring_to_string(normalizer->normalize_sentence(text_normalization::string_to_wstring(sentence)));
+                std::cout << normalized_sentence << std::endl;
+                // structured binding
+                auto startTime = Time::now();
+                auto [phone_level_feature, phones_ids, tones, lang_ids] = get_text_for_tts_infer(normalized_sentence);
+                auto preProcess = get_duration_ms_till_now(startTime);
+                startTime = Time::now();
+                std::vector<float> wav_data = tts_model.tts_infer(phones_ids, tones, lang_ids, phone_level_feature, speed, speaker_id, this->_disable_bert);
+                auto ttsInferTime = get_duration_ms_till_now(startTime);
+                audio_concat(output_audio, wav_data, speed, sampling_rate_);
+                std::cout << "preProcess Time: " << preProcess << "ms\t" << "ttsInferTime: " << ttsInferTime << "ms\n";
             }
             //release memory buffer
             tts_model.release_infer_memory();
@@ -191,8 +186,15 @@ namespace melo {
                 tmp += text[i++];
             }
             else if (results.front().value == 2) { // text splitter
-                sentences.emplace_back(std::move(tmp));
-                tmp.clear();
+                // Skip special cases: format as decimal point (e.g. 100.0)or scientific notation (1000,000,000)as appropriate 
+                if(i>0&&i<n&& std::isdigit(static_cast<int>(text[i - 1])) && std::isdigit(static_cast<int>(text[i + 1]))){
+                    if(text[i]=='.')
+                        tmp += "."; // Keep the decimal point here for subsequent text normalization processing.
+                }
+                else {
+                    sentences.emplace_back(std::move(tmp));
+                    tmp.clear();
+                }
                 i += results.front().length;
             }
             else if (results.front().value == 1) { //skip some punctuations like "'"
@@ -313,4 +315,5 @@ namespace melo {
             std::cerr << "Unknown exception caught" << std::endl;
         }
     }
+     std::shared_ptr<text_normalization::TextNormalizer> TTS::normalizer;
 }

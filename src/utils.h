@@ -57,6 +57,9 @@ const auto printVec = [](const auto& vec, const std::string& vecName) {
     std::cout << std::endl;
     };
 
+std::vector<float> cal_row_mean(const ov::Tensor& tensor_2d, bool print_shape = false);
+std::vector<float> cal_row_variance(const ov::Tensor&  tensor_2d, bool print_shape = false);
+
 std::vector<std::string> read_file_lines(const std::filesystem::path& file_path);
 
 std::vector<std::string> split_utf8_chinese(const std::string& str);

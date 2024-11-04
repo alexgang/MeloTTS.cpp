@@ -7,8 +7,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # for env witout setting utf-8 for Chinese 
 if(WIN32)
-    add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/execution-charset:utf-8>")
-    add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/source-charset:utf-8>")
+    add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>") #https://learn.microsoft.com/en-us/cpp/build/reference/utf-8-set-source-and-executable-character-sets-to-utf-8?view=msvc-170
+    #add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/source-charset:utf-8>")
     add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/bigobj>")
 endif()
 
@@ -29,58 +29,58 @@ set(SOURCE_FILES
     melo.cpp
     src/openvino_model_base.cpp
     src/tokenizer.cpp
-    src/cmudict.cpp
     src/utils.cpp
     src/bert.cpp
-    src/chinese_mix.cpp
     src/openvoice_tts.cpp
     src/tts.cpp
-    src/tone_sandhi.cpp
-    src/Text_normlization.cpp   
-    src/char_convert.cpp     
-    src/chronology.cpp     
-    src/constants.cpp     
-    src/num.cpp     
-    src/phonecode.cpp     
-    src/quantifier.cpp     
-    ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin_csrc_utils.cc
+    src/language_modules/cmudict.cpp
+    src/language_modules/chinese_mix.cpp
+    src/language_modules/tone_sandhi.cpp
+    src/text_normalization/text_normalization.cpp   
+    src/text_normalization/char_convert.cpp     
+    src/text_normalization/chronology.cpp     
+    src/text_normalization/constants.cpp     
+    src/text_normalization/num.cpp     
+    src/text_normalization/phonecode.cpp     
+    src/text_normalization/quantifier.cpp     
+    ${CMAKE_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin.cc
+    ${CMAKE_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin_csrc_utils.cc
 )
 
 # Header files
 set(HEADER_FILES
     src/parse_args.h
-    src/cmudict.h
     src/openvino_model_base.h
     src/info_data.h
     src/tokenizer.h
     src/utils.h
     src/bert.h
-    src/chinese_mix.h
     src/openvoice_tts.h
     src/tts.h
-    src/tone_sandhi.h
-    src/Text_normlization.h 
-    src/char_convert.h 
-    src/chronology.h 
-    src/constant.h 
-    src/number.h 
-    src/phonecode.h 
-    src/quantifier.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin_csrc_utils.h
+    src/language_modules/cmudict.h
+    src/language_modules/chinese_mix.h
+    src/language_modules/tone_sandhi.h
+    src/text_normalization/text_normalization.h 
+    src/text_normalization/char_convert.h 
+    src/text_normalization/chronology.h 
+    src/text_normalization/constant.h 
+    src/text_normalization/number.h
+    src/text_normalization/phonecode.h 
+    src/text_normalization/quantifier.h
+    ${CMAKE_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin.h
+    ${CMAKE_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin_csrc_utils.h
 )
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/eigen)
+include_directories(${CMAKE_SOURCE_DIR}/thirdParty/eigen)
 
 # Define the executable
 add_executable(meloTTS_ov ${SOURCE_FILES} ${HEADER_FILES})
 
 # Define DEBUG macro for Debug configuration
 target_compile_definitions(meloTTS_ov PRIVATE "$<$<CONFIG:DEBUG>:DEBUG>")
-target_include_directories(meloTTS_ov PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/eigen)
-target_include_directories(meloTTS_ov PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppjieba)
-target_include_directories(meloTTS_ov PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppjieba/include)
-target_include_directories(meloTTS_ov PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc)
+target_include_directories(meloTTS_ov PRIVATE ${CMAKE_SOURCE_DIR}/thirdParty/eigen)
+target_include_directories(meloTTS_ov PRIVATE ${CMAKE_SOURCE_DIR}/thirdParty/cppjieba)
+target_include_directories(meloTTS_ov PRIVATE ${CMAKE_SOURCE_DIR}/thirdParty/cppjieba/include)
+target_include_directories(meloTTS_ov PRIVATE ${CMAKE_SOURCE_DIR}/thirdParty/cppinyin/csrc)
 target_link_libraries(meloTTS_ov
     PRIVATE openvino::runtime  # Link OpenVINO Runtime privately
 )
@@ -91,56 +91,10 @@ endif()
 
 
 
-#option(ENABLE_TESTS "Enable tests" ON) # Disable the tests by default
+option(ENABLE_TEST "Enable tests" OFF) # Disable the tests by default
 
-if (${ENABLE_TESTS})
-    #add_subdirectory(tests)
-    add_executable(test_tokenizer tests/test_tokenizer.cpp src/tokenizer.cpp)
-    target_link_libraries(test_tokenizer PRIVATE openvino::runtime) 
-    target_include_directories(test_tokenizer PRIVATE src/tokenizer.h)
-    #set_target_properties(bert_tokenizer_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tests")
-
-    add_executable(test_cmudict tests/test_cmudict.cpp src/cmudict.cpp)
-    target_include_directories(test_cmudict PRIVATE src/cmudict.h)
-
-    add_executable(test_bert tests/test_bert.cpp src/tokenizer.cpp src/openvino_model_base.cpp src/bert.cpp  src/utils.cpp)
-    target_link_libraries(test_bert PRIVATE openvino::runtime) 
-    target_include_directories(test_bert PRIVATE src/tokenizer.h src/openvino_model_base.h src/bert.h  src/utils.h)
-
-    add_executable(test_openvoice_tts tests/test_openvoice_tts.cpp src/openvino_model_base.cpp src/openvoice_tts.cpp  src/utils.cpp src/tokenizer.cpp src/bert.cpp )
-    target_link_libraries(test_openvoice_tts PRIVATE openvino::runtime) 
-    target_include_directories(test_openvoice_tts PRIVATE src/openvoice_tts.h src/openvino_model_base.h src/utils.h src/tokenizer.h src/bert.h src/info_data.h )
-
-    add_executable(test_chinese_mix tests/test_chinese_mix.cpp src/chinese_mix.cpp src/tokenizer.cpp src/utils.cpp 
-                    ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin.cc 
-                    ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin_csrc_utils.cc
-                    src/chinese_mix.h src/tokenizer.h src/tokenizer.h src/utils.h)
-    target_include_directories(test_chinese_mix PRIVATE 
-                        ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppjieba 
-                        ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppjieba/include
-                        ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc)
-
-
-    add_executable(test_cppjieba tests/test_cppjieba.cpp)
-    target_include_directories(test_cppjieba PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppjieba 
-                                                     ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppjieba/include)
-    
-    add_executable(test_cppinyin tests/test_cppinyin.cpp  
-                                ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin.cc
-                                ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin_csrc_utils.cc)                                
-    target_include_directories(test_cppinyin PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc)
-
-    add_executable(test_darts tests/test_darts.cpp ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc/darts.h)
-    target_include_directories(test_darts  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc)
-
-    add_executable(test_split_sentence tests/test_split_sentence.cpp ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc/darts.h)
-    target_include_directories(test_split_sentence  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc)
-    #add_executable(test_char_convert src/char_convert.cpp src/char_convert.h) 
-    #add_executable(test_chronology src/chronology.cpp src/chronology.h src/num.cpp src/number.h)
-    #add_executable(test_constant src/constants.cpp src/constant.h)
-    #add_executable(test_num src/num.cpp src/number.h)
-    #add_executable(test_phonecode src/phonecode.cpp src/phonecode.h src/num.cpp src/number.h)
-    #add_executable(test_quantifier src/quantifier.cpp src/quantifier.h src/num.cpp src/number.h)
-    #add_executable(test_text_normlization src/Text_normlization.cpp src/Text_normlization.h src/char_convert.cpp src/char_convert.h src/chronology.cpp src/chronology.h src/constants.cpp src/constant.h src/num.cpp src/number.h src/phonecode.cpp src/phonecode.h src/quantifier.cpp src/quantifier.h)
-                                                     
+if (${ENABLE_TEST})
+    enable_testing()
+    add_subdirectory(tests)
 endif()
+

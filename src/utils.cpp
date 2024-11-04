@@ -69,3 +69,44 @@ std::vector<std::string> split_utf8_chinese(const std::string& str) {
     }
     return res;
 }
+//torch.mean(res, dim=1)
+//This fuction computes the average of all columns in each row, resulting in a tensor that only has the row dimension remaining
+std::vector<float> cal_row_mean(const ov::Tensor& tensor_2d, bool print_shape) {
+    ov::Shape tensor_shape = tensor_2d.get_shape();
+    if(print_shape)
+        std::cout << "tensor_2d_shape" << tensor_shape << std::endl;
+    int row = tensor_shape[0], col = tensor_shape[1];
+    const float* data = tensor_2d.data<const float>();
+    std::vector<float> res;
+    for (int i = 0; i < row; ++i) {
+        float sum = 0.f;
+        for(int j = 0;j<col;++j){
+            sum += data[col*i+j];
+        }
+        res.emplace_back(sum/col);
+    }
+    return res;
+}
+//torch.var(res, dim=1, unbiased=False)
+std::vector<float> cal_row_variance(const ov::Tensor& tensor_2d, bool print_shape) {
+    ov::Shape tensor_shape = tensor_2d.get_shape();
+    if (print_shape)
+        std::cout << " tensor_2d_shape" << tensor_shape << std::endl;
+    int row = tensor_shape[0], col = tensor_shape[1];
+    const float* data = tensor_2d.data<const float>();
+    std::vector<float> res;
+    for (int i = 0; i < row; ++i) {
+        float sum = 0.f;
+        for (int j = 0; j < col; ++j) {
+            sum += data[col * i + j];
+        }
+        float mean = sum / col;
+        float variance =0.f;
+        for (int j = 0; j < col; ++j) {
+            variance += (data[col * i + j]-mean)* (data[col * i + j] - mean);
+        }
+        res.emplace_back(variance/col);
+    }
+    return res;
+
+}

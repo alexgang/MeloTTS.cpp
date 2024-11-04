@@ -238,7 +238,7 @@ namespace melo {
                 }
             }
         }
-        auto _all_tone_three = [&](const std::vector<std::string>& finals)
+        auto _all_tone_three = [](const std::vector<std::string>& finals)
         {
             return std::all_of(finals.begin(), finals.end(), [](const std::string& f) {return f.back() == '3'; });
         };

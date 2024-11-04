@@ -27,7 +27,9 @@ namespace melo {
     public:
         Bert(std::unique_ptr<ov::Core>& core_ptr, const std::filesystem::path& model_path, const std::string& device,
             std::string language, std::shared_ptr<Tokenizer> tokenizer) :
-            AbstractOpenvinoModel(core_ptr, model_path, device), _language(language), _tokenizer(tokenizer) {}
+            AbstractOpenvinoModel(core_ptr, model_path, device), 
+            _language(language), _tokenizer(tokenizer),_static_shape(device=="NPU" ? true : false) {}
+        
         Bert() = default;
         void get_bert_feature(const std::string& text, const std::vector<int>& word2ph, std::vector<std::vector<float>>& berts);
         virtual void ov_infer() override;
@@ -37,8 +39,11 @@ namespace melo {
 
         inline std::string get_language() { return _language; }
         static constexpr size_t BATCH_SIZE = 1;
+        static constexpr size_t NPU_BERT_STATIC_SHAPE_SIZE = 64;
+        std::vector<int64_t> to_static_1d_shape(const std::vector<int64_t>& input, size_t shape_size = NPU_BERT_STATIC_SHAPE_SIZE);
+        [[maybe_unused]] inline void set_static_shape(){ _static_shape = true; } // intended for testing purposes only
     private:
-
+        bool _static_shape = false;
         std::string _language;
         std::shared_ptr<Tokenizer> _tokenizer;
         std::vector<int64_t> _input_ids, _attention_mask, _token_type_ids;
