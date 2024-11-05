@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.25)
 project(MeloTTS)
 
 # Set C++ Standard
@@ -99,7 +99,6 @@ add_executable(meloTTS_ov ${SOURCE_FILES} ${HEADER_FILES})
 
 # unzip libtorch
 set(LIBTORCH_DIR  ${CMAKE_SOURCE_DIR}/thirdParty/libtorch)
-
 if(NOT EXISTS ${LIBTORCH_DIR})
     message(STATUS "libtorch directory does not exist, will perform unzip.")
     add_custom_target(unZip ALL)
@@ -110,6 +109,34 @@ if(NOT EXISTS ${LIBTORCH_DIR})
 else()
     message(STATUS "libtorch folder already exists, skipping unzip.")
 endif()
+
+# COPY torch runtime to exe folder
+# Set the release directory
+set(RELEASE_DIR ${CMAKE_BINARY_DIR}/Release)
+set(DEBUG_DIR ${CMAKE_BINARY_DIR}/Debug)
+file(MAKE_DIRECTORY ${RELEASE_DIR} ${DEBUG_DIR})
+
+# List of DLLs to copy
+set(DLLS
+    torch.dll
+    torch_cpu.dll
+    asmjit.dll
+    fbgemm.dll
+    c10.dll
+    uv.dll
+    libiomp5md.dll
+)
+
+# Copy each DLL and print a message with the DLL name
+foreach(dll ${DLLS})
+    message("Copying ${dll} from ${LIBTORCH_DIR}/lib to ${RELEASE_DIR} and ${DEBUG_DIR}")
+    execute_process(
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${LIBTORCH_DIR}/lib/${dll} ${RELEASE_DIR}
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${LIBTORCH_DIR}/lib/${dll} ${DEBUG_DIR}
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    )
+endforeach()
+
 
 # Find libraries
 find_library(TORCH_LIB torch PATHS ${LIBTORCH_DIR}/lib)
