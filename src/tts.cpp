@@ -1,5 +1,5 @@
 /**
- * Copyright      2024    Tong Qiu (tong.qiu@intel.com)
+ * Copyright      2024    Tong Qiu (tong.qiu@intel.com) Vincent Liu (vincent1.liu@intel.com)
  *
  * See LICENSE for clarification regarding multiple authors
  *
@@ -18,13 +18,14 @@
 #include <cassert>
 #include <fstream>
 #include <cmath>
+#include <chrono>
 #include "tts.h"
 #include "info_data.h"
 #include "language_modules/chinese_mix.h"
 namespace melo {
     TTS::TTS(std::unique_ptr<ov::Core>& core, const std::filesystem::path & tts_ir_path, const std::string & tts_device, const ov::AnyMap& tts_config,
-        const std::filesystem::path& bert_ir_path, const std::string& bert_device, const std::filesystem::path& tokenizer_data_path,
-        const std::filesystem::path& punctuation_dict_path, const std::string language, bool disable_bert):_language(language),_disable_bert(disable_bert),
+        const std::filesystem::path& bert_ir_path, const std::string& bert_device, const std::filesystem::path& nf_ir_path, const std::string& nf_device, const std::filesystem::path& tokenizer_data_path,
+        const std::filesystem::path& punctuation_dict_path, const std::string language, bool disable_bert, bool disable_nf):_language(language),_disable_bert(disable_bert),_disable_nf(disable_nf),
         tts_model(core,tts_ir_path,tts_device,tts_config, language), tokenizer(std::make_shared<Tokenizer>(tokenizer_data_path)){
 
         assert((core.get() != nullptr) && "core should not be null!");
@@ -39,6 +40,15 @@ namespace melo {
         }
         else
             std::cout << "TTS::TTS : disable bert_model\n";
+
+        // Init noise filter model
+        if (!_disable_nf) {
+            assert(std::filesystem::exists(nf_ir_path) && "nf_ir_path does not exist!\n");
+            nf.init(nf_ir_path.string(), nf_device);
+            std::cout << "TTS::TTS : init nf_model\n";
+        } else
+            std::cout << "TTS::TTS : disable nf_model\n";
+
         // init punctuation dict
         assert(std::filesystem::exists(punctuation_dict_path) && "punctuation dictionary does not exit!");
         _da.open(punctuation_dict_path.string().c_str());
@@ -63,6 +73,14 @@ namespace melo {
                 auto ttsInferTime = get_duration_ms_till_now(startTime);
                 audio_concat(audio, wav_data, speed, sampling_rate_);
                 std::cout << "preProcess Time: " << preProcess << "ms\t" << "ttsInferTime: " << ttsInferTime << "ms\n";
+            }
+            if (!_disable_nf) {
+                std::cout << "TTS::TTS : Process audio by noise filter.\n";
+                auto nf_time_1 = std::chrono::high_resolution_clock::now();
+                nf.proc(audio);
+                auto nf_time_2 = std::chrono::high_resolution_clock::now();
+                std::chrono::duration<double> nf_time_duration = nf_time_2 - nf_time_1;
+                std::cout << "TTS::TTS : [NF][DFNet] process time:" << nf_time_duration.count() << " seconds" << std::endl;
             }
             write_wave(output_path.string(), audio, sampling_rate_);
             //release memory buffer
@@ -123,6 +141,14 @@ namespace melo {
         for (const auto& text : texts) {
             if(text.empty()) continue;
             tts_to_file(text,audio, speaker_id, speed,sdp_ratio,noise_scale,noise_scale_w);
+        }
+        if (!_disable_nf) {
+            std::cout << "TTS::TTS : Process audio by noise filter.\n";
+            auto nf_time_1 = std::chrono::high_resolution_clock::now();
+            nf.proc(audio);
+            auto nf_time_2 = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> nf_time_duration = nf_time_2 - nf_time_1;
+            std::cout << "TTS::TTS : [NF][DFNet] process time:" << nf_time_duration.count() << " seconds" << std::endl;
         }
         write_wave(output_path.string(), audio, sampling_rate_);
     }
