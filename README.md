@@ -38,6 +38,16 @@ cd MeloTTS.cpp
 cmake -S . -B build && cmake --build build --config Release
 ./build/meloTTS_ov --model_dir ov_models --input_file inputs.txt --output_file audio.wav
 ```
+#### 3.3 Enabling and Disabling DeepFilterNet
+DeepFilterNet functionality is currently supported only on Windows and is used to filter noise from int8 quantized models. By default, it is enabled, but you can enable or disable it during the CMake stage using the `-DUSE_DEEPFILTERNET` option.
+
+For example, to disable the feature, you can use the following line during the CMake generation process:
+```
+cmake -S . -B build --DUSE_DEEPFILTERNET=OFF
+```
+For more information, please refer to [DeepFilterNet.cpp](https://github.com/apinge/MeloTTS.cpp/blob/develop/src/deepfilter_net/README.md).
+
+
 ### 4. Arguments Description
 You can use `run_tts.bat` or `run_tts.sh` as sample scripts to run the models. Below are the meanings of all the arguments you can use with these scripts:
 
@@ -81,5 +91,7 @@ This repository includes third-party code and libraries for Chinese word segment
     - A Chinese text segmentation library.
 - [cppinyin](https://github.com/pkufool/cppinyin)
     - A C++ library supporting conversion between Chinese characters and pinyin
+- [libtorch](https://github.com/pytorch/pytorch/blob/main/docs/libtorch.rst)
+   - Used to integrate DeepFilterNet
 
 

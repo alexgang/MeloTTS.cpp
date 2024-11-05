@@ -1,7 +1,7 @@
 // Copyright (C) 2024 Intel Corporation
 // SPDX-License-Identifier: GPL-3.0-only
 #pragma once
-
+#ifdef USE_DEEPFILTERNET
 #include <optional>
 #include <openvino/openvino.hpp>
 #include "multiframe.h"
@@ -63,7 +63,7 @@ namespace melo {
          };
       }
 }
-
+#endif
 
 
 

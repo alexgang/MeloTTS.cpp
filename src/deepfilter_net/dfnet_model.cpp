@@ -1,5 +1,6 @@
 // Copyright (C) 2024 Intel Corporation
 // SPDX-License-Identifier: GPL-3.0-only
+#ifdef USE_DEEPFILTERNET
 #include "dfnet_model.h"
 #include "openvino_torch_utils.h"
 
@@ -433,5 +434,5 @@ namespace melo {
       }
    }
 }
-
+#endif
 

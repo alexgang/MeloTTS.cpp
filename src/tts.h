@@ -25,12 +25,17 @@
 #include "language_modules/cmudict.h"
 #include "darts.h"
 #include "text_normalization/text_normalization.h"
+#ifdef USE_DEEPFILTERNET
 #include "deepfilter_net/noisefilter.h"
+#endif
 namespace melo {
     class TTS {
         public:
             explicit TTS(std::unique_ptr<ov::Core>& core, const std::filesystem::path& tts_ir_path, const std::string& tts_device, const ov::AnyMap& tts_config,
-                const std::filesystem::path& bert_ir_path, const std::string& bert_device, const std::filesystem::path& nf_ir_path, const std::string& nf_device,
+                const std::filesystem::path& bert_ir_path, const std::string& bert_device, 
+#ifdef USE_DEEPFILTERNET
+                const std::filesystem::path& nf_ir_path, const std::string& nf_device,
+#endif
                 const std::filesystem::path& tokenizer_data_path, const std::filesystem::path& punctuation_dict_path, const std::string language, bool disable_bert = false, bool disable_nf = false);
             ~TTS() = default;
             TTS(const TTS&) = delete;
@@ -56,7 +61,9 @@ namespace melo {
             std::shared_ptr<Tokenizer> tokenizer;
             Bert bert_model;
             OpenVoiceTTS tts_model;
+#ifdef USE_DEEPFILTERNET
             NoiseFilter nf;
+#endif
             std::string _language = "ZH";
             Darts::DoubleArray _da;// punctuation dict use to split sentence
             bool _disable_bert = false;

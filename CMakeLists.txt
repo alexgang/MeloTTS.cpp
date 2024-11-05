@@ -21,9 +21,6 @@ endif()
 
 find_package(OpenVINO REQUIRED COMPONENTS Runtime)
 
-# Paths to libtorch libs and include files
-set(LIBTORCH_DIR "${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/libtorch")
-
 # Include directories
 include_directories(${CMAKE_SOURCE_DIR}/src)
 
@@ -97,63 +94,68 @@ include_directories(${CMAKE_SOURCE_DIR}/thirdParty/eigen)
 # Define the executable
 add_executable(meloTTS_ov ${SOURCE_FILES} ${HEADER_FILES})
 
-# unzip libtorch
-set(LIBTORCH_DIR  ${CMAKE_SOURCE_DIR}/thirdParty/libtorch)
-if(NOT EXISTS ${LIBTORCH_DIR})
-    message(STATUS "libtorch directory does not exist, will perform unzip.")
-    add_custom_target(unZip ALL)
-    execute_process(
-        COMMAND ${CMAKE_COMMAND} -E tar xzf libtorch.tar.gz 
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/thirdParty
-    )
+# Whether use deep filter net; We do not support this feature on Linux now.
+if(NOT DEFINED USE_DEEPFILTERNET AND WIN32)
+    set(USE_DEEPFILTERNET ON)
+    message(STATUS "DeepFilterNet is enabled")
 else()
-    message(STATUS "libtorch folder already exists, skipping unzip.")
+    set(USE_DEEPFILTERNET OFF)
+    message(STATUS "DeepFilterNet is disabled")
 endif()
 
-# COPY torch runtime to exe folder
-set(RELEASE_DIR ${CMAKE_BINARY_DIR}/Release)
-set(DEBUG_DIR ${CMAKE_BINARY_DIR}/Debug)
-file(MAKE_DIRECTORY ${RELEASE_DIR} ${DEBUG_DIR})
+if(USE_DEEPFILTERNET)
+    # unzip libtorch
+    set(LIBTORCH_DIR  ${CMAKE_SOURCE_DIR}/thirdParty/libtorch)
+    if(NOT EXISTS ${LIBTORCH_DIR})
+        message(STATUS "libtorch directory does not exist, will perform unzip.")
+        add_custom_target(unZip ALL)
+        execute_process(
+            COMMAND ${CMAKE_COMMAND} -E tar xzf libtorch.tar.gz 
+            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/thirdParty
+        )
+    else()
+        message(STATUS "libtorch folder already exists, skipping unzip.")
+    endif()
+    # COPY torch runtime to exe folder
+    set(RELEASE_DIR ${CMAKE_BINARY_DIR}/Release)
+    set(DEBUG_DIR ${CMAKE_BINARY_DIR}/Debug)
+    file(MAKE_DIRECTORY ${RELEASE_DIR} ${DEBUG_DIR})
 
-set(DLLS
-    torch.dll
-    torch_cpu.dll
-    asmjit.dll
-    fbgemm.dll
-    c10.dll
-    uv.dll
-    libiomp5md.dll
-)
+    set(DLLS torch.dll torch_cpu.dll asmjit.dll fbgemm.dll c10.dll uv.dll libiomp5md.dll)
 
-foreach(dll ${DLLS})
-    message("Copying ${dll} from ${LIBTORCH_DIR}/lib to ${RELEASE_DIR} and ${DEBUG_DIR}")
-    execute_process(
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${LIBTORCH_DIR}/lib/${dll} ${RELEASE_DIR}
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${LIBTORCH_DIR}/lib/${dll} ${DEBUG_DIR}
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    )
-endforeach()
+    foreach(dll ${DLLS})
+        message("Copying ${dll} from ${LIBTORCH_DIR}/lib to ${RELEASE_DIR} and ${DEBUG_DIR}")
+        execute_process(
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${LIBTORCH_DIR}/lib/${dll} ${RELEASE_DIR}
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${LIBTORCH_DIR}/lib/${dll} ${DEBUG_DIR}
+            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        )
+    endforeach()
+    # Find libraries
+    find_library(TORCH_LIB torch PATHS ${LIBTORCH_DIR}/lib)
+    if (NOT TORCH_LIB)
+        message(FATAL_ERROR "torch.lib not found")
+    endif()
 
+    find_library(C10_LIB c10 PATHS ${LIBTORCH_DIR}/lib)
+    if (NOT C10_LIB)
+        message(FATAL_ERROR "c10.lib not found")
+    endif()
 
-# Find libraries
-find_library(TORCH_LIB torch PATHS ${LIBTORCH_DIR}/lib)
-if (NOT TORCH_LIB)
-    message(FATAL_ERROR "torch.lib not found")
-endif()
+    find_library(TORCH_CPU_LIB torch_cpu PATHS ${LIBTORCH_DIR}/lib)
+    if (NOT TORCH_CPU_LIB)
+        message(FATAL_ERROR "torch_cpu.lib not found")
+    endif()
+    target_link_directories(meloTTS_ov PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/libtorch/lib")
+    target_include_directories(meloTTS_ov PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/libtorch/include)
+    target_include_directories(meloTTS_ov PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/libtorch/include/torch/csrc/api/include)
+    if("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64")
+        set(ADDITIONAL_LIBRARY_DEPENDENCIES "torch.lib" "c10.lib" "torch_cpu.lib")
+        target_link_libraries(meloTTS_ov PRIVATE ${ADDITIONAL_LIBRARY_DEPENDENCIES})
+    endif()
 
-find_library(C10_LIB c10 PATHS ${LIBTORCH_DIR}/lib)
-if (NOT C10_LIB)
-    message(FATAL_ERROR "c10.lib not found")
-endif()
+endif() # end USE_DEEPFILTERNET
 
-find_library(TORCH_CPU_LIB torch_cpu PATHS ${LIBTORCH_DIR}/lib)
-if (NOT TORCH_CPU_LIB)
-    message(FATAL_ERROR "torch_cpu.lib not found")
-endif()
-
-target_link_directories(meloTTS_ov PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/libtorch/lib")
-target_include_directories(meloTTS_ov PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/libtorch/include)
-target_include_directories(meloTTS_ov PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/libtorch/include/torch/csrc/api/include)
 
 # Define DEBUG macro for Debug configuration
 target_compile_definitions(meloTTS_ov PRIVATE "$<$<CONFIG:DEBUG>:DEBUG>")
@@ -165,13 +167,12 @@ target_include_directories(meloTTS_ov PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdP
 target_include_directories(meloTTS_ov PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppjieba)
 target_include_directories(meloTTS_ov PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppjieba/include)
 target_include_directories(meloTTS_ov PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc)
-if("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64")
-    set(ADDITIONAL_LIBRARY_DEPENDENCIES "torch.lib" "c10.lib" "torch_cpu.lib")
-endif()
+
+
 target_link_libraries(meloTTS_ov
     PRIVATE openvino::runtime  # Link OpenVINO Runtime privately
-            "${ADDITIONAL_LIBRARY_DEPENDENCIES}"
 )
+
 if (UNIX)
     target_link_libraries(meloTTS_ov PRIVATE pthread)
 endif()

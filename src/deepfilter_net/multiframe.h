@@ -1,7 +1,7 @@
 // Copyright (C) 2024 Intel Corporation
 // SPDX-License-Identifier: GPL-3.0-only
 #pragma once
-
+#ifdef USE_DEEPFILTERNET
 #include <torch/torch.h>
 
 namespace melo {
@@ -42,5 +42,6 @@ namespace melo {
       };
    }   
 }
+#endif
 
 
