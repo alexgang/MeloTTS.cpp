@@ -11,7 +11,6 @@
 #ifdef _WIN32
 #include <iostream>
 #include <locale>
-#define NOMINMAX
 #define NOGDI
 #define NOCRYPT
 #include <windows.h>
@@ -188,8 +187,8 @@ namespace text_normalization {
             result.push_back(UNITS[largest_unit]);
             std::vector<std::wstring> second_result = _get_value(second_part);
 
-            // 添加判断以避免在特定情况下返回"零"
-            if (second_part == L"0") {
+            // 判断第二部分是否全为 '0'，如果是，则不再递归处理
+            if (second_part.find_first_not_of(L'0') == std::wstring::npos) {
                 // second_part 是 "0" 的情况下，不添加 "零"
                 return result; // 返回的结果仅包含前半部分和单位
             }
@@ -230,7 +229,7 @@ namespace text_normalization {
             size_t pos = result.find(L"一");
             while (pos != std::wstring::npos) {
                 result.replace(pos, 1, L"幺");
-                pos = result.find(L"一", pos + 2); // 更新位置，跳过刚替换的字符
+                pos = result.find(L"一", pos + 1); // 更新位置，跳过刚替换的字符
             }
         }
         return result;

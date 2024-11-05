@@ -11,7 +11,6 @@
 #ifdef _WIN32
 #include <iostream>
 #include <locale>
-#define NOMINMAX
 #define NOGDI
 #define NOCRYPT
 #include <windows.h>
