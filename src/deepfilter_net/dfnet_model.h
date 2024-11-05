@@ -39,9 +39,12 @@ namespace melo {
             torch::Tensor
                forward_df3(torch::Tensor spec, torch::Tensor feat_erb, torch::Tensor feat_spec, bool post_filter);
 
-            torch::Tensor
+            [[maybe_unused]] torch::Tensor
                forward_df2(torch::Tensor spec, torch::Tensor feat_erb, torch::Tensor feat_spec);
 
+            ov::CompiledModel _model_request_enc;
+            ov::CompiledModel _model_request_erb_dec;
+            ov::CompiledModel _model_request_df_dec;
             ov::InferRequest _infer_request_enc;
             ov::InferRequest _infer_request_erb_dec;
             ov::InferRequest _infer_request_df_dec;

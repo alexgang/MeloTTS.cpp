@@ -150,8 +150,8 @@ namespace melo {
             std::cout << "enc: " << std::endl;
             logBasicModelInfo(model);
    #endif
-            auto compiledModel = _core->compile_model(model, device);
-            _infer_request_enc = compiledModel.create_infer_request();
+            _model_request_enc = _core->compile_model(model, device);
+            _infer_request_enc = _model_request_enc.create_infer_request();
          }
 
          //erb_dec
@@ -186,8 +186,8 @@ namespace melo {
             std::cout << "erb_dec: " << std::endl;
             logBasicModelInfo(model);
    #endif
-            auto compiledModel = _core->compile_model(model, device);
-            _infer_request_erb_dec = compiledModel.create_infer_request();
+            _model_request_erb_dec = _core->compile_model(model, device);
+            _infer_request_erb_dec = _model_request_erb_dec.create_infer_request();
 
             //'link' the output of enc directly to the input of erb_dec
             _infer_request_erb_dec.set_tensor("emb", _infer_request_enc.get_tensor("emb"));
@@ -225,8 +225,8 @@ namespace melo {
             std::cout << "df_dec: " << std::endl;
             logBasicModelInfo(model);
    #endif
-            auto compiledModel = _core->compile_model(model, device);
-            _infer_request_df_dec = compiledModel.create_infer_request();
+            _model_request_df_dec = _core->compile_model(model, device);
+            _infer_request_df_dec = _model_request_df_dec.create_infer_request();
 
             _infer_request_df_dec.set_tensor("emb", _infer_request_enc.get_tensor("emb"));
             _infer_request_df_dec.set_tensor("c0", _infer_request_enc.get_tensor("c0"));
@@ -235,12 +235,12 @@ namespace melo {
 
       torch::Tensor DFNetModel::forward(torch::Tensor spec, torch::Tensor feat_erb, torch::Tensor feat_spec, bool post_filter)
       {
-
-         if (_bDF3)
+        
+         if (_bDF3) [[likely]]
          {
             return forward_df3(spec, feat_erb, feat_spec, post_filter);
          }
-         else
+         else [[unlikely]]
          {
             return forward_df2(spec, feat_erb, feat_spec);
          }
@@ -266,7 +266,6 @@ namespace melo {
 
       torch::Tensor DFNetModel::forward_df3(torch::Tensor spec, torch::Tensor feat_erb, torch::Tensor feat_spec, bool post_filter)
       {
-
          feat_spec = feat_spec.squeeze(1).permute({ 0, 3, 1, 2 });
          feat_erb = (*_pad_feat)(feat_erb);
          feat_spec = (*_pad_feat)(feat_spec);
@@ -353,6 +352,10 @@ namespace melo {
             auto pf = (1 + beta) / (1 + beta * mask.div(mask_sin).pow(2));
             spec_e = spec_e * pf.unsqueeze(-1);
          }
+         //Release infer memory
+         _model_request_df_dec.release_memory();
+         _model_request_enc.release_memory();
+         _model_request_erb_dec.release_memory();
 
          return spec_e;
       }

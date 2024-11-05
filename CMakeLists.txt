@@ -55,10 +55,10 @@ set(SOURCE_FILES
     src/text_normalization/num.cpp
     src/text_normalization/phonecode.cpp
     src/text_normalization/quantifier.cpp
-    src/noisefilter.cpp
-    src/deepfilter.cpp
-    src/dfnet_model.cpp
-    src/multiframe.cpp
+    src/deepfilter_net/noisefilter.cpp
+    src/deepfilter_net/deepfilter.cpp
+    src/deepfilter_net/dfnet_model.cpp
+    src/deepfilter_net/multiframe.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin_csrc_utils.cc
 )
@@ -85,10 +85,10 @@ set(HEADER_FILES
     src/text_normalization/quantifier.h
     ${CMAKE_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin.h
     ${CMAKE_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin_csrc_utils.h
-    src/noisefilter.h
-    src/deepfilter.h
-    src/multiframe.h
-    src/dfnet_model.h
+    src/deepfilter_net/noisefilter.h
+    src/deepfilter_net/deepfilter.h
+    src/deepfilter_net/multiframe.h
+    src/deepfilter_net/dfnet_model.h
     ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin.h
     ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin_csrc_utils.h
 )
@@ -111,12 +111,10 @@ else()
 endif()
 
 # COPY torch runtime to exe folder
-# Set the release directory
 set(RELEASE_DIR ${CMAKE_BINARY_DIR}/Release)
 set(DEBUG_DIR ${CMAKE_BINARY_DIR}/Debug)
 file(MAKE_DIRECTORY ${RELEASE_DIR} ${DEBUG_DIR})
 
-# List of DLLs to copy
 set(DLLS
     torch.dll
     torch_cpu.dll
@@ -127,7 +125,6 @@ set(DLLS
     libiomp5md.dll
 )
 
-# Copy each DLL and print a message with the DLL name
 foreach(dll ${DLLS})
     message("Copying ${dll} from ${LIBTORCH_DIR}/lib to ${RELEASE_DIR} and ${DEBUG_DIR}")
     execute_process(

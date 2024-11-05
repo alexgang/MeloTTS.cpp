@@ -25,7 +25,7 @@
 #include "language_modules/cmudict.h"
 #include "darts.h"
 #include "text_normalization/text_normalization.h"
-#include "noisefilter.h"
+#include "deepfilter_net/noisefilter.h"
 namespace melo {
     class TTS {
         public:
