@@ -1,4 +1,4 @@
-# DeepFilterNet
+# DeepFilterNet.cpp
 
 [DeepFilterNet](https://github.com/Rikorose/DeepFilterNet) has been integrated with OpenVINO. This component filters noise in the int8 quantized model while ensuring performance is maintained. We currently support this feature only on Windows.
 

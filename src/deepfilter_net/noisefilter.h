@@ -1,6 +1,6 @@
 #ifndef NOISE_FILTER_H
 #define NOISE_FILTER_H
-
+#ifdef USE_DEEPFILTERNET
 #include "deepfilter.h"
 #include <string>
 #include <vector>
@@ -16,5 +16,5 @@ namespace melo {
       ov_deepfilternet::DeepFilter mDeepfilter;
   };
 }
-
+#endif
 #endif // NOISE_FILTER_H

@@ -49,13 +49,17 @@ inline void usage(const std::string& prog)
         << "  --model_dir             Specifies the folder containing the model files, dictionary files, and third-party resource files. \n"
         << "  --tts_device            Specifies the OpenVINO device to be used for the TTS model (default: CPU).\n"
         << "  --bert_device           Specifies the OpenVINO device to be used for the BERT model (default: CPU).\n"
+#ifdef USE_DEEPFILTERNET
         << "  --nf_device             Specifies the OpenVINO device to be used for the DeepfilterNet model (default: CPU).\n"
+#endif
         << "  --input_file            Specifies the input text file to be processed.\n"
         << "  --output_file           Specifies the output audio file to be generated.\n"
         << "  --speed                 Specifies the speed of output audio (default: 1.0).\n"
         << "  --quantize              Indicates whether to use an int8 quantized model (default: false, use fp16 model by default).\n"
         << "  --disable_bert          Indicates whether to disable the BERT model inference (default: false).\n"
+#ifdef USE_DEEPFILTERNET
         << "  --disable_nf            Indicates whether to disable the DeepfilterNet model inference (default: false).\n"
+#endif
         << "  --language              Specifies the language for TTS (default: ZH).\n";
 }
 
@@ -192,9 +196,10 @@ inline void Args::generate_init_file_paths() {
     cppjieba_dict = model_dir / "cppjieba/dict";
     // cppinyin
     cppinyin_resource = model_dir / "cppinyin/cpp_pinyin.raw";
-
+#ifdef USE_DEEPFILTERNET
     // nf_df2 model path
     nf_ir_path  = model_dir;
+#endif
 }
 
 
