@@ -27,7 +27,7 @@ namespace melo {
         const std::filesystem::path& bert_ir_path, const std::string& bert_device, 
 #ifdef USE_DEEPFILTERNET
         const std::filesystem::path& nf_ir_path, const std::string& nf_device, 
-#endif
+#endif // USE_DEEPFILTERNET
         const std::filesystem::path& tokenizer_data_path,
         const std::filesystem::path& punctuation_dict_path, const std::string language, bool disable_bert, bool disable_nf):_language(language),_disable_bert(disable_bert),_disable_nf(disable_nf),
         tts_model(core,tts_ir_path,tts_device,tts_config, language), tokenizer(std::make_shared<Tokenizer>(tokenizer_data_path)){
@@ -52,7 +52,7 @@ namespace melo {
             std::cout << "TTS::TTS : init nf_model\n";
         } else
             std::cout << "TTS::TTS : disable nf_model\n";
-#endif
+#endif // USE_DEEPFILTERNET
         // init punctuation dict
         assert(std::filesystem::exists(punctuation_dict_path) && "punctuation dictionary does not exit!");
         _da.open(punctuation_dict_path.string().c_str());
@@ -87,7 +87,7 @@ namespace melo {
                 std::chrono::duration<double> nf_time_duration = nf_time_2 - nf_time_1;
                 std::cout << "TTS::TTS : [NF][DFNet] process time:" << nf_time_duration.count() << " seconds" << std::endl;
             }
-#endif
+#endif // USE_DEEPFILTERNET
             write_wave(output_path.string(), audio, sampling_rate_);
             //release memory buffer
             tts_model.release_infer_memory();
@@ -157,7 +157,7 @@ namespace melo {
             std::chrono::duration<double> nf_time_duration = nf_time_2 - nf_time_1;
             std::cout << "TTS::TTS : [NF][DFNet] process time:" << nf_time_duration.count() << " seconds" << std::endl;
         }
-#endif
+#endif // USE_DEEPFILTERNET
         write_wave(output_path.string(), audio, sampling_rate_);
     }
     std::tuple<std::vector<std::vector<float>>, std::vector<int64_t>, std::vector<int64_t>, std::vector<int64_t>>

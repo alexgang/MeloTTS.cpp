@@ -51,7 +51,7 @@ inline void usage(const std::string& prog)
         << "  --bert_device           Specifies the OpenVINO device to be used for the BERT model (default: CPU).\n"
 #ifdef USE_DEEPFILTERNET
         << "  --nf_device             Specifies the OpenVINO device to be used for the DeepfilterNet model (default: CPU).\n"
-#endif
+#endif // USE_DEEPFILTERNET
         << "  --input_file            Specifies the input text file to be processed.\n"
         << "  --output_file           Specifies the output audio file to be generated.\n"
         << "  --speed                 Specifies the speed of output audio (default: 1.0).\n"
@@ -59,7 +59,7 @@ inline void usage(const std::string& prog)
         << "  --disable_bert          Indicates whether to disable the BERT model inference (default: false).\n"
 #ifdef USE_DEEPFILTERNET
         << "  --disable_nf            Indicates whether to disable the DeepfilterNet model inference (default: false).\n"
-#endif
+#endif // USE_DEEPFILTERNET
         << "  --language              Specifies the language for TTS (default: ZH).\n";
 }
 
@@ -199,7 +199,7 @@ inline void Args::generate_init_file_paths() {
 #ifdef USE_DEEPFILTERNET
     // nf_df2 model path
     nf_ir_path  = model_dir;
-#endif
+#endif // USE_DEEPFILTERNET
 }
 
 

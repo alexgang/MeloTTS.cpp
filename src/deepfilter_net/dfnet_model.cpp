@@ -434,5 +434,5 @@ namespace melo {
       }
    }
 }
-#endif
+#endif // USE_DEEPFILTERNET
 

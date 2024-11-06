@@ -16,5 +16,5 @@ namespace melo {
       ov_deepfilternet::DeepFilter mDeepfilter;
   };
 }
-#endif
+#endif // USE_DEEPFILTERNET
 #endif // NOISE_FILTER_H
