@@ -1,8 +1,3 @@
-add_executable(test_tokenizer ${CMAKE_CURRENT_SOURCE_DIR}/test_tokenizer.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../src/tokenizer.cpp)
-target_link_libraries(test_tokenizer PRIVATE openvino::runtime) 
-target_include_directories(test_tokenizer PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../src/tokenizer.h)
-#set_target_properties(bert_tokenizer_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tests")
-
 add_executable(test_cmudict ${CMAKE_CURRENT_SOURCE_DIR}/test_cmudict.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../src/language_modules/cmudict.cpp)
 target_include_directories(test_cmudict PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../src/language_modules/cmudict.h)
 
@@ -55,5 +50,10 @@ add_executable(test_bert
                ../src/utils.cpp)
 target_link_libraries(test_bert PRIVATE gtest_main openvino::runtime)
 
+add_executable(test_tokenizer ${CMAKE_CURRENT_SOURCE_DIR}/test_tokenizer.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../src/tokenizer.cpp)
+target_link_libraries(test_tokenizer  PRIVATE gtest_main)
+
+
 include(GoogleTest)
 gtest_discover_tests(test_bert)
+gtest_discover_tests(test_tokenizer)

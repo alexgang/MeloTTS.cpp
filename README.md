@@ -19,7 +19,7 @@ For additional versions and more information about OpenVINO, visit the official 
 
 ### 2. Clone the Repository
 ```
-git install lfs
+git lfs install
 git clone https://github.com/apinge/MeloTTS.cpp.git
 ```
 
@@ -27,7 +27,7 @@ git clone https://github.com/apinge/MeloTTS.cpp.git
 #### 3.1 Windows Build and Run
 ```
 <OpenVINO_DIR>\setupvars.bat
-cd MeloTTS.cpp 
+cd MeloTTS.cpp
 cmake -S . -B build && cmake --build build --config Release
 .\build\Release\meloTTS_ov.exe --model_dir ov_models --input_file inputs.txt  --output_file audio.wav
 ```
@@ -38,17 +38,29 @@ cd MeloTTS.cpp
 cmake -S . -B build && cmake --build build --config Release
 ./build/meloTTS_ov --model_dir ov_models --input_file inputs.txt --output_file audio.wav
 ```
+#### 3.3 Enabling and Disabling DeepFilterNet
+DeepFilterNet functionality is currently supported only on Windows and is used to filter noise from int8 quantized models. By default, it is enabled, but you can enable or disable it during the CMake stage using the `-DUSE_DEEPFILTERNET` option.
+
+For example, to disable the feature, you can use the following line during the CMake generation process:
+```
+cmake -S . -B build --DUSE_DEEPFILTERNET=OFF
+```
+For more information, please refer to [DeepFilterNet.cpp](https://github.com/apinge/MeloTTS.cpp/blob/develop/src/deepfilter_net/README.md).
+
+
 ### 4. Arguments Description
 You can use `run_tts.bat` or `run_tts.sh` as sample scripts to run the models. Below are the meanings of all the arguments you can use with these scripts:
 
 - `--model_dir`: Specifies the folder containing the model files, dictionary files, and third-party resource files, which is `ov_models` folder within the repo. You may need to adjust the relative path based on your current working directory.
 - `--tts_device`: Specifies the OpenVINO device to be used for the TTS model. The default device is CPU.
 - `--bert_device`: Specifies the OpenVINO device to be used for the BERT model. The default device is CPU.
+- `--nf_device`: Specifies the OpenVINO device to be used for the DeepfilterNet model (default: CPU).
 - `--input_file`: Specifies the input text file to be processed. Make sure that the text is in **UTF-8** format.
 - `--output_file`: Specifies the output *.wav audio file to be generated.
 - `--speed`: Specifies the speed of output audio. The default is 1.0.
 - `--quantize`: Indicates whether to use an int8 quantized model. The default is false, meaning an fp16 model is used by default.
 - `--disable_bert`: Indicates whether to disable the BERT model inference. The default is false.
+- `--disable_nf`: Indicates whether to disable the DeepfilterNet model inference (default: false).
 - `--language`: Specifies the language for TTS. The default language is Chinese (`ZH`).
 
 ## Supported Versions
@@ -79,5 +91,7 @@ This repository includes third-party code and libraries for Chinese word segment
     - A Chinese text segmentation library.
 - [cppinyin](https://github.com/pkufool/cppinyin)
     - A C++ library supporting conversion between Chinese characters and pinyin
+- [libtorch](https://github.com/pytorch/pytorch/blob/main/docs/libtorch.rst)
+   - Used to integrate DeepFilterNet
 
 
