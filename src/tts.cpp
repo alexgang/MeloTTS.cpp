@@ -48,7 +48,7 @@ namespace melo {
         // Init noise filter model
         if (!_disable_nf) {
             assert(std::filesystem::exists(nf_ir_path) && "nf_ir_path does not exist!\n");
-            nf.init(nf_ir_path.string(), nf_device);
+            nf.init(core,nf_ir_path.string(), nf_device);
             std::cout << "TTS::TTS : init nf_model\n";
         } else
             std::cout << "TTS::TTS : disable nf_model\n";

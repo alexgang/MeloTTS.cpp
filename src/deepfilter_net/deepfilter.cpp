@@ -13,7 +13,9 @@ namespace melo {
          std::cout << "[NF][DFNet] DeepFilter Constructor" << std::endl;
       }
 
-      void DeepFilter::Init(std::string model_folder,
+      void DeepFilter::Init(
+                            std::unique_ptr<ov::Core>& core,
+                            std::string model_folder,
                             std::string device,
                             ModelSelection model_selection,
                             std::optional<std::string> openvino_cache_dir,
@@ -74,7 +76,7 @@ namespace melo {
          // Init buffers
          _reset_reg();
 
-         _dfnet = std::make_shared< DFNetModel >(model_folder, device, model_selection, openvino_cache_dir, _erb_indices, 2, _nb_df);
+         _dfnet = std::make_shared< DFNetModel >(core, model_folder, device, model_selection, openvino_cache_dir, _erb_indices, 2, _nb_df);
       }
 
       void DeepFilter::_reset_reg()

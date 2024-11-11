@@ -30,12 +30,13 @@ namespace melo {
   NoiseFilter::~NoiseFilter()
   {}
 
-  void NoiseFilter::init(const std::string aModel_path,
+  void NoiseFilter::init(std::unique_ptr<ov::Core>& core,
+                         const std::string aModel_path,
                          const std::string aModel_device) {
   	/* can be DEEPFILTERNET2 or DEEPFILTERNET3 */
     std::cout << " NoiseFilter::init. aModel_path = " << aModel_path << " nf devices = " << aModel_device << std::endl;
   	auto dfnet_version = ov_deepfilternet::ModelSelection::DEEPFILTERNET3;
-  	mDeepfilter.Init(aModel_path, aModel_device, dfnet_version, "nf_ov_cache");
+  	mDeepfilter.Init(core, aModel_path, aModel_device, dfnet_version, "nf_ov_cache");
   }
 
   void NoiseFilter::proc(std::vector<float>& aMamples) {

@@ -94,7 +94,7 @@ namespace melo {
 
       };
 
-      DFNetModel::DFNetModel(std::string model_folder, std::string device, ModelSelection model_selection,
+      DFNetModel::DFNetModel(std::unique_ptr<ov::Core>& _core, std::string model_folder, std::string device, ModelSelection model_selection,
          std::optional<std::string> openvino_cache_dir, torch::Tensor erb_widths, int64_t lookahead, int64_t nb_df)
          : _nb_df(nb_df), _df(nb_df, 5, 2)
       {
@@ -118,13 +118,16 @@ namespace melo {
 
          _mask = std::make_shared<Mask>(erb_inv_fb);
 
-         _core = std::make_shared< ov::Core >();
 
          if (openvino_cache_dir)
          {
             _core->set_property(ov::cache_dir(*openvino_cache_dir));
          }
-
+         if (device.find("CPU") != std::string::npos) {
+             _core->set_property("CPU", { {"CPU_RUNTIME_CACHE_CAPACITY", "0"} });
+             std::cout << "[DFNetModel] Set CPU_RUNTIME_CACHE_CAPACITY 0\n";
+         }
+         
          _num_hops = 3002;
 
    #define DFNET_USE_ONNX 0 //set to 1 to use .onnx models, set to 0 to use OpenVINO IR (.xml)

@@ -12,7 +12,8 @@ namespace melo {
      {
      public:
         DeepFilter();
-        void Init(std::string model_folder,
+        void Init(std::unique_ptr<ov::Core>& core,
+                  std::string model_folder,
                   std::string device,
                   ModelSelection model_selection = ModelSelection::DEEPFILTERNET3,
                   std::optional<std::string> openvino_cache_dir = {},

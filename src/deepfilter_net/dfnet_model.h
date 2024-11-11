@@ -19,7 +19,9 @@ namespace melo {
          {
          public:
 
-            DFNetModel(std::string model_folder,
+            DFNetModel(
+               std::unique_ptr<ov::Core>& core,
+               std::string model_folder,
                std::string device,
                ModelSelection model_selection,
                std::optional<std::string> openvino_cache_dir,
@@ -48,7 +50,6 @@ namespace melo {
             ov::InferRequest _infer_request_enc;
             ov::InferRequest _infer_request_erb_dec;
             ov::InferRequest _infer_request_df_dec;
-            std::shared_ptr< ov::Core > _core;
 
             std::shared_ptr< torch::nn::ConstantPad3d > _pad_spec;
             std::shared_ptr< torch::nn::ConstantPad2d > _pad_feat;

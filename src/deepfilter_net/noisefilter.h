@@ -10,7 +10,7 @@ namespace melo {
     public:
 	  explicit NoiseFilter();
 	  ~NoiseFilter();
-	  void init(const std::string aModel_path, const std::string aModel_device);
+	  void init(std::unique_ptr<ov::Core>& core, const std::string aModel_path, const std::string aModel_device);
       void proc(std::vector<float>& aMamples);
     private:
       ov_deepfilternet::DeepFilter mDeepfilter;
