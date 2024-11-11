@@ -43,4 +43,4 @@ namespace melo {
     aMamples = mDeepfilter.filter(input_wav_tensor);
   }
 }
-#endif
+#endif // USE_DEEPFILTERNET

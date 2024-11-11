@@ -97,6 +97,7 @@ add_executable(meloTTS_ov ${SOURCE_FILES} ${HEADER_FILES})
 # Whether use deep filter net; We do not support this feature on Linux now.
 if(NOT DEFINED USE_DEEPFILTERNET AND WIN32)
     set(USE_DEEPFILTERNET ON)
+    add_compile_definitions(USE_DEEPFILTERNET)
     message(STATUS "DeepFilterNet is enabled")
 else()
     set(USE_DEEPFILTERNET OFF)

@@ -43,7 +43,7 @@ DeepFilterNet functionality is currently supported only on Windows and is used t
 
 For example, to disable the feature, you can use the following line during the CMake generation process:
 ```
-cmake -S . -B build --DUSE_DEEPFILTERNET=OFF
+cmake -S . -B build -DUSE_DEEPFILTERNET=OFF
 ```
 For more information, please refer to [DeepFilterNet.cpp](https://github.com/apinge/MeloTTS.cpp/blob/develop/src/deepfilter_net/README.md).
 
