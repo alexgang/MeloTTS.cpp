@@ -28,7 +28,9 @@ namespace melo
 	    assert(std::filesystem::exists(token_filename) && "[ERROR] vocab_bert.txt does not exit!");
 		ReadTokenFile(token_filename.string());
 	}
-
+	std::unordered_set<char> Tokenizer::punctuations = {
+			',', '.', '!', '?', ';','-','\''
+	};
 
 	void Tokenizer::ReadTokenFile(const std::string& token_filename) {
 		std::ifstream file(token_filename);
@@ -222,7 +224,23 @@ namespace melo
 						id_out.insert(id_out.end(), ids.begin(), ids.end());
 						current_chinese = "";
 					}
-					current_eng += ch;
+					
+					if (punctuations.contains(ch)) {
+						if (current_eng.size() > 0) {
+							std::transform(current_eng.begin(), current_eng.end(), current_eng.begin(), _tolower);
+							searchEnglishWord(current_eng, str_out, id_out);
+
+							current_eng = "";
+						}
+						// punctuation
+						std::string punc(1, ch);
+						str_out.emplace_back(punc);
+						id_out.emplace_back(m_token2id.at(punc));
+					}
+					else {
+						current_eng += ch;
+					}
+					
 				}
 				else
 				{

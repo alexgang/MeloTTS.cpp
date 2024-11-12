@@ -47,7 +47,7 @@ namespace melo {
         print_input_names();
 #endif
         ov_infer();
- 
+
         get_output(word2ph, berts);
 
     }

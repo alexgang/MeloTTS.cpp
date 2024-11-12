@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <sstream>
 #include <filesystem>
+#include <unordered_set>
 #ifdef _WIN32
 #include <codecvt>
 #include <fcntl.h>
@@ -50,6 +51,10 @@ inline size_t str_len(const std::string& s) {
     }
     return cnt;
 }
+std::unordered_set<int> sentence_splitter = {
+    // "，", "。", "！", "？","；",
+     ',', '.', '!', '?', ';',
+};
 
 std::vector<std::string> split_sentences_zh(const std::string& text, size_t min_len = 10) {
     std::vector<std::string> sentences;
@@ -60,23 +65,38 @@ std::vector<std::string> split_sentences_zh(const std::string& text, size_t min_
         const char* query = text.data() + i;
         std::vector<Darts::DoubleArray::result_pair_type> results(MAX_HIT);
         size_t num_matches = da.commonPrefixSearch(query, results.data(), MAX_HIT);
-        if (!num_matches) {
-            tmp += text[i++];
+        for (int i = 0; i < n; ) {
+            const char* query = text.data() + i;
+            std::vector<Darts::DoubleArray::result_pair_type> results(MAX_HIT);
+            size_t num_matches = da.commonPrefixSearch(query, results.data(), MAX_HIT);
+            if (!num_matches) {
+                tmp += text[i++];
+            }
+            else if ((text[i] == ',' || text[i] == '.') && i > 0 && i < n && std::isdigit(static_cast<int>(text[i - 1])) && std::isdigit(static_cast<int>(text[i + 1]))) {
+                if (text[i] == '.')
+                    tmp += "."; // Keep the decimal point here for subsequent text normalization processing.
+                i += results.front().length;
+            }
+            else if (sentence_splitter.contains(results.front().value)) { // text splitter
+                tmp += static_cast<char>(results.front().value);
+                sentences.emplace_back(std::move(tmp));
+                tmp.clear();
+                i += results.front().length;
+            }
+            else if (results.front().value == 3) { // space it is meaningful to english words
+                tmp += " ";
+                i += results.front().length;
+            }
+            else if (results.front().value == 0) { // skip certain punctuations
+                i += results.front().length;
+            }
+            else {
+                tmp += static_cast<char>(results.front().value);
+                i += results.front().length;
+            }
+
         }
-        else if (results.front().value == 2) { // text splitter
-            sentences.emplace_back(std::move(tmp));
-            tmp.clear();
-            i += results.front().length;
-        }
-        else if (results.front().value == 1) { //skip some punctuations like "'"
-            i += results.front().length;
-        }
-        else if (results.front().value == 3) { // space it is meaningful to english words
-            tmp += " ";
-            i += results.front().length;
-        }
-        else
-            std::cerr << "split_sentences_zh: puncutation dictionary value failes!\n";
+
     }
     if(tmp.size())
         sentences.emplace_back(std::move(tmp));
@@ -127,7 +147,7 @@ int main() {
 #endif
    std::string a = ", ";
     std::cout << a.size() << std::endl;
-    std::filesystem::path model_dir = OV_MODEL_PATH;
+    std::filesystem::path model_dir = "C:\\Users\\gta\\source\\develop\\MeloTTS.cpp\\build\\tests";
     std::filesystem::path punc_dir = model_dir / "punc_.dic";
     da.open(punc_dir.string().c_str());
     std::cout << "open dict\n";

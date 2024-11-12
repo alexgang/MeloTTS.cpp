@@ -190,6 +190,9 @@ namespace melo {
         }
         return {};
     }
+    std::unordered_set<int> sentence_splitter = {
+         ',', '.', '!', '?', ';',
+    };
     /*
      * @brief Splits a given text into pieces based on Chinese and English punctuation marks.
      * punctuation marks inlucde {
@@ -219,27 +222,29 @@ namespace melo {
             if (!num_matches) {
                 tmp += text[i++];
             }
-            else if (results.front().value == 2) { // text splitter
-                // Skip special cases: format as decimal point (e.g. 100.0)or scientific notation (1000,000,000)as appropriate 
-                if(i>0&&i<n&& std::isdigit(static_cast<int>(text[i - 1])) && std::isdigit(static_cast<int>(text[i + 1]))){
-                    if(text[i]=='.')
-                        tmp += "."; // Keep the decimal point here for subsequent text normalization processing.
-                }
-                else {
-                    sentences.emplace_back(std::move(tmp));
-                    tmp.clear();
-                }
+            else if ((text[i]==',' || text[i] == '.') && i > 0 && i < n && std::isdigit(static_cast<int>(text[i - 1])) && std::isdigit(static_cast<int>(text[i + 1]))) {
+                if (text[i] == '.')
+                    tmp += "."; // Keep the decimal point here for subsequent text normalization processing.
                 i += results.front().length;
             }
-            else if (results.front().value == 1) { //skip some punctuations like "'"
+            else if (sentence_splitter.contains(results.front().value)) { // text splitter
+                tmp += static_cast<char>(results.front().value);
+                sentences.emplace_back(std::move(tmp));
+                tmp.clear();
                 i += results.front().length;
             }
             else if (results.front().value == 3) { // space it is meaningful to english words
                 tmp += " ";
                 i += results.front().length;
             }
-            else
-                std::cerr << "split_sentences_zh: puncutation dictionary value failes!\n";
+            else if (results.front().value == 0) { // skip certain punctuations
+                i += results.front().length;
+            }
+            else {
+                tmp += static_cast<char>(results.front().value);
+                i += results.front().length;
+            }
+
         }
         if (tmp.size())
             sentences.emplace_back(std::move(tmp));

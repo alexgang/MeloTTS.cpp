@@ -51,18 +51,19 @@ namespace melo {
         std::shared_ptr<std::unordered_map<std::string, std::vector<std::string>>> pinyin_to_symbol_map;
 
         const std::unordered_map<std::string, int64_t> symbol_to_id =
-        {{"_", 0 }, {"AA", 1 }, {"E", 2 }, {"EE", 3 }, {"En", 4 }, {"N", 5 }, {"OO", 6 }, {"V", 7 }, {"a", 8 }, {"a,", 9 }, {"aa", 10 },
-        {"ae", 11 }, {"ah", 12 }, {"ai", 13 }, {"an", 14 }, {"ang", 15 }, {"ao", 16 }, {"aw", 17 }, {"ay", 18 }, {"b", 19 }, {"by", 20 },
-        {"c", 21 }, {"ch", 22 }, {"d", 23 }, {"dh", 24 }, {"dy", 25 }, {"e", 26 }, {"e,", 27 }, {"eh", 28 }, {"ei", 29 }, {"en", 30 },
-        {"eng", 31 }, {"er", 32 }, {"ey", 33 }, {"f", 34 }, {"g", 35 }, {"gy", 36 }, {"h", 37 }, {"hh", 38 }, {"hy", 39 }, {"i", 40 }, 
-        {"i0", 41 }, {"i,", 42 }, {"ia", 43 }, {"ian", 44 }, {"iang", 45 }, {"iao", 46 }, {"ie", 47 }, {"ih", 48 }, {"in", 49 }, {"ing", 50 },
-        {"iong", 51 }, {"ir", 52 }, {"iu", 53 }, {"iy", 54 }, {"j", 55 }, {"jh", 56 }, {"k", 57 }, {"ky", 58 }, {"l", 59 }, {"m", 60 },
-        {"my", 61 }, {"n", 62 }, {"ng", 63 }, {"ny", 64 }, {"o", 65 }, {"o,", 66 }, {"ong", 67 }, {"ou", 68 }, {"ow", 69 }, {"oy", 70 }, 
-        {"p", 71 }, {"py", 72 }, {"q", 73 }, {"r", 74 }, {"ry", 75 }, {"s", 76 }, {"sh", 77 }, {"t", 78 }, {"th", 79 }, {"ts", 80 }, 
-        {"ty", 81 }, {"u", 82 }, {"u,", 83 }, {"ua", 84 }, {"uai", 85 }, {"uan", 86 }, {"uang", 87 }, {"uh", 88 }, {"ui", 89 }, {"un", 90 },
-        {"uo", 91 }, {"uw", 92 }, {"v", 93 }, {"van", 94 }, {"ve", 95 }, {"vn", 96 }, {"w", 97 }, {"x", 98 }, {"y", 99 }, {"z", 100 }, 
-        {"zh", 101 }, {"zy", 102 }, {"!", 103 }, {"?", 104 }, {"…", 105 }, {" },", 106 }, {".", 107 }, {"\"", 108 }, {"-", 109 }, {"SP", 110 }, {"UNK", 111}};
+        { { "_", 0 }, { "AA", 1 }, { "E", 2 }, { "EE", 3 }, { "En", 4 }, { "N", 5 }, { "OO", 6 }, { "V", 7 }, { "a", 8 }, { "a,", 9 }, { "aa", 10 }, 
+        { "ae", 11 }, { "ah", 12 }, { "ai", 13 }, { "an", 14 }, { "ang", 15 }, { "ao", 16 }, { "aw", 17 }, { "ay", 18 }, { "b", 19 }, { "by", 20 }, 
+        { "c", 21 }, { "ch", 22 }, { "d", 23 }, { "dh", 24 }, { "dy", 25 }, { "e", 26 }, { "e,", 27 }, { "eh", 28 }, { "ei", 29 }, { "en", 30 }, 
+        { "eng", 31 }, { "er", 32 }, { "ey", 33 }, { "f", 34 }, { "g", 35 }, { "gy", 36 }, { "h", 37 }, { "hh", 38 }, { "hy", 39 }, { "i", 40 }, 
+        { "i0", 41 }, { "i,", 42 }, { "ia", 43 }, { "ian", 44 }, { "iang", 45 }, { "iao", 46 }, { "ie", 47 }, { "ih", 48 }, { "in", 49 }, { "ing", 50 }, 
+        { "iong", 51 }, { "ir", 52 }, { "iu", 53 }, { "iy", 54 }, { "j", 55 }, { "jh", 56 }, { "k", 57 }, { "ky", 58 }, { "l", 59 }, { "m", 60 }, 
+        { "my", 61 }, { "n", 62 }, { "ng", 63 }, { "ny", 64 }, { "o", 65 }, { "o,", 66 }, { "ong", 67 }, { "ou", 68 }, { "ow", 69 }, { "oy", 70 }, 
+        { "p", 71 }, { "py", 72 }, { "q", 73 }, { "r", 74 }, { "ry", 75 }, { "s", 76 }, { "sh", 77 }, { "t", 78 }, { "th", 79 }, { "ts", 80 }, 
+        { "ty", 81 }, { "u", 82 }, { "u,", 83 }, { "ua", 84 }, { "uai", 85 }, { "uan", 86 }, { "uang", 87 }, { "uh", 88 }, { "ui", 89 }, { "un", 90 }, 
+        { "uo", 91 }, { "uw", 92 }, { "v", 93 }, { "van", 94 }, { "ve", 95 }, { "vn", 96 }, { "w", 97 }, { "x", 98 }, { "y", 99 }, { "z", 100 }, 
+        { "zh", 101 }, { "zy", 102 }, { "!", 103 }, { "?", 104 }, { "…", 105 }, { ",", 106 }, { ".", 107 }, { "\'", 108},{ "-", 109},{ "SP", 110},{ "UNK", 111}};
 
+        const std::unordered_set<std::string> rep_map = {".", "...", "?", ",", "!", "-", "'"};
         // Only lowercase letters are accepted here!
         std::tuple<std::vector<std::string>, std::vector<int64_t>, std::vector<int>> _g2p_v2(const std::string& segment, std::shared_ptr<Tokenizer>& tokenizer) {
 
@@ -125,6 +126,7 @@ namespace melo {
 #endif
             return { phones_list, tones_list, word2ph };
         }
+        std::unordered_set<char> spaces = {'\n',' ','\r','\t','\0'};
         std::tuple<std::vector<std::string>, std::vector<int64_t>, std::vector<int>> _chinese_g2p(std::vector<std::pair<std::string, std::string>>& segments) {
             auto new_segments = ToneSandhi::pre_merge_for_modify(segments); //adjust word segmentation
             std::vector<std::string> phones_list;
@@ -132,35 +134,49 @@ namespace melo {
             std::vector<int> word2ph;
 
             for (const auto& [word, tag] : new_segments) {
+                //An ugly workaround to prevent pinyin from failing to parse.
+                if(spaces.contains(word.front())) continue;
                 auto [sub_initials, sub_finals] = _get_initials_finals(word);
                 ToneSandhi::modified_tone(word, tag, jieba, sub_finals);
                 int n = sub_initials.size();
                 assert(n == sub_finals.size());
-
                 std::string pinyin;
                 int tone = 0;
-                std::vector<std::string> phone;
+                //std::vector<std::string> phone;
                 // iteration word by word in C++23 std::views::zip(initials, finals)
                 for (int i = 0; i < n; ++i) {
-                    pinyin.clear(); tone = 0; phone.clear();
+                    pinyin.clear(); tone = 0; 
                     auto c = sub_initials[i]; // 声母 e.g. "w"
                     auto v = sub_finals[i]; // 韵母+声调 "eng2"
-                    tone = v.back() - '0'; // number for 声调
-                    v.pop_back();// 韵母 without tone(声调)
-                    pinyin = c + v;
-                    assert(tone > 0 && tone <= 5);
-                    // 多音节
-                    if (v_rep_map.contains(v)) {
-                        pinyin = c + v_rep_map.at(v);
+                    if(c==v){ // punctuation
+                        word2ph.emplace_back(1);
+                        phones_list.emplace_back(c);
+                        tones_list.emplace_back(0);
                     }
-                    if (!pinyin_to_symbol_map->contains(pinyin))
-                        std::cerr << std::format("{} not in map,{}\n", pinyin, word);
-                    const auto& phone = pinyin_to_symbol_map->at(pinyin);
-                    word2ph.emplace_back(phone.size());
-                    phones_list.insert(phones_list.end(), phone.begin(), phone.end());
-                    tones_list.insert(tones_list.end(), phone.size(), tone);
+                    else{
+                        tone = v.back() - '0'; // number for 声调
+                        v.pop_back();// 韵母 without tone(声调)
+                        pinyin = c + v;
+                        assert(tone > 0 && tone <= 5);
+                        // 多音节
+                        if (v_rep_map.contains(v)) {
+                            pinyin = c + v_rep_map.at(v);
+                        }
+                        if (!pinyin_to_symbol_map->contains(pinyin))
+                            std::cerr << std::format("_chinese_g2p: {} not in map,{}\n", pinyin, word);
+                        const auto& phone = pinyin_to_symbol_map->at(pinyin);
+                        word2ph.emplace_back(phone.size());
+                        phones_list.insert(phones_list.end(), phone.begin(), phone.end());
+                        tones_list.insert(tones_list.end(), phone.size(), tone);
+                    }
+
                 }
             }
+#ifdef MELO_DEBUG
+            printVec(phones_list, "phones_list");
+            printVec(tones_list,"tones_list");
+            printVec(word2ph,"wordwph");
+#endif
             return { phones_list, tones_list, word2ph };
         }
         std::tuple<std::vector<std::string>, std::vector<int64_t>, std::vector<int>> _chinese_g2p(const std::string& word, const std::string& tag) {
@@ -366,9 +382,16 @@ namespace melo {
             pinyin->Encode(input, &pieces);
 
             for (const auto& piece : pieces) {
-                const auto&[orig_initial, orig_final] = split_initials_finals(piece);
-                initials.emplace_back(orig_initial);
-                finals.emplace_back(orig_final);
+
+                if (rep_map.contains(piece)) { //if punctuation
+                    initials.emplace_back(piece);
+                    finals.emplace_back(piece);
+                }
+                else{
+                    const auto&[orig_initial, orig_final] = split_initials_finals(piece);
+                    initials.emplace_back(orig_initial);
+                    finals.emplace_back(orig_final);
+                }
             }
             return {initials,finals};
         }

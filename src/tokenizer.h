@@ -3,14 +3,14 @@
  *
  * See LICENSE for clarification regarding multiple authors
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the 'License');
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
+ * distributed under the License is distributed on an 'AS IS' BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
@@ -21,6 +21,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 #include <filesystem>
 namespace melo {
     /**
@@ -31,7 +32,7 @@ namespace melo {
      * and Roman numerals. It maintains UTF-8 integrity for multilingual support.
      *
      * Example:
-     * Input: "Hello 世界"
+     * Input: 'Hello 世界'
      * Output: tokens [hello, 世, 界] token_ids[101 29155 1666 5855 102] (only English words and Chinese characters tokenized)
      */
     class Tokenizer {
@@ -48,7 +49,9 @@ namespace melo {
         std::vector<std::string> SplitChineseString(const std::string& str_info);
         void StrSplit(const std::string& str, const char split, std::vector<std::string>& res);
 
+  
     public:
+        static std::unordered_set<char> punctuations; //After filtering, only these punctuation marks are accepted.
         Tokenizer() = default;
         Tokenizer(const std::filesystem::path& token_filename);
         //Tokenizer(const std::string& token_filename);

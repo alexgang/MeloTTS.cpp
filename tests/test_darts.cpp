@@ -5,6 +5,7 @@
 #include <string>
 #include <algorithm>
 #include <unordered_set>
+#include <unordered_map>
 #ifdef _WIN32
 #include <codecvt>
 #include <fcntl.h>
@@ -26,28 +27,38 @@ int main(int argc, char** argv)
   //  const Darts::DoubleArray::key_type* str[] = { "ALGOL", "ANSI", "ARCO",  "ARPA", "ARPANET", "ASCII" }; // same as char*
     std::vector<std::string>punctuation = {
     "，", "。", "！", "？", "、", "；", "：", "“", "”", "‘", "’", "（", "）", "【", "】", "《", "》", "——", "……", "·",
-    ",", ".", "!", "?", ";", ":", "\"", "\"", "'", "'", "(", ")", "[", "]", "<", ">", "-", "...", ".", "\n", "\t", "\r",
+    ",", ".", "!", "?", ";", ":", "\"",  "\'", "'", "(", ")", "[", "]", "<", ">", "-", "...", ".", "\n", "\t", "\r",
     "」","「","~","～","—","】","【","$","¥ ",
     };
     std::unordered_set<std::string> sentence_splitter = {
-       "，", "。", "！", "？","；",
+      // "，", "。", "！", "？","；",
        ",", ".", "!", "?", ";",
     };
     std::unordered_set<std::string> spaces = {
         "\n", "\t", "\r",
     };
+    std::unordered_map<std::string, char> rep_map = {
+       {"：", ','},{"；", ','},{"，", ','},{"。", '.'},{"！", '!'},{"？", '?'},{"\n", '.'},{"·", ','},{"、", ','},{"...", '.'},{"$", '.'},{"“", '\''},{"”", '\''},{"‘", '\''},{"’", '\''},{"（", '\''},{"）", '\''},
+       {"(", '\''},{")", '\''},{"《", '\''},{"》", '\''},{"【", '\''},{"】", '\''},{"[", '\''},{"]", '\''},{"—", '-'},{"～", '-'},{"~", '-'},{"「", '\''},{"」", '\''},{"-",'-'},{"\'",'\''}
+    };
+
     //std::cout << punctuation[1].size()<<std::endl;
    // std::vector<std::string>chinese_punctuation = { "，", "。" };
     stable_sort(punctuation.begin(),punctuation.end());
     int n = punctuation.size();
     std::vector<const char*> keys;
     std::vector<size_t> length;
-    std::vector<Darts::DoubleArray::result_type> values(n, 1);// normal punctuation flag is 1
+    std::vector<Darts::DoubleArray::result_type> values(n, 0);// dummy punctuation flag is 0
     for (int i = 0; i < n; ++i) {
         keys.emplace_back(punctuation[i].c_str());
         length.emplace_back(punctuation[i].size());
-        if (sentence_splitter.contains(punctuation[i])) {
-            values[i] = 2;// sentence splitter flag
+        if (rep_map.contains(punctuation[i])) {
+            values[i] = static_cast<int>(rep_map.at(punctuation[i]));
+            //std::cout << punctuation[i] << " "<< rep_map.at(punctuation[i])  <<" " << values[i] << std::endl;
+        }
+        else if (sentence_splitter.contains(punctuation[i])) {
+            values[i] = static_cast<int>(punctuation[i].front());// sentence splitter flag
+           
         }
         else if (spaces.contains(punctuation[i])) {
             values[i] = 3;// space flag

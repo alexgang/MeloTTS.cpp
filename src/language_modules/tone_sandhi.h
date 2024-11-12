@@ -22,6 +22,7 @@
 #include <utility>
 #include <string>
 #include "Jieba.hpp"
+#include "tokenizer.h"
 namespace melo {
     namespace ToneSandhi {
         std::vector<std::pair<std::string, std::string>> pre_merge_for_modify(std::vector<std::pair<std::string, std::string>>& seg);

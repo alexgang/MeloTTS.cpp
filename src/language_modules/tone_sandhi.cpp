@@ -31,9 +31,18 @@ namespace melo {
          */
         std::vector<std::pair<std::string, std::string>> _merge_chinese_patterns(std::vector<std::pair<std::string, std::string>>& seg) {
             std::vector<std::pair<std::string, std::string>> new_seg;
+#ifdef MELO_DEBUG
+            std::cout << "origin seg\n";
+            for(const auto &[word,_]:seg){
+                std::cout << word <<'|';
+            }
+            std::cout << std::endl;
+#endif
+            
             for(auto &[word,pos]:seg){
                 //_merge_reduplication and _merge_bu
-                if (new_seg.size() && (word == new_seg.back().first || new_seg.back().first == "不"))
+                //Here, two consecutive punctuation marks are prevented from being combined within the same word segmentation.
+                if (new_seg.size() && (word == new_seg.back().first && !Tokenizer::punctuations.contains(word.front())|| new_seg.back().first == "不"))
                     new_seg.back().first += word;
                 else if (new_seg.size() && word == "儿") //_merge_er
                     new_seg.back().first += "儿";
@@ -44,7 +53,7 @@ namespace melo {
                 new_seg.back().second = "d";
 #ifdef MELO_DEBUG
             std::cout << "_merge_chinese_patterns:";
-            for (const auto& [word, _] : new_seg) std::cout << word << ' ';
+            for (const auto& [word, _] : new_seg) std::cout << word << '|';
             std::cout << std::endl;
 #endif
             return new_seg;
