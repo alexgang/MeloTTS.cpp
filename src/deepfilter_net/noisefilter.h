@@ -8,9 +8,10 @@
 namespace melo {
   class NoiseFilter {
     public:
-	  explicit NoiseFilter();
-	  ~NoiseFilter();
-	  void init(std::unique_ptr<ov::Core>& core, const std::string aModel_path, const std::string aModel_device);
+      explicit NoiseFilter();
+      ~NoiseFilter();
+      void init(std::unique_ptr<ov::Core>& core, const std::string aModel_path, const std::string aModel_device);
+      ov::AnyMap set_nf_ov_cfg(const std::string& device_name, bool quantize);
       void proc(std::vector<float>& aMamples);
     private:
       ov_deepfilternet::DeepFilter mDeepfilter;

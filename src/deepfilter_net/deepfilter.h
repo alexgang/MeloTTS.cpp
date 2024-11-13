@@ -5,6 +5,8 @@
 #include <torch/torch.h>
 #include <optional>
 #include "dfnet_model.h"
+#include "openvino/runtime/intel_gpu/properties.hpp"
+#include "openvino/openvino.hpp"
 
 namespace melo {
   namespace ov_deepfilternet {
@@ -16,7 +18,7 @@ namespace melo {
                   std::string model_folder,
                   std::string device,
                   ModelSelection model_selection = ModelSelection::DEEPFILTERNET3,
-                  std::optional<std::string> openvino_cache_dir = {},
+                  const ov::AnyMap& nf_ov_cfg = {},
                   int64_t sr = 44100,
                   int64_t fft_size = 960,
                   int64_t hop_size = 480,

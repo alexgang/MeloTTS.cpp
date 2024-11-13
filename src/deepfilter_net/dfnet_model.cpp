@@ -95,7 +95,7 @@ namespace melo {
       };
 
       DFNetModel::DFNetModel(std::unique_ptr<ov::Core>& _core, std::string model_folder, std::string device, ModelSelection model_selection,
-         std::optional<std::string> openvino_cache_dir, torch::Tensor erb_widths, int64_t lookahead, int64_t nb_df)
+         const ov::AnyMap& nf_ov_cfg, torch::Tensor erb_widths, int64_t lookahead, int64_t nb_df)
          : _nb_df(nb_df), _df(nb_df, 5, 2)
       {
          auto erb_inv_fb = erb_fb(erb_widths, 48000, true, true);
@@ -118,11 +118,6 @@ namespace melo {
 
          _mask = std::make_shared<Mask>(erb_inv_fb);
 
-
-         if (openvino_cache_dir)
-         {
-            _core->set_property(ov::cache_dir(*openvino_cache_dir));
-         }
          if (device.find("CPU") != std::string::npos) {
              _core->set_property("CPU", { {"CPU_RUNTIME_CACHE_CAPACITY", "0"} });
              std::cout << "[DFNetModel] Set CPU_RUNTIME_CACHE_CAPACITY 0\n";
@@ -154,7 +149,7 @@ namespace melo {
             std::cout << "enc: " << std::endl;
             logBasicModelInfo(model);
    #endif
-            _model_request_enc = _core->compile_model(model, device);
+            _model_request_enc = _core->compile_model(model, device, nf_ov_cfg);
             _infer_request_enc = _model_request_enc.create_infer_request();
          }
 
@@ -190,7 +185,7 @@ namespace melo {
             std::cout << "erb_dec: " << std::endl;
             logBasicModelInfo(model);
    #endif
-            _model_request_erb_dec = _core->compile_model(model, device);
+            _model_request_erb_dec = _core->compile_model(model, device, nf_ov_cfg);
             _infer_request_erb_dec = _model_request_erb_dec.create_infer_request();
 
             //'link' the output of enc directly to the input of erb_dec
@@ -229,7 +224,7 @@ namespace melo {
             std::cout << "df_dec: " << std::endl;
             logBasicModelInfo(model);
    #endif
-            _model_request_df_dec = _core->compile_model(model, device);
+            _model_request_df_dec = _core->compile_model(model, device, nf_ov_cfg);
             _infer_request_df_dec = _model_request_df_dec.create_infer_request();
 
             _infer_request_df_dec.set_tensor("emb", _infer_request_enc.get_tensor("emb"));

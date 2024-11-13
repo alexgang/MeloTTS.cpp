@@ -20,6 +20,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <openvino/openvino.hpp>
 
 namespace melo {
   NoiseFilter::NoiseFilter()
@@ -35,9 +36,20 @@ namespace melo {
                          const std::string aModel_device) {
   	/* can be DEEPFILTERNET2 or DEEPFILTERNET3 */
     std::cout << " NoiseFilter::init. aModel_path = " << aModel_path << " nf devices = " << aModel_device << std::endl;
-  	auto dfnet_version = ov_deepfilternet::ModelSelection::DEEPFILTERNET3;
-  	mDeepfilter.Init(core, aModel_path, aModel_device, dfnet_version, "nf_ov_cache");
+    auto dfnet_version = ov_deepfilternet::ModelSelection::DEEPFILTERNET3;
+    mDeepfilter.Init(core, aModel_path, aModel_device, dfnet_version, set_nf_ov_cfg(aModel_device, false));
   }
+
+  ov::AnyMap NoiseFilter::set_nf_ov_cfg(const std::string& device_name, bool quantize = false) {
+    ov::AnyMap device_config = {};
+    if (device_name.find("CPU") != std::string::npos) {
+      device_config[ov::cache_dir.name()] = "cache";
+      device_config[ov::enable_profiling.name()] = true;
+    }
+
+    return device_config;
+  }
+
 
   void NoiseFilter::proc(std::vector<float>& aMamples) {
     torch::Tensor input_wav_tensor = torch::from_blob(aMamples.data(), { 1, (int64_t)aMamples.size() });

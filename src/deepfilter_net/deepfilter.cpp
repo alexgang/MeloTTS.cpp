@@ -18,7 +18,7 @@ namespace melo {
                             std::string model_folder,
                             std::string device,
                             ModelSelection model_selection,
-                            std::optional<std::string> openvino_cache_dir,
+                            const ov::AnyMap& nf_ov_cfg,
                             int64_t sr, int64_t fft_size, int64_t hop_size,
                             int64_t nb_bands, int64_t min_nb_freqs, int64_t nb_df, double alpha)
       {
@@ -76,7 +76,7 @@ namespace melo {
          // Init buffers
          _reset_reg();
 
-         _dfnet = std::make_shared< DFNetModel >(core, model_folder, device, model_selection, openvino_cache_dir, _erb_indices, 2, _nb_df);
+         _dfnet = std::make_shared< DFNetModel >(core, model_folder, device, model_selection, nf_ov_cfg, _erb_indices, 2, _nb_df);
       }
 
       void DeepFilter::_reset_reg()
