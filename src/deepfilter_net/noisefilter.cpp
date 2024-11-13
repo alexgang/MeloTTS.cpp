@@ -44,7 +44,7 @@ namespace melo {
     ov::AnyMap device_config = {};
     if (device_name.find("CPU") != std::string::npos) {
       device_config[ov::cache_dir.name()] = "cache";
-      device_config[ov::enable_profiling.name()] = true;
+      device_config[ov::enable_profiling.name()] = false;
     }
 
     return device_config;
