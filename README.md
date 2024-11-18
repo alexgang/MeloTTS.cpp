@@ -52,9 +52,9 @@ For more information, please refer to [DeepFilterNet.cpp](https://github.com/api
 You can use `run_tts.bat` or `run_tts.sh` as sample scripts to run the models. Below are the meanings of all the arguments you can use with these scripts:
 
 - `--model_dir`: Specifies the folder containing the model files, dictionary files, and third-party resource files, which is `ov_models` folder within the repo. You may need to adjust the relative path based on your current working directory.
-- `--tts_device`: Specifies the OpenVINO device to be used for the TTS model. The default device is CPU.
-- `--bert_device`: Specifies the OpenVINO device to be used for the BERT model. The default device is CPU.
-- `--nf_device`: Specifies the OpenVINO device to be used for the DeepfilterNet model (default: CPU).
+- `--tts_device`: Specifies the OpenVINO device to be used for the TTS model. Supported devices include **CPU** and **GPU** (default: **CPU**).
+- `--bert_device`: Specifies the OpenVINO device to be used for the BERT model. Supported devices include **CPU**, **GPU**, and **NPU** (default: **CPU**).
+- `--nf_device`: Specifies the OpenVINO device to be used for the DeepfilterNet model. Supported devices include **CPU**, **GPU**, and **NPU** (default: **CPU**).
 - `--input_file`: Specifies the input text file to be processed. Make sure that the text is in **UTF-8** format.
 - `--output_file`: Specifies the output *.wav audio file to be generated.
 - `--speed`: Specifies the speed of output audio. The default is 1.0.
@@ -63,14 +63,34 @@ You can use `run_tts.bat` or `run_tts.sh` as sample scripts to run the models. B
 - `--disable_nf`: Indicates whether to disable the DeepfilterNet model inference (default: false).
 - `--language`: Specifies the language for TTS. The default language is Chinese (`ZH`).
 
+## NPU Device Support
+The BERT and DeepFilterNet models in the pipeline support NPU as the inference device, utilizing the integrated NPUs in Meteor Lake and Lunar Lake.
+
+Below are the methods to enable this feature and the usage details:
+<details>
+  <summary>Click here to expand/collapse content</summary>
+  <ul>
+   <li><strong>How to Build</strong></li>
+   To enable the BERT model on NPU, an additional CMake option <code>-DUSE_BERT_NPU=ON</code> is required during the CMake generation. For example:
+    <pre><code>cmake -DUSE_BERT_NPU=ON -B build -S .</code></pre>
+   To enable DeepFilterNet on NPU, no additional compilation steps are required.
+   <li><strong>How to Set Arguments</strong></li>
+        To set arguments for models on NPU, use <code>--bert_device</code> npu for the BERT model and  <code>--nf_device</code> npu for the DeepFilterNet model respectively. For example:
+        <pre><code>build\Release\meloTTS_ov.exe --bert_device NPU --nf_device NPU --model_dir ov_models --input_file inputs.txt  --output_file audio.wav</code></pre>
+    
+</ul>
+</details>
+
 ## Supported Versions
 - **Operating System**: Windows, Linux
 - **CPU Architecture**: Metor Lake, Lunar Lake, and most Intel CPUs
 - **GPU Architecture**: Intel® Arc™ Graphics (Intel Xe, including iGPU)
+- **NPU  Architecture**: NPU 4, the NPU in Meteor Lake or Lunar Lake
 - **C++ Version**: >=C++20
 
 If you specify GPU as the device, please refer to [Configurations for Intel® Processor Graphics (GPU) with OpenVINO™](https://docs.openvino.ai/2024/get-started/configurations/configurations-intel-gpu.html) to install the GPU driver.
 
+If using NPU, please refer to [NPU Device](https://docs.openvino.ai/2024/openvino-workflow/running-inference/inference-devices-and-modes/npu-device.html) to ensure the NPU driver is correctly installed. Note that the driver differs between Windows and Linux, so make sure to follow the instructions for your specific operating system.
 
 ## Future Development Plan
 Here are some features and improvements planned for future releases:
