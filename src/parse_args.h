@@ -47,10 +47,10 @@ inline void usage(const std::string& prog)
         << "\n"
         << "options:\n"
         << "  --model_dir             Specifies the folder containing the model files, dictionary files, and third-party resource files. \n"
-        << "  --tts_device            Specifies the OpenVINO device to be used for the TTS model (default: CPU).\n"
-        << "  --bert_device           Specifies the OpenVINO device to be used for the BERT model (default: CPU).\n"
+        << "  --tts_device            Specifies the OpenVINO device to be used for the TTS model (Supported devices include CPU, and GPU; default: CPU).\n"
+        << "  --bert_device           Specifies the OpenVINO device to be used for the BERT model (Supported devices include CPU, GPU, and NPU; default: CPU).\n"
 #ifdef USE_DEEPFILTERNET
-        << "  --nf_device             Specifies the OpenVINO device to be used for the DeepfilterNet model (default: CPU).\n"
+        << "  --nf_device             Specifies the OpenVINO device to be used for the DeepfilterNet model (Supported devices include CPU, GPU, and NPU; default: CPU).\n"
 #endif // USE_DEEPFILTERNET
         << "  --input_file            Specifies the input text file to be processed.\n"
         << "  --output_file           Specifies the output audio file to be generated.\n"
