@@ -179,6 +179,16 @@ if (UNIX)
 endif()
 
 
+option(USE_BERT_NPU "Set Bert on NPU" OFF)
+if(USE_BERT_NPU)
+    message(STATUS "USE BERT on NPU: We need a static shape of the model.")
+    execute_process(
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                ${CMAKE_SOURCE_DIR}/ov_models/bert_ZH_int8.bin
+                ${CMAKE_SOURCE_DIR}/ov_models/bert_ZH_static_int8.bin
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+    message("Copying bert_ZH_int8.bin to bert_ZH_int8.bin if bert_ZH_static_int8.bin does not exist")
+endif()
 
 
 option(ENABLE_TEST "Enable tests" OFF) # Disable the tests by default
