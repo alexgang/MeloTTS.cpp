@@ -37,14 +37,37 @@ namespace melo {
   	/* can be DEEPFILTERNET2 or DEEPFILTERNET3 */
     std::cout << " NoiseFilter::init. aModel_path = " << aModel_path << " nf devices = " << aModel_device << std::endl;
     auto dfnet_version = ov_deepfilternet::ModelSelection::DEEPFILTERNET3;
-    mDeepfilter.Init(core, aModel_path, aModel_device, dfnet_version, set_nf_ov_cfg(aModel_device, false));
+    mDeepfilter.Init(core, aModel_path, aModel_device, dfnet_version, set_nf_ov_cfg(aModel_device));
   }
 
-  ov::AnyMap NoiseFilter::set_nf_ov_cfg(const std::string& device_name, bool quantize = false) {
+  ov::AnyMap NoiseFilter::set_nf_ov_cfg(const std::string& device_name) {
     ov::AnyMap device_config = {};
+    device_config[ov::cache_dir.name()] = "cache";
+
     if (device_name.find("CPU") != std::string::npos) {
-      device_config[ov::cache_dir.name()] = "cache";
+      device_config[ov::hint::scheduling_core_type.name()] = ov::hint::SchedulingCoreType::PCORE_ONLY;
+      device_config[ov::hint::enable_hyper_threading.name()] = false;
+      device_config[ov::hint::enable_cpu_pinning.name()] = true;
       device_config[ov::enable_profiling.name()] = false;
+    }
+
+    if (device_name.find("GPU") != std::string::npos) {
+      device_config[ov::intel_gpu::hint::queue_throttle.name()] = ov::intel_gpu::hint::ThrottleLevel::MEDIUM;
+      device_config[ov::intel_gpu::hint::queue_priority.name()] = ov::hint::Priority::MEDIUM;
+      device_config[ov::intel_gpu::hint::host_task_priority.name()] = ov::hint::Priority::HIGH;
+      device_config[ov::hint::enable_cpu_pinning.name()] = true;
+      device_config[ov::enable_profiling.name()] = false;
+      device_config[ov::intel_gpu::hint::enable_kernels_reuse.name()] = true;
+    }
+
+    if (device_name.find("NPU") != std::string::npos) {
+      device_config["NPU_COMPILER_TYPE"] = "DRIVER";
+      device_config["NPU_COMPILATION_MODE"] = "DefaultHW";
+      device_config["PERF_COUNT"] = "NO";
+      device_config["NPU_COMPILATION_MODE_PARAMS"] = "vertical-fusion=true dpu-profiling=false dma-profiling=false sw-profiling=false dump-task-stats=true enable-schedule-trace=false";
+      device_config["NPU_USE_ELF_COMPILER_BACKEND"] = "YES";
+      device_config["PERFORMANCE_HINT"] = "LATENCY";
+      device_config["NPU_DPU_GROUPS"] = "2";
     }
 
     return device_config;

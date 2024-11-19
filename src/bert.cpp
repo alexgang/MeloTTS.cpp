@@ -75,6 +75,10 @@ namespace melo {
         _infer_request->set_input_tensor(0, input_ids);
 
         _infer_request->infer();
+#if defined(MODEL_PROFILING_DEBUG)
+        std::cout << "---- [Bert]: Bert model profiling ----" << std::endl;
+        get_profiling_info(_infer_request);
+#endif // MODEL_PROFILING_DEBUG
 #ifdef MELO_DEBUG
         std::cout <<"bert infer ok\n";
 #endif 

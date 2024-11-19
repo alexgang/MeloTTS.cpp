@@ -3,6 +3,7 @@
 #ifdef USE_DEEPFILTERNET
 #include "dfnet_model.h"
 #include "openvino_torch_utils.h"
+#include "utils.h"
 
 #include <iostream>
 
@@ -149,8 +150,8 @@ namespace melo {
             std::cout << "enc: " << std::endl;
             logBasicModelInfo(model);
    #endif
-            _model_request_enc = _core->compile_model(model, device, nf_ov_cfg);
-            _infer_request_enc = _model_request_enc.create_infer_request();
+            _model_request_enc = std::make_unique<ov::CompiledModel>(_core->compile_model(model, device, nf_ov_cfg));
+            _infer_request_enc = std::make_unique<ov::InferRequest>(_model_request_enc->create_infer_request());
          }
 
          //erb_dec
@@ -185,15 +186,15 @@ namespace melo {
             std::cout << "erb_dec: " << std::endl;
             logBasicModelInfo(model);
    #endif
-            _model_request_erb_dec = _core->compile_model(model, device, nf_ov_cfg);
-            _infer_request_erb_dec = _model_request_erb_dec.create_infer_request();
+            _model_request_erb_dec = std::make_unique<ov::CompiledModel>(_core->compile_model(model, device, nf_ov_cfg));
+            _infer_request_erb_dec = std::make_unique<ov::InferRequest>(_model_request_erb_dec->create_infer_request());
 
             //'link' the output of enc directly to the input of erb_dec
-            _infer_request_erb_dec.set_tensor("emb", _infer_request_enc.get_tensor("emb"));
-            _infer_request_erb_dec.set_tensor("e3", _infer_request_enc.get_tensor("e3"));
-            _infer_request_erb_dec.set_tensor("e2", _infer_request_enc.get_tensor("e2"));
-            _infer_request_erb_dec.set_tensor("e1", _infer_request_enc.get_tensor("e1"));
-            _infer_request_erb_dec.set_tensor("e0", _infer_request_enc.get_tensor("e0"));
+            _infer_request_erb_dec->set_tensor("emb", _infer_request_enc->get_tensor("emb"));
+            _infer_request_erb_dec->set_tensor("e3", _infer_request_enc->get_tensor("e3"));
+            _infer_request_erb_dec->set_tensor("e2", _infer_request_enc->get_tensor("e2"));
+            _infer_request_erb_dec->set_tensor("e1", _infer_request_enc->get_tensor("e1"));
+            _infer_request_erb_dec->set_tensor("e0", _infer_request_enc->get_tensor("e0"));
          }
 
          //df_dec
@@ -224,11 +225,11 @@ namespace melo {
             std::cout << "df_dec: " << std::endl;
             logBasicModelInfo(model);
    #endif
-            _model_request_df_dec = _core->compile_model(model, device, nf_ov_cfg);
-            _infer_request_df_dec = _model_request_df_dec.create_infer_request();
+            _model_request_df_dec = std::make_unique<ov::CompiledModel>(_core->compile_model(model, device, nf_ov_cfg));
+            _infer_request_df_dec = std::make_unique<ov::InferRequest>(_model_request_df_dec->create_infer_request());
 
-            _infer_request_df_dec.set_tensor("emb", _infer_request_enc.get_tensor("emb"));
-            _infer_request_df_dec.set_tensor("c0", _infer_request_enc.get_tensor("c0"));
+            _infer_request_df_dec->set_tensor("emb", _infer_request_enc->get_tensor("emb"));
+            _infer_request_df_dec->set_tensor("c0", _infer_request_enc->get_tensor("c0"));
          }
       }
 
@@ -271,15 +272,18 @@ namespace melo {
 
          //run enc
          {
-            auto ov_erb = wrap_ov_tensor_as_torch(_infer_request_enc.get_tensor("feat_erb"));
-            auto ov_feat_spec = wrap_ov_tensor_as_torch(_infer_request_enc.get_tensor("feat_spec"));
+            auto ov_erb = wrap_ov_tensor_as_torch(_infer_request_enc->get_tensor("feat_erb"));
+            auto ov_feat_spec = wrap_ov_tensor_as_torch(_infer_request_enc->get_tensor("feat_spec"));
 
             ov_erb.copy_(feat_erb);
             ov_feat_spec.copy_(feat_spec);
 
-            _infer_request_enc.infer();
-
-            auto lsnr = wrap_ov_tensor_as_torch(_infer_request_enc.get_tensor("lsnr"));
+            _infer_request_enc->infer();
+#if defined(MODEL_PROFILING_DEBUG)
+            std::cout << "---- [NF][DFNet]: Encoder model profiling ----" << std::endl;
+            get_profiling_info(_infer_request_enc);
+#endif // MODEL_PROFILING_DEBUG
+            auto lsnr = wrap_ov_tensor_as_torch(_infer_request_enc->get_tensor("lsnr"));
 
             //note: remember, the output tensors of _infer_request_enc are set as input tensors for 
             // both _infer_request_erb_dec and _infer_request_df_dec, which is why you don't see me explictly
@@ -293,8 +297,12 @@ namespace melo {
          torch::Tensor m, spec_m;
          if (run_erb)
          {
-            _infer_request_erb_dec.infer();
-            m = wrap_ov_tensor_as_torch(_infer_request_erb_dec.get_tensor("m"));
+            _infer_request_erb_dec->infer();
+#if defined(MODEL_PROFILING_DEBUG)
+            std::cout << "---- [NF][DFNet]: ERB Decoder model profiling ----" << std::endl;
+            get_profiling_info(_infer_request_erb_dec);
+#endif // MODEL_PROFILING_DEBUG
+            m = wrap_ov_tensor_as_torch(_infer_request_erb_dec->get_tensor("m"));
 
             //auto pad_spec = torch::nn::functional::pad(spec, torch::nn::functional::PadFuncOptions({ 0, 0, 0, 0, 1, -1, 0, 0 }).value(0.0));
 
@@ -313,9 +321,12 @@ namespace melo {
          torch::Tensor df_coefs;
          if (run_df)
          {
-            _infer_request_df_dec.infer();
-
-            df_coefs = wrap_ov_tensor_as_torch(_infer_request_df_dec.get_tensor("coefs"));
+            _infer_request_df_dec->infer();
+#if defined(MODEL_PROFILING_DEBUG)
+            std::cout << "---- [NF][DFNet]: DF Decoder model profiling ----" << std::endl;
+            get_profiling_info(_infer_request_df_dec);
+#endif // MODEL_PROFILING_DEBUG
+            df_coefs = wrap_ov_tensor_as_torch(_infer_request_df_dec->get_tensor("coefs"));
 
             //DfOutputReshapeMF forward
             {
@@ -352,9 +363,9 @@ namespace melo {
             spec_e = spec_e * pf.unsqueeze(-1);
          }
          //Release infer memory
-         _model_request_df_dec.release_memory();
-         _model_request_enc.release_memory();
-         _model_request_erb_dec.release_memory();
+         _model_request_df_dec->release_memory();
+         _model_request_enc->release_memory();
+         _model_request_erb_dec->release_memory();
 
          return spec_e;
       }
@@ -367,14 +378,17 @@ namespace melo {
 
          //run enc
          {
-            auto ov_erb = wrap_ov_tensor_as_torch(_infer_request_enc.get_tensor("feat_erb"));
-            auto ov_feat_spec = wrap_ov_tensor_as_torch(_infer_request_enc.get_tensor("feat_spec"));
+            auto ov_erb = wrap_ov_tensor_as_torch(_infer_request_enc->get_tensor("feat_erb"));
+            auto ov_feat_spec = wrap_ov_tensor_as_torch(_infer_request_enc->get_tensor("feat_spec"));
 
             ov_erb.copy_(feat_erb);
             ov_feat_spec.copy_(feat_spec);
 
-            _infer_request_enc.infer();
-
+            _infer_request_enc->infer();
+#if defined(MODEL_PROFILING_DEBUG)
+            std::cout << "---- [NF][DFNet]: Encoder model profiling ----" << std::endl;
+            get_profiling_info(_infer_request_enc);
+#endif // MODEL_PROFILING_DEBUG
 
             //note: remember, the output tensors of _infer_request_enc are set as input tensors for 
             // both _infer_request_erb_dec and _infer_request_df_dec, which is why you don't see me explictly
@@ -385,8 +399,12 @@ namespace melo {
          //expose this?
          bool run_erb = true;
          {
-            _infer_request_erb_dec.infer();
-            auto m = wrap_ov_tensor_as_torch(_infer_request_erb_dec.get_tensor("m"));
+            _infer_request_erb_dec->infer();
+#if defined(MODEL_PROFILING_DEBUG)
+            std::cout << "---- [NF][DFNet]: ERB Decoder model profiling ----" << std::endl;
+            get_profiling_info(_infer_request_erb_dec);
+#endif // MODEL_PROFILING_DEBUG
+            auto m = wrap_ov_tensor_as_torch(_infer_request_erb_dec->get_tensor("m"));
 
             //auto pad_spec = torch::nn::functional::pad(spec, torch::nn::functional::PadFuncOptions({ 0, 0, 0, 0, 1, -1, 0, 0 }).value(0.0));
 
@@ -399,9 +417,12 @@ namespace melo {
          torch::Tensor df_coefs;
          if (run_df)
          {
-            _infer_request_df_dec.infer();
-
-            df_coefs = wrap_ov_tensor_as_torch(_infer_request_df_dec.get_tensor("coefs"));
+            _infer_request_df_dec->infer();
+#if defined(MODEL_PROFILING_DEBUG)
+            std::cout << "---- [NF][DFNet]: DF Decoder model profiling ----" << std::endl;
+            get_profiling_info(_infer_request_df_dec);
+#endif // MODEL_PROFILING_DEBUG
+            df_coefs = wrap_ov_tensor_as_torch(_infer_request_df_dec->get_tensor("coefs"));
 
             //DfOutputReshapeMF forward
             {

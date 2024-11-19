@@ -21,6 +21,7 @@
 #include <array>
 #include "openvoice_tts.h"
 #include "info_data.h"
+#include "utils.h"
 
 namespace melo {
     /* The function 'tts_infer' serves as the entry point for TTS inference.
@@ -104,7 +105,11 @@ namespace melo {
     }
     void OpenVoiceTTS::ov_infer() {
         //std::cout << "tts infer begin\n";
-            _infer_request->infer();
+        _infer_request->infer();
+#if defined(MODEL_PROFILING_DEBUG)
+        std::cout << "---- [TTS]: TTS model profiling ----" << std::endl;
+        get_profiling_info(_infer_request);
+#endif // MODEL_PROFILING_DEBUG
         //std::cout << "tts inferok\n";
     }
     std::vector<float> OpenVoiceTTS::get_ouput() {
