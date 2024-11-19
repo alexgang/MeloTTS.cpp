@@ -11,6 +11,7 @@
 #include <filesystem>
 #include "openvino/runtime/intel_gpu/properties.hpp"
 #include "openvino/openvino.hpp"
+#include <iomanip>
 
 // This utils module defines a collection of utility functions that are
 // used throughout the program
@@ -120,4 +121,26 @@ inline ov::AnyMap set_tts_config(const std::string& device_name, bool quantize =
     }
     return  device_config;
 }
+
+// function to get profiling info, used after inference with config "device_config[ov::enable_profiling.name()] = false;"
+// Refer to https://github.com/sammysun0711/ov_llm_bench/blob/6a03a1aacab550ec7e3b84948abf1c7fe186e652/inference_engine.py#L215-L220
+[[maybe_unused]] inline void get_profiling_info(std::unique_ptr<ov::InferRequest>& _infer_request) {
+   std::vector<ov::ProfilingInfo> perfs_count_list = _infer_request->get_profiling_info();
+   perfs_count_list.erase(std::remove_if(perfs_count_list.begin(),perfs_count_list.end(),
+           [](ov::ProfilingInfo info){return info.status == ov::ProfilingInfo::Status::NOT_RUN;}), perfs_count_list.end());
+   std::sort(perfs_count_list.begin(),perfs_count_list.end(),[&](ov::ProfilingInfo x, ov::ProfilingInfo y){return x.real_time>y.real_time;});
+   std::cout << std::endl;
+   for (const auto& x : perfs_count_list) {
+       if (x.status == ov::ProfilingInfo::Status::NOT_RUN) continue;
+
+       std::cout << std::left << std::setw(10) << "LayerName: " << std::left << std::setw(60) << x.node_name <<
+                    std::left << std::setw(10) << "LayerType: " << std::left << std::setw(20) << x.node_type <<
+                    std::left << std::setw(10) << "Status: " << std::left << std::setw(5) << (int)(x.status) <<
+                    std::left << std::setw(10) << "execType: " << std::left << std::setw(30) << x.exec_type <<
+                    std::left << std::setw(10) << "cpuTime: " << std::left << std::setw(10) << x.cpu_time <<
+                    std::left << std::setw(10) << "realTime: " << x.real_time << std::endl;
+   }
+   std::cout << std::endl;
+}
+
 #endif //  UTILS_H

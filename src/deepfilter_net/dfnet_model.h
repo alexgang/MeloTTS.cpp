@@ -24,7 +24,7 @@ namespace melo {
                std::string model_folder,
                std::string device,
                ModelSelection model_selection,
-               std::optional<std::string> openvino_cache_dir,
+               const ov::AnyMap& nf_ov_cfg,
                torch::Tensor erb_widths,
                int64_t lookahead = 2, int64_t nb_df = 96);
 
@@ -35,7 +35,6 @@ namespace melo {
             {
                return _num_hops;
             };
-
          private:
 
             torch::Tensor
@@ -44,12 +43,13 @@ namespace melo {
             [[maybe_unused]] torch::Tensor
                forward_df2(torch::Tensor spec, torch::Tensor feat_erb, torch::Tensor feat_spec);
 
-            ov::CompiledModel _model_request_enc;
-            ov::CompiledModel _model_request_erb_dec;
-            ov::CompiledModel _model_request_df_dec;
-            ov::InferRequest _infer_request_enc;
-            ov::InferRequest _infer_request_erb_dec;
-            ov::InferRequest _infer_request_df_dec;
+            std::unique_ptr<ov::CompiledModel> _model_request_enc;
+            std::unique_ptr<ov::CompiledModel> _model_request_erb_dec;
+            std::unique_ptr<ov::CompiledModel> _model_request_df_dec;
+
+            std::unique_ptr<ov::InferRequest> _infer_request_enc;
+            std::unique_ptr<ov::InferRequest> _infer_request_erb_dec;
+            std::unique_ptr<ov::InferRequest> _infer_request_df_dec;
 
             std::shared_ptr< torch::nn::ConstantPad3d > _pad_spec;
             std::shared_ptr< torch::nn::ConstantPad2d > _pad_feat;

@@ -34,21 +34,6 @@ namespace melo {
         void write_wave(const std::string& filename, int32_t sampling_rate, const float* samples, int32_t n);
         inline std::string get_language() { return _language; }
         static constexpr size_t BATCH_SIZE = 1;
-        // function to get profiling info, used after inference with config "device_config[ov::enable_profiling.name()] = false;"
-        // Refer to https://github.com/sammysun0711/ov_llm_bench/blob/6a03a1aacab550ec7e3b84948abf1c7fe186e652/inference_engine.py#L215-L220
-        [[maybe_unused]] inline void get_profiling_info() {
-            std::vector<ov::ProfilingInfo> perfs_count_list = _infer_request->get_profiling_info();
-            perfs_count_list.erase(std::remove_if(perfs_count_list.begin(),perfs_count_list.end(),
-                    [](ov::ProfilingInfo info){return info.status == ov::ProfilingInfo::Status::NOT_RUN;}), perfs_count_list.end());
-            std::sort(perfs_count_list.begin(),perfs_count_list.end(),[&](ov::ProfilingInfo x, ov::ProfilingInfo y){return x.real_time>y.real_time;});
-            std::cout << std::endl;
-            for (const auto& x : perfs_count_list) {
-                if (x.status == ov::ProfilingInfo::Status::NOT_RUN) continue;
-
-                std::cout << x.node_name << ',' << x.node_type << ',' << (int)(x.status) << ',' << x.exec_type << ',' << x.cpu_time << ',' << x.real_time << std::endl;
-            }
-            std::cout << std::endl;
-        }
     private:
         std::string _language = "ZH";
         
