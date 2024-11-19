@@ -73,8 +73,10 @@ namespace melo {
         _infer_request->set_input_tensor(2, token_type_ids);
         _infer_request->set_input_tensor(1, attention_mask);
         _infer_request->set_input_tensor(0, input_ids);
-
+        auto startTime = Time::now();
         _infer_request->infer();
+        auto inferTime = get_duration_ms_till_now(startTime);
+        std::cout << "[INFO] bert infer time: " << inferTime << "ms\n";
 #if defined(MODEL_PROFILING_DEBUG)
         std::cout << "---- [Bert]: Bert model profiling ----" << std::endl;
         get_profiling_info(_infer_request);

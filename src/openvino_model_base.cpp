@@ -41,7 +41,7 @@ namespace melo
         _compiled_model = std::make_unique<ov::CompiledModel>(core_ptr->compile_model(model_path.string(), device, set_ov_config(device)));
         auto compileTime = get_duration_ms_till_now(startTime);
         _infer_request = std::make_unique<ov::InferRequest>(_compiled_model->create_infer_request());
-        std::cout << std::format("compile model {} on {}", model_path.string(), device) << std::endl;
+        std::cout << std::format("compile model {} on {} using {}ms.\n", model_path.string(), device, compileTime);
         get_ov_info(core_ptr, device);
 
 #ifdef MELO_DEBUG
@@ -64,7 +64,7 @@ namespace melo
         _compiled_model = std::make_unique<ov::CompiledModel>(core_ptr->compile_model(model_path.string(), device, config));
         auto compileTime = get_duration_ms_till_now(startTime);
         _infer_request = std::make_unique<ov::InferRequest>(_compiled_model->create_infer_request());
-        std::cout << std::format("compile model {} on {}", model_path.string(), device) << std::endl;
+        std::cout << std::format("compile model {} on {} using {}ms.\n", model_path.string(), device, compileTime);
         get_ov_info(core_ptr, device);
     }
 

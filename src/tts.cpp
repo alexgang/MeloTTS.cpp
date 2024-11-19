@@ -72,11 +72,11 @@ namespace melo {
                 auto [phone_level_feature, phones_ids, tones, lang_ids] = get_text_for_tts_infer(normalized_sentence);
 
                 auto preProcess = get_duration_ms_till_now(startTime);
-                startTime = Time::now();
+
                 std::vector<float> wav_data = tts_model.tts_infer(phones_ids, tones, lang_ids, phone_level_feature, speed, speaker_id, this->_disable_bert);
-                auto ttsInferTime = get_duration_ms_till_now(startTime);
+
                 audio_concat(audio, wav_data, speed, sampling_rate_);
-                std::cout << "preProcess Time: " << preProcess << "ms\t" << "ttsInferTime: " << ttsInferTime << "ms\n";
+                std::cout << "[INFO] preProcess Time: " << preProcess << "ms\n";
             }
 #ifdef USE_DEEPFILTERNET
             if (!_disable_nf) {
@@ -118,11 +118,11 @@ namespace melo {
                 auto startTime = Time::now();
                 auto [phone_level_feature, phones_ids, tones, lang_ids] = get_text_for_tts_infer(normalized_sentence);
                 auto preProcess = get_duration_ms_till_now(startTime);
-                startTime = Time::now();
+
                 std::vector<float> wav_data = tts_model.tts_infer(phones_ids, tones, lang_ids, phone_level_feature, speed, speaker_id, this->_disable_bert);
-                auto ttsInferTime = get_duration_ms_till_now(startTime);
+
                 audio_concat(output_audio, wav_data, speed, sampling_rate_);
-                std::cout << "preProcess Time: " << preProcess << "ms\t" << "ttsInferTime: " << ttsInferTime << "ms\n";
+                std::cout << "[INFO] preProcess Time: " << preProcess << "ms\n";
             }
             //release memory buffer
             tts_model.release_infer_memory();
@@ -169,10 +169,7 @@ namespace melo {
 
             std::vector<std::vector<float>> phone_level_feature;
             if(!_disable_bert){
-                auto startTime = Time::now();
                 bert_model.get_bert_feature(text, word2ph, phone_level_feature);
-                auto inferTime = get_duration_ms_till_now(startTime);
-                std::cout << "bert infer time" <<  inferTime << "ms"<<  std::endl;
             }
             else
                 std::cout << " TTS::get_text_for_tts_infer:disable bert infer\n";

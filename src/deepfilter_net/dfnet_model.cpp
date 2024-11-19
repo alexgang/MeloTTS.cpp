@@ -3,7 +3,9 @@
 #ifdef USE_DEEPFILTERNET
 #include "dfnet_model.h"
 #include "openvino_torch_utils.h"
+#if defined(MODEL_PROFILING_DEBUG)
 #include "utils.h"
+#endif // MODEL_PROFILING_DEBUG
 
 #include <iostream>
 

@@ -104,13 +104,14 @@ namespace melo {
         return get_ouput();
     }
     void OpenVoiceTTS::ov_infer() {
-        //std::cout << "tts infer begin\n";
+        auto startTime = Time::now();
         _infer_request->infer();
+        auto ttsInferTime = get_duration_ms_till_now(startTime);
+        std::cout << "[INFO] tts infer time: " << ttsInferTime <<"ms\n";
 #if defined(MODEL_PROFILING_DEBUG)
         std::cout << "---- [TTS]: TTS model profiling ----" << std::endl;
         get_profiling_info(_infer_request);
 #endif // MODEL_PROFILING_DEBUG
-        //std::cout << "tts inferok\n";
     }
     std::vector<float> OpenVoiceTTS::get_ouput() {
         const float* output = _infer_request->get_output_tensor(0).data<float>();

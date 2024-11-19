@@ -119,8 +119,8 @@ if(USE_DEEPFILTERNET)
     endif()
     # COPY torch runtime to exe folder
     set(RELEASE_DIR ${CMAKE_BINARY_DIR}/Release)
-    set(DEBUG_DIR ${CMAKE_BINARY_DIR}/Debug)
-    file(MAKE_DIRECTORY ${RELEASE_DIR} ${DEBUG_DIR})
+    #set(DEBUG_DIR ${CMAKE_BINARY_DIR}/Debug)
+    file(MAKE_DIRECTORY ${RELEASE_DIR})
 
     set(DLLS torch.dll torch_cpu.dll asmjit.dll fbgemm.dll c10.dll uv.dll libiomp5md.dll)
 
@@ -128,7 +128,7 @@ if(USE_DEEPFILTERNET)
         message("Copying ${dll} from ${LIBTORCH_DIR}/lib to ${RELEASE_DIR} and ${DEBUG_DIR}")
         execute_process(
             COMMAND ${CMAKE_COMMAND} -E copy_if_different ${LIBTORCH_DIR}/lib/${dll} ${RELEASE_DIR}
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${LIBTORCH_DIR}/lib/${dll} ${DEBUG_DIR}
+            #COMMAND ${CMAKE_COMMAND} -E copy_if_different ${LIBTORCH_DIR}/lib/${dll} ${DEBUG_DIR}
             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
         )
     endforeach()
