@@ -1,6 +1,6 @@
 # MeloTTS.cpp
 
-This repository offers a C++ implementation of [meloTTS](https://github.com/myshell-ai/MeloTTS), which is a high-quality, multilingual Text-to-Speech (TTS) library released by MyShell.ai that supports English, Chinese (mixed with English), and various other languages. This implementation is fully integrated with OpenVINO. Currently, this repository only supports Chinese mixed with English. Support for [English model](https://huggingface.co/myshell-ai/MeloTTS-English) is coming next.
+This repository offers a C++ implementation of [meloTTS](https://github.com/myshell-ai/MeloTTS), which is a high-quality, multilingual Text-to-Speech (TTS) library released by MyShell.ai that supports English, Chinese (mixed with English), and various other languages. This implementation is fully integrated with OpenVINO, supporting seamless deployment on CPU, GPU, and NPU devices. Currently, this repository only supports Chinese mixed with English. Support for [English model](https://huggingface.co/myshell-ai/MeloTTS-English) is coming next.
 
 
 ## Setup and Execution Guide
@@ -85,12 +85,17 @@ Below are the methods to enable this feature and the usage details:
 - **Operating System**: Windows, Linux
 - **CPU Architecture**: Metor Lake, Lunar Lake, and most Intel CPUs
 - **GPU Architecture**: Intel® Arc™ Graphics (Intel Xe, including iGPU)
-- **NPU  Architecture**: NPU 4, the NPU in Meteor Lake or Lunar Lake
+- **NPU  Architecture**: NPU 4,  NPU in Meteor Lake or Lunar Lake
+- **OpenVINO Version**: >=2024.4
 - **C++ Version**: >=C++20
 
-If you specify GPU as the device, please refer to [Configurations for Intel® Processor Graphics (GPU) with OpenVINO™](https://docs.openvino.ai/2024/get-started/configurations/configurations-intel-gpu.html) to install the GPU driver.
+If you're using an AI PC notebook with Windows, GPU and NPU drivers are typically pre-installed. However, Linux users or Windows users who prefer to update to the latest drivers should follow the guidelines below:
 
-If using NPU, please refer to [NPU Device](https://docs.openvino.ai/2024/openvino-workflow/running-inference/inference-devices-and-modes/npu-device.html) to ensure the NPU driver is correctly installed. Note that the driver differs between Windows and Linux, so make sure to follow the instructions for your specific operating system.
+- **For GPU**: If using GPU, please refer to [Configurations for Intel® Processor Graphics (GPU) with OpenVINO™](https://docs.openvino.ai/2024/get-started/configurations/configurations-intel-gpu.html) to install the GPU driver.
+
+- **For NPU**: If using NPU, please refer to [NPU Device](https://docs.openvino.ai/2024/openvino-workflow/running-inference/inference-devices-and-modes/npu-device.html) to ensure the NPU driver is correctly installed. 
+
+Note that all the drivers differs between Windows and Linux, so make sure to follow the instructions for your specific operating system.
 
 ## Future Development Plan
 Here are some features and improvements planned for future releases:
@@ -98,8 +103,8 @@ Here are some features and improvements planned for future releases:
 1. **Add English language TTS support**: 
    - Enable English text-to-speech (TTS) functionality, but tokenization for English language input is not yet implemented.
    
-2. **Support for NPU device**:
-   - Implement NPU device compatibility for the BERT model within the pipeline.
+2. **Enhancing Quality in Quantized TTS Models**:
+   - The current INT8 quantized model exhibits slight background noise. As a workaround, we integrated DeepFilterNet for post-processing. Moving forward, we aim to address the noise issue more effectively by the quantization techniques.
 
 ## Python Version
 The Python version of this repository (MeloTTS integrated with OpenVINO) is provided in [MeloTTS-OV](https://github.com/zhaohb/MeloTTS-OV/tree/speech-enhancement-and-npu). The Python version includes methods to convert the model into OpenVINO IR.
