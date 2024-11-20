@@ -45,7 +45,7 @@ For example, to disable the feature, you can use the following line during the C
 ```
 cmake -S . -B build -DUSE_DEEPFILTERNET=OFF
 ```
-For more information, please refer to [DeepFilterNet.cpp](https://github.com/apinge/MeloTTS.cpp/blob/develop/src/deepfilter_net/README.md).
+For more information, please refer to [DeepFilterNet.cpp](https://github.com/apinge/MeloTTS.cpp/blob/develop/src/deepfilternet/README.md).
 
 
 ### 4. Arguments Description

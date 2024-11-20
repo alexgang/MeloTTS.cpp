@@ -52,10 +52,10 @@ set(SOURCE_FILES
     src/text_normalization/num.cpp
     src/text_normalization/phonecode.cpp
     src/text_normalization/quantifier.cpp
-    src/deepfilter_net/noisefilter.cpp
-    src/deepfilter_net/deepfilter.cpp
-    src/deepfilter_net/dfnet_model.cpp
-    src/deepfilter_net/multiframe.cpp
+    src/deepfilternet/noisefilter.cpp
+    src/deepfilternet/deepfilter.cpp
+    src/deepfilternet/dfnet_model.cpp
+    src/deepfilternet/multiframe.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin_csrc_utils.cc
 )
@@ -82,10 +82,10 @@ set(HEADER_FILES
     src/text_normalization/quantifier.h
     ${CMAKE_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin.h
     ${CMAKE_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin_csrc_utils.h
-    src/deepfilter_net/noisefilter.h
-    src/deepfilter_net/deepfilter.h
-    src/deepfilter_net/multiframe.h
-    src/deepfilter_net/dfnet_model.h
+    src/deepfilternet/noisefilter.h
+    src/deepfilternet/deepfilter.h
+    src/deepfilternet/multiframe.h
+    src/deepfilternet/dfnet_model.h
     ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin.h
     ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin_csrc_utils.h
 )
@@ -97,14 +97,14 @@ add_executable(meloTTS_ov ${SOURCE_FILES} ${HEADER_FILES})
 # Whether use deep filter net; We do not support this feature on Linux now.
 if(NOT DEFINED USE_DEEPFILTERNET AND WIN32)
     set(USE_DEEPFILTERNET ON)
-    add_compile_definitions(USE_DEEPFILTERNET)
     message(STATUS "DeepFilterNet is enabled")
-else()
+elseif(UNIX OR NOT USE_DEEPFILTERNET)
     set(USE_DEEPFILTERNET OFF)
     message(STATUS "DeepFilterNet is disabled")
 endif()
 
 if(USE_DEEPFILTERNET)
+    add_compile_definitions(USE_DEEPFILTERNET)
     # unzip libtorch
     set(LIBTORCH_DIR  ${CMAKE_SOURCE_DIR}/thirdParty/libtorch)
     if(NOT EXISTS ${LIBTORCH_DIR})

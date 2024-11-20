@@ -26,7 +26,7 @@
 #include "darts.h"
 #include "text_normalization/text_normalization.h"
 #ifdef USE_DEEPFILTERNET
-#include "deepfilter_net/noisefilter.h"
+#include "deepfilternet/noisefilter.h"
 #endif // USE_DEEPFILTERNET
 namespace melo {
     class TTS {
