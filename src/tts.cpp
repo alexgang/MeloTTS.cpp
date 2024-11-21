@@ -112,8 +112,9 @@ namespace melo {
            // std::vector<std::wstring> normalized_sentences = normalizer->normalize(text_normalization::string_to_wstring(text));
             std::vector<std::string> sentences = split_sentences_into_pieces(text,false);
             for (const auto& sentence : sentences) {
+                auto startTime = Time::now();
                 std::string normalized_sentence = text_normalization::wstring_to_string(normalizer->normalize_sentence(text_normalization::string_to_wstring(sentence)));
-                std::cout << normalized_sentence << std::endl;
+                //std::cout << normalized_sentence << std::endl;
                 // structured binding
                 auto startTime = Time::now();
                 auto [phone_level_feature, phones_ids, tones, lang_ids] = get_text_for_tts_infer(normalized_sentence);
