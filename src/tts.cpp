@@ -116,14 +116,13 @@ namespace melo {
                 std::string normalized_sentence = text_normalization::wstring_to_string(normalizer->normalize_sentence(text_normalization::string_to_wstring(sentence)));
                 //std::cout << normalized_sentence << std::endl;
                 // structured binding
-                auto startTime = Time::now();
                 auto [phone_level_feature, phones_ids, tones, lang_ids] = get_text_for_tts_infer(normalized_sentence);
                 auto preProcess = get_duration_ms_till_now(startTime);
 
                 std::vector<float> wav_data = tts_model.tts_infer(phones_ids, tones, lang_ids, phone_level_feature, speed, speaker_id, this->_disable_bert);
 
                 audio_concat(output_audio, wav_data, speed, sampling_rate_);
-                std::cout << "[INFO] preProcess Time: " << preProcess << "ms\n";
+                std::cout << "[INFO] preProcess Time: " << preProcess << "ms, including the time for BERT inference.\n";
             }
             //release memory buffer
             tts_model.release_infer_memory();
