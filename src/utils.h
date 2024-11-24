@@ -18,8 +18,12 @@
 
 typedef std::chrono::high_resolution_clock Time;
 typedef std::chrono::milliseconds ms;
+typedef std::chrono::microseconds us;
 inline long long get_duration_ms_till_now(Time::time_point& startTime) {
     return std::chrono::duration_cast<ms>(Time::now() - startTime).count();;
+};
+inline long long get_duration_us_till_now(Time::time_point& startTime) {
+    return std::chrono::duration_cast<us>(Time::now() - startTime).count();;
 };
 void ConfigureOneDNNCache();
 
