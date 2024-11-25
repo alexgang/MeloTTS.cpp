@@ -109,7 +109,7 @@ TEST_F(TokenizerTestSuit, BertSubwordTokenizer) {
     ov::Tensor res = tokenize(std::move(text));
     auto vec = get_output_vec<int64_t>(res);
     auto execTime = get_duration_us_till_now(startTime);
-    std::cout << "[INFO] exec time is "<< execTime<<"us\n";
+    std::cout << "[INFO] subword_tokenize takes "<< execTime<<"us\n";
     const std::vector<int64_t> correct_ids = { 101, 6784, 7984, 2693, 85065, 33719, 1817, 3295, 2415, 6990, 1776, 2160, 4270, 3203, 2383, 18958, 59242, 4108, 3259, 6805,
         2981, 5975, 4767, 4508, 3203, 2383, 79947, 20849, 59242, 102 };
 
@@ -157,7 +157,7 @@ TEST_F(TokenizerTestSuit, Subword_tokenization) {
     auto startTime = Time::now();
     std::vector<std::string> res = subword_tokenize(text);
     auto execTime = get_duration_us_till_now(startTime);
-    std::cout << "[INFO] exec time is " << execTime << "us\n";
+    std::cout << "[INFO] split subword takes " << execTime << "us\n";
 
     EXPECT_EQ(res, correct_subwords);
 }
