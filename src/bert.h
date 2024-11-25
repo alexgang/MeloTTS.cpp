@@ -34,7 +34,7 @@ namespace melo {
         void get_bert_feature(const std::string& text, const std::vector<int>& word2ph, std::vector<std::vector<float>>& berts);
         virtual void ov_infer() override;
         virtual void get_output(const std::vector<int>& word2ph, std::vector<std::vector<float>>& phone_level_feature);
-        virtual void get_output(std::vector<std::vector<float>>&);
+        
         //virtual void get_output(std::vector<std::any>& output) {};
 
         inline std::string get_language() { return _language; }
@@ -42,7 +42,9 @@ namespace melo {
         static constexpr size_t NPU_BERT_STATIC_SHAPE_SIZE = 64;
         std::vector<int64_t> to_static_1d_shape(const std::vector<int64_t>& input, size_t shape_size = NPU_BERT_STATIC_SHAPE_SIZE);
         [[maybe_unused]] inline void set_static_shape(){ _static_shape = true; } // intended for testing purposes only
-    private:
+        [[maybe_unused]] void set_input_tensors(const std::vector<int64_t>& token_ids, bool static_shape); // intended for testing purposes only
+        [[maybe_unused]] virtual void get_output(std::vector<std::vector<float>>&);// intended for testing purposes only
+    private: 
         bool _static_shape = false;
         std::string _language;
         std::shared_ptr<Tokenizer> _tokenizer;

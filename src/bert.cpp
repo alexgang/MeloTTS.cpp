@@ -130,16 +130,16 @@ namespace melo {
             }
         }
     }
-
-    void Bert::get_output(std::vector<std::vector<float>>& res) {
+    // only intented for testing
+    [[maybe_unused]] void Bert::get_output(std::vector<std::vector<float>>& res) {
         const ov::Tensor& output_tensor = _infer_request->get_output_tensor();
         const float* output_data = _infer_request->get_output_tensor().data<const float>();
         ov::Shape output_tensor_shape = output_tensor.get_shape();
         size_t frame_num = output_tensor_shape[0];
         assert(frame_num == _input_ids.size() && "[ERROR] Should be frame_num == _input_ids.size()");
-#ifdef MELO_DEBUG
-        std::cout << " output_tensor_shape" << output_tensor_shape << std::endl;
-#endif
+
+        std::cout << "[INFO] output_tensor_shape" << output_tensor_shape << std::endl;
+
         res.clear();
         res.resize(frame_num, std::vector<float>(768, 0.0));
         for (int i = 0; i < frame_num; ++i)
@@ -164,5 +164,22 @@ namespace melo {
             std::cout << "[Warning]Bert::to_static_1d_shape: dynamic_input is longer than model input size. Truncating to fit." << std::endl;
         }
         return static_output;
+    }
+    // only intended for testing
+    [[maybe_unused]] void Bert::set_input_tensors(const std::vector<int64_t>& token_ids, bool static_shape) {
+        //clear previous result
+        _input_ids.clear();
+        _attention_mask.clear();
+        _token_type_ids.clear();
+        _input_ids = token_ids;
+        size_t n = _input_ids.size();
+        _attention_mask = std::vector<int64_t>(n, 1);
+        _token_type_ids = std::vector<int64_t>(n, 0);
+        if (static_shape) {
+            std::cout << "[INFO]:Bert::get_bert_feature: static shape bert\n";
+            _input_ids = to_static_1d_shape(_input_ids);
+            _attention_mask = to_static_1d_shape(_attention_mask);
+            _token_type_ids = to_static_1d_shape(_token_type_ids);
+        }
     }
 }
