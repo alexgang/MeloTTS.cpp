@@ -50,8 +50,8 @@ add_executable(test_bert
                ../src/utils.cpp)
 target_link_libraries(test_bert PRIVATE gtest_main openvino::runtime)
 
-add_executable(test_tokenizer ${CMAKE_CURRENT_SOURCE_DIR}/test_tokenizer.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../src/tokenizer.cpp)
-target_link_libraries(test_tokenizer  PRIVATE gtest_main)
+add_executable(test_tokenizer ${CMAKE_CURRENT_SOURCE_DIR}/test_tokenizer.cpp ../src/tokenizer.cpp ../src/utils.cpp)
+target_link_libraries(test_tokenizer  PRIVATE gtest_main openvino::runtime)
 
 add_executable(test_openvino_tokenizer test_openvino_tokenizer.cpp ../src/utils.cpp)
 target_link_libraries(test_openvino_tokenizer PRIVATE gtest_main openvino::runtime)
