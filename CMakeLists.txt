@@ -160,11 +160,9 @@ endif() # end USE_DEEPFILTERNET
 
 # Define DEBUG macro for Debug configuration
 target_compile_definitions(meloTTS_ov PRIVATE "$<$<CONFIG:DEBUG>:DEBUG>")
-target_include_directories(meloTTS_ov PRIVATE ${CMAKE_SOURCE_DIR}/thirdParty/eigen)
 target_include_directories(meloTTS_ov PRIVATE ${CMAKE_SOURCE_DIR}/thirdParty/cppjieba)
 target_include_directories(meloTTS_ov PRIVATE ${CMAKE_SOURCE_DIR}/thirdParty/cppjieba/include)
 target_include_directories(meloTTS_ov PRIVATE ${CMAKE_SOURCE_DIR}/thirdParty/cppinyin/csrc)
-target_include_directories(meloTTS_ov PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/eigen)
 target_include_directories(meloTTS_ov PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppjieba)
 target_include_directories(meloTTS_ov PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppjieba/include)
 target_include_directories(meloTTS_ov PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/cppinyin/csrc)
