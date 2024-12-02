@@ -405,7 +405,83 @@ namespace melo {
                 else
                     norm_text += ch;
             }
-            return norm_text;
+            return filter_text(norm_text);
+        }
+        // @brief This functionality cleans up text by retaining only Chinese characters, English letters,
+        //  and valid punctuation symbols, while removing all other characters.
+        // UTF-8 is a variable-length encoding that uses 1 to 4 bytes to represent a character. 
+        // It is similar to a Huffman tree in structure. The specific mapping relationship with Unicode is as follows:
+        // (Adapted from Reference 1)
+        //
+        // Unicode Range (Hexadecimal)       UTF-8 Encoding (Binary)
+        // ----------------------------------------------------------
+        // 0000 0000 ~ 0000 007F             0xxxxxxx
+        // 0000 0080 ~ 0000 07FF             110xxxxx 10xxxxxx
+        // 0000 0800 ~ 0000 FFFF             1110xxxx 10xxxxxx 10xxxxxx
+        // 0001 0000 ~ 0010 FFFF             11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+        //
+        // UTF-8 is fully compatible with the original ASCII encoding. 
+        // The number of leading 1 bits in the first byte indicates the number of bytes the character occupies. 
+        // Using the table above, Unicode can be converted to UTF-8 encoding by replacing the 'x' placeholders 
+        // with the binary bits of the Unicode value, in high-to-low order, padding with 0s where necessary.
+        //
+        // For example, consider the Chinese character "一":
+        // - Its Unicode code point is 0x4E00, which in binary is: 100 1110 0000 0000 (15 bits).
+        // - Using the UTF-8 encoding pattern for the range 0000 0800 ~ 0000 FFFF:
+        //   1110xxxx 10xxxxxx 10xxxxxx
+        // - Fill in the binary bits of the Unicode code point:
+        //   - First byte: 1110 + 0100 (first 4 bits of the code point) = 11100100
+        //   - Second byte: 10 + 111000 (next 6 bits) = 10111000
+        //   - Third byte: 10 + 000000 (remaining 6 bits) = 10000000
+        // - Final UTF-8 encoding: 11100100 10111000 10000000 (E4 B8 80 in hexadecimal).
+        //
+        // Ref
+        //https://www.freecodecamp.org/chinese/news/what-is-utf-8-character-encoding/
+        //https://sf-zhou.github.io/programming/chinese_encoding.html
+        std::string filter_text(const std::string& input) {
+            std::string output;
+            size_t i = 0;
+            while (i < input.size()) {
+                unsigned char first_byte = input[i];
+                size_t char_len = 0;
+                unsigned int code_point = 0;
+
+                // determine the length of a character (in UTF-8 encoding)
+                if ((first_byte & 0x80) == 0x00) {  // 1-byte sequence: 0xxxxxxx
+                    char_len = 1;
+                    code_point = first_byte;
+                }
+                else if ((first_byte & 0xE0) == 0xC0) { // 2-byte sequence: 110xxxxx 10xxxxxx
+                    if (i + 1 >= input.size()) break;
+                    char_len = 2;
+                    code_point = (first_byte & 0x1F) << 6;
+                    code_point |= (input[i + 1] & 0x3F);
+                }
+                else if ((first_byte & 0xF0) == 0xE0) { //3-byte sequence: 1110xxxx 10xxxxxx 10xxxxxx
+                    if (i + 2 >= input.size()) break;
+                    char_len = 3;
+                    code_point = (first_byte & 0x0F) << 12;
+                    code_point |= (input[i + 1] & 0x3F) << 6;
+                    code_point |= (input[i + 2] & 0x3F);
+                }
+                else if ((first_byte & 0xF8) == 0xF0) { // 4-byte sequence: 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+                    if (i + 3 >= input.size()) break;
+                    char_len = 4;
+                    code_point = (first_byte & 0x07) << 18;
+                    code_point |= (input[i + 1] & 0x3F) << 12;
+                    code_point |= (input[i + 2] & 0x3F) << 6;
+                    code_point |= (input[i + 3] & 0x3F);
+                }
+
+                // Determine if the character is a Simplified Chinese or English character
+                // or if it is a valid punctuation mark
+                if (is_chinese_char(code_point) || is_english_char(code_point) || is_valid_punc(code_point)) {
+                    output.append(input.substr(i, char_len));
+                }
+                i += char_len;
+
+            }
+            return output;
         }
     }
 

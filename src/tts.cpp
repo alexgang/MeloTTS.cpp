@@ -112,9 +112,11 @@ namespace melo {
            // std::vector<std::wstring> normalized_sentences = normalizer->normalize(text_normalization::string_to_wstring(text));
             std::vector<std::string> sentences = split_sentences_into_pieces(text,false);
             for (const auto& sentence : sentences) {
+                if(!sentence.size()) continue;
                 auto startTime = Time::now();
                 std::string normalized_sentence = text_normalization::wstring_to_string(normalizer->normalize_sentence(text_normalization::string_to_wstring(sentence)));
-                //std::cout << normalized_sentence << std::endl;
+                std::cout << normalized_sentence << std::endl;
+
                 // structured binding
                 auto [phone_level_feature, phones_ids, tones, lang_ids] = get_text_for_tts_infer(normalized_sentence);
                 auto preProcess = get_duration_ms_till_now(startTime);
@@ -235,6 +237,7 @@ namespace melo {
                 i += results.front().length;
             }
             else if (results.front().value == 0) { // skip certain punctuations
+                tmp += " ";
                 i += results.front().length;
             }
             else {
@@ -267,6 +270,8 @@ namespace melo {
             new_sentences[new_sentences.size() - 2] += new_sentences.back();
             new_sentences.pop_back();
         }
+        else if(new_sentences.size()==1&&new_sentences[0].size()&&new_sentences[0][0]==' ') // new sentences it self is only one piece and it is space, then skip
+            new_sentences.clear();
         return new_sentences;
 
     }

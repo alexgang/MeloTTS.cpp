@@ -19,6 +19,7 @@ namespace text_normalization {
 	extern std::wregex re_negative_num;
 	extern std::wregex re_default_num;
 	extern std::wregex re_asmd;
+	extern std::wregex re_math_symbol;
 	extern std::wregex re_positive_quantifier;
 	extern std::wregex re_number;
 	//wregex re_range;
@@ -32,6 +33,7 @@ namespace text_normalization {
 	std::wstring replace_negative_num(const std::wsmatch& match);
 	std::wstring replace_default_num(const std::wsmatch& match);
 	std::wstring replace_asmd(const std::wsmatch& match);
+	std::wstring replace_math_symbol(const std::wsmatch& match);
 	std::wstring replace_positive_quantifier(const std::wsmatch& match);
 	std::wstring replace_number(const std::wsmatch& match);
 	std::wstring replace_with_callback(const std::wstring& input, const std::wregex& re, const std::function<std::wstring(const std::wsmatch&)>& callback);

@@ -153,10 +153,13 @@ namespace text_normalization {
         while (std::regex_search(modified_sentence, match, re_range))
             modified_sentence = replace_range(match);
 
-        // 处理加减乘除
+        // 处理加减乘除d
+        /*while (std::regex_search(modified_sentence, match, re_asmd))
+            modified_sentence = replace_asmd(match);*/
 
-        while (std::regex_search(modified_sentence, match, re_asmd))
-            modified_sentence = replace_asmd(match);
+        //  加、减、乘、除、大于、小于、等于, 约等于
+        while (std::regex_search(modified_sentence, match, re_math_symbol))
+            modified_sentence = replace_math_symbol(match);
 
         // 负数
         //while (std::regex_search(modified_sentence, match, re_negative_num))

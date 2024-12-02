@@ -27,7 +27,7 @@ int main(int argc, char** argv)
   //  const Darts::DoubleArray::key_type* str[] = { "ALGOL", "ANSI", "ARCO",  "ARPA", "ARPANET", "ASCII" }; // same as char*
     std::vector<std::string>punctuation = {
     "，", "。", "！", "？", "、", "；", "：", "“", "”", "‘", "’", "（", "）", "【", "】", "《", "》", "——", "……", "·",
-    ",", ".", "!", "?", ";", ":", "\"",  "\'", "'", "(", ")", "[", "]", "<", ">", "-", "...", ".", "\n", "\t", "\r",
+    ",", ".", "!", "?", ";", ":", "\"",  "\'", "/","'", "(", ")", "[", "]", "<", ">", "-", "...", ".", "\n", "\t", "\r",
     "」","「","~","～","—","】","【","$","¥ ",
     };
     std::unordered_set<std::string> sentence_splitter = {

@@ -34,7 +34,6 @@ namespace melo {
         extern std::shared_ptr<std::unordered_map<std::string, std::vector<std::string>>> pinyin_to_symbol_map;
         extern const std::unordered_map<std::string,int64_t> symbol_to_id;
         // funtion
-        std::string text_normalize(const std::string& text);
         std::tuple<std::vector<std::string>, std::vector<int64_t>, std::vector<int>> _g2p_v2(const std::string& segment, std::shared_ptr<Tokenizer>& tokenized);
         [[maybe_unused]] std::tuple<std::vector<std::string>, std::vector<int64_t>, std::vector<int>> _chinese_g2p(const std::string& word, const std::string& tag);
         std::tuple<std::vector<std::string>, std::vector<int64_t>, std::vector<int>> _chinese_g2p(std::vector<std::pair<std::string,std::string>>& segment);
@@ -65,6 +64,22 @@ namespace melo {
             }
             return true;
         }
+        /**
+         * The following functions correspond to the Python code:
+         * replaced_text = re.sub(r"[^\u4e00-\u9fa5_a-zA-Z\s" + "".join(punctuation) + r"]+", "", replaced_text)
+         */
+        inline bool is_english_char(unsigned int code_point) {
+            return (code_point >= 0x41 && code_point <= 0x5A) || (code_point >= 0x61 && code_point <= 0x7A);
+        }
+        inline bool is_chinese_char(unsigned int code_point) {
+            // Unicode in \u4e00 - \u9fa5）
+            return (code_point >= 0x4E00 && code_point <= 0x9FA5);
+        }
+        inline bool is_valid_punc(char x) {
+            return Tokenizer::punctuations.contains(x);
+        }
+        std::string text_normalize(const std::string& text);
+        std::string filter_text(const std::string& text);
 
         const std::unordered_set<char> simple_initials = { 'b', 'p', 'm', 'f', 'd', 't', 'n', 'l', 'g', 'k', 'h', 'j', 'q', 'x', 'r', 'z', 'c', 's', 'y', 'w'};
         const std::unordered_set<std::string>  compound_initials = { "zh", "ch", "sh" };

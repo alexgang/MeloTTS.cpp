@@ -28,7 +28,7 @@ namespace text_normalization {
     };
 
     std::unordered_map<wchar_t, std::wstring> asmd_map = {
-        {L'+', L"加"}, {L'-', L"减"}, {L'×', L"乘"}, {L'÷', L"除"}, {L'=', L"等于"}
+        {L'+', L"加"}, {L'-', L"减"}, {L'×', L"乘"}, {L'÷', L"除"}, {L'=', L"等于"}, {L'>', L"大于"}, {L'<', L"小于"},{L'≈', L"约等于"}, {L'≥', L"大于等于"},{L'≤', L"小于等于"},
     };
 
     // 各种正则表达式
@@ -37,6 +37,7 @@ namespace text_normalization {
     std::wregex re_negative_num(L"(-)(\\d+)");
     std::wregex re_default_num(L"\\d{3}\\d*");
     std::wregex re_asmd(L"((-?)((\\d+)(\\.\\d+)?)|(\\.(\\d+)))([\\+\\-\\×\\÷=])((-?)((\\d+)(\\.\\d+)?)|(\\.(\\d+)))");
+    std::wregex re_math_symbol(L"[\\+\\-\\×\\÷><=≈≤≥]");
     std::wregex re_positive_quantifier(L"(\\d+)([多余几\\+])?(封|艘|把|目|套|段|人|所|朵|匹|张|座|回|场|尾|条|个|首|阙|阵|网|炮|顶|丘|棵|只|支|袭|辆|挑|担|颗|壳|窠|曲|墙|群|腔|砣|座|客|贯|扎|捆|刀|令|打|手|罗|坡|山|岭|江|溪|钟|队|单|双|对|出|口|头|脚|板|跳|枝|件|贴|针|线|管|名|位|身|堂|课|本|页|家|户|层|丝|毫|厘|分|钱|两|斤|担|铢|石|钧|锱|忽|(千|毫|微)克|毫|厘|(公)分|分|寸|尺|丈|里|寻|常|铺|程|(千|分|厘|毫|微)米|米|撮|勺|合|升|斗|石|盘|碗|碟|叠|桶|笼|盆|盒|杯|钟|斛|锅|簋|篮|盘|桶|罐|瓶|壶|卮|盏|箩|箱|煲|啖|袋|钵|年|月|日|季|刻|时|周|天|秒|分|小时|旬|纪|岁|世|更|夜|春|夏|秋|冬|代|伏|辈|丸|泡|粒|颗|幢|堆|条|根|支|道|面|片|张|颗|块|元|(亿|千万|百万|万|千|百)|(亿|千万|百万|万|千|百|美|)元|(亿|千万|百万|万|千|百|十|)吨|(亿|千万|百万|万|千|百|)块|角|毛|分)");
     std::wregex re_number(L"(-?)((\\d+)(\\.\\d+)?)|(\\.(\\d+))");
     //wregex re_range(R"((?<![\d\+\-\×÷=])((-?)((\d+)(\.\d+)?))[-~]((-?)((\d+)(\.\d+)?))(?![\d\+\-\×÷=]))"); running error
@@ -90,6 +91,13 @@ namespace text_normalization {
     std::wstring replace_asmd(const std::wsmatch& match) {
         std::wstring result = match.str(1) + asmd_map[match.str(8)[0]] + match.str(9);
         return match.prefix().str() + result + match.suffix().str();
+    }
+    //加、减、乘、除、大于、小于、等于
+    std::wstring replace_math_symbol(const std::wsmatch& match) {
+        auto symbol = match.str(0)[0];
+        if(asmd_map.contains(symbol))
+            return match.prefix().str()+asmd_map.at(symbol)+ match.suffix().str();
+        return {};
     }
 
     // 量词替换
