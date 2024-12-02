@@ -2,6 +2,23 @@
 
 This repository offers a C++ implementation of [meloTTS](https://github.com/myshell-ai/MeloTTS), which is a high-quality, multilingual Text-to-Speech (TTS) library released by MyShell.ai that supports English, Chinese (mixed with English), and various other languages. This implementation is fully integrated with OpenVINO, supporting seamless deployment on CPU, GPU, and NPU devices. Currently, this repository only supports Chinese mixed with English. Support for [English model](https://huggingface.co/myshell-ai/MeloTTS-English) is coming next.
 
+## Pipeline Design
+
+
+
+The pipeline consists of three models: BERT, TTS, and DeepFilterNet.
+
+
+<img src="images/melotts_design.png" alt="Pipeline Design" title="Pipeline Design" width="500">
+
+
+### Model-Device Compatibility Table
+The table below outlines the supported devices for each model:
+| Model Name       | CPU Support | GPU Support | NPU Support |
+|------------------|-------------|-------------|-------------|
+| BERT (Preprocessing) | ✅           | ✅           | ✅           |
+| TTS (Inference)      | ✅           | ✅           | ❌           |
+| DeepFilterNet (Post-processing) | ✅           | ✅           | ✅           |
 
 ## Setup and Execution Guide
 
@@ -46,7 +63,6 @@ For example, to disable the feature, you can use the following line during the C
 cmake -S . -B build -DUSE_DEEPFILTERNET=OFF
 ```
 For more information, please refer to [DeepFilterNet.cpp](https://github.com/apinge/MeloTTS.cpp/blob/develop/src/deepfilternet/README.md).
-
 
 ### 4. Arguments Description
 You can use `run_tts.bat` or `run_tts.sh` as sample scripts to run the models. Below are the meanings of all the arguments you can use with these scripts:
