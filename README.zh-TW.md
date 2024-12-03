@@ -4,7 +4,7 @@
 </p>
 
 
-**MeloTTS.cpp** 是[meloTTS](https://github.com/myshell-ai/MeloTTS) 的C++ 實現，**meloTTS**這是由MyShell.ai 發布的一個高品質、多語言的文字轉語音(TTS) 庫，支援英語、中文以及其他多種語言。本倉庫基於**OpenVINO**，支援在 CPU、GPU 和 NPU 邊緣設備上的部署。目前，本倉庫僅支援中文(夾雜英文)。對[MeloTTS 英文模型](https://huggingface.co/myshell-ai/MeloTTS-English)的支援仍處於開發階段。
+**MeloTTS.cpp** 是[MeloTTS](https://github.com/myshell-ai/MeloTTS) 的C++ 實現，**MeloTTS**是由MyShell.ai 發布的一個高品質、多語言的文字轉語音(Text To Speech) 庫，支援英語、中文以及其他多種語言。本倉庫基於**OpenVINO**，支援在 CPU、GPU 和 NPU 邊緣設備上的部署。目前，本倉庫僅支援中文(混合英文)。對[MeloTTS 英文模型](https://huggingface.co/myshell-ai/MeloTTS-English)的支援仍處於開發階段。
 
 ## Pipeline Design
 
@@ -122,13 +122,13 @@ BERT 和 DeepFilterNet 模型支援將 NPU 作為推理設備，利用 Meteor La
 - **OpenVINO Version**: >=2024.4
 - **C++ Version**: >=C++20
 
-如果您使用的是 Windows 的 AI PC 筆記本，GPU 和 NPU 驅動通常是預先安裝的。然而，Linux 使用者或希望更新到最新驅動的 Windows 使用者應按照以下指南操作:
+如果您使用的 Windows 的 AI PC 筆記本，GPU 和 NPU 驅動通常是預先安裝的。然而，Linux 使用者或希望更新到最新驅動的 Windows 使用者請參考以下指南操作:
 
 - **安裝/更新GPU驅動**: 請參考 [Configurations for Intel® Processor Graphics (GPU) with OpenVINO™](https://docs.openvino.ai/2024/get-started/configurations/configurations-intel-gpu.html) 
 
 - **安裝/更新GPU驅動**: 請參考 [NPU Device](https://docs.openvino.ai/2024/openvino-workflow/running-inference/inference-devices-and-modes/npu-device.html) 
 
-请注意，Windows 和 Linux 的所有驱动程序有所不同，因此请确保按照您特定操作系统的说明进行操作。
+請注意，Windows 和 Linux 的所有驅動程式有所不同，因此請確保按照您特定作業系統的說明進行操作。
 
 ## 開發計劃
 

@@ -80,9 +80,9 @@ For more information, please refer to [DeepFilterNet.cpp](https://github.com/api
 You can use `run_tts.bat` or `run_tts.sh` as sample scripts to run the models. Below are the meanings of all the arguments you can use with these scripts:
 
 - `--model_dir`: Specifies the folder containing the model files, dictionary files, and third-party resource files, which is `ov_models` folder within the repo. You may need to adjust the relative path based on your current working directory.
-- `--tts_device`: Specifies the OpenVINO device to be used for the TTS model. Supported devices include **CPU** and **GPU** (default: **CPU**).
-- `--bert_device`: Specifies the OpenVINO device to be used for the BERT model. Supported devices include **CPU**, **GPU**, and **NPU** (default: **CPU**).
-- `--nf_device`: Specifies the OpenVINO device to be used for the DeepfilterNet model. Supported devices include **CPU**, **GPU**, and **NPU** (default: **CPU**).
+- `--tts_device`: Specifies the OpenVINO device to be used for the TTS model. Supported devices include CPU and GPU (default: CPU).
+- `--bert_device`: Specifies the OpenVINO device to be used for the BERT model. Supported devices include CPU, GPU, and NPU (default: CPU).
+- `--nf_device`: Specifies the OpenVINO device to be used for the DeepfilterNet model. Supported devices include CPU, GPU, and NPU (default: CPU).
 - `--input_file`: Specifies the input text file to be processed. Make sure that the text is in **UTF-8** format.
 - `--output_file`: Specifies the output *.wav audio file to be generated.
 - `--speed`: Specifies the speed of output audio. The default is 1.0.
