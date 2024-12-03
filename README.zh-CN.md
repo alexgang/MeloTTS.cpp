@@ -98,12 +98,12 @@ BERT 和 DeepFilterNet 模型支持将 NPU 作为推理设备，利用 Meteor La
 <details>
   <summary>Click here to expand/collapse content</summary>
   <ul>
-   <li><strong>How to Build</strong></li>
-   To enable the BERT model on NPU, an additional CMake option <code>-DUSE_BERT_NPU=ON</code> is required during the CMake generation. For example:
+   <li><strong>在 CMake 生成阶段</strong></li>
+   在 NPU 上启用 BERT 模型，在 CMake 生成阶段需要额外的 CMake 选项 <code>-DUSE_BERT_NPU=ON</code>。例如：
     <pre><code>cmake -DUSE_BERT_NPU=ON -B build -S .</code></pre>
-   To enable DeepFilterNet on NPU, no additional compilation steps are required.
-   <li><strong>How to Set Arguments</strong></li>
-        To set arguments for models on NPU, use <code>--bert_device</code> npu for the BERT model and  <code>--nf_device</code> npu for the DeepFilterNet model respectively. For example:
+   在 NPU 上启用 DeepFilterNet，无需额外的编译步骤。
+   <li><strong>设置参数</strong></li>
+        要为 NPU 上的模型设置参数，分别使用 <code>--bert_device NPU</code>来设置 BERT 模型，使用 <code>--nf_device NPU</code> 来设置 DeepFilterNet 模型。例如：
         <pre><code>build\Release\meloTTS_ov.exe --bert_device NPU --nf_device NPU --model_dir ov_models --input_file inputs.txt  --output_file audio.wav</code></pre>
     
 </ul>

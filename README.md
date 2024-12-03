@@ -103,7 +103,7 @@ Below are the methods to enable this feature and the usage details:
     <pre><code>cmake -DUSE_BERT_NPU=ON -B build -S .</code></pre>
    To enable DeepFilterNet on NPU, no additional compilation steps are required.
    <li><strong>How to Set Arguments</strong></li>
-        To set arguments for models on NPU, use <code>--bert_device</code> npu for the BERT model and  <code>--nf_device</code> npu for the DeepFilterNet model respectively. For example:
+        To set arguments for models on NPU, use <code>--bert_device NPU</code> for the BERT model and  <code>--nf_device NPU</code> for the DeepFilterNet model respectively. For example:
         <pre><code>build\Release\meloTTS_ov.exe --bert_device NPU --nf_device NPU --model_dir ov_models --input_file inputs.txt  --output_file audio.wav</code></pre>
     
 </ul>
