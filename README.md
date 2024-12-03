@@ -1,4 +1,8 @@
 # MeloTTS.cpp
+<p>
+  <b>< English</b> | <a href='./README.zh-CN.md'>简体中文</a> | <a href='./README.zh-TW.md'>繁體中文</a> >
+</p>
+
 
 This repository offers a C++ implementation of [meloTTS](https://github.com/myshell-ai/MeloTTS), which is a high-quality, multilingual Text-to-Speech (TTS) library released by MyShell.ai that supports English, Chinese (mixed with English), and various other languages. This implementation is fully integrated with OpenVINO, supporting seamless deployment on CPU, GPU, and NPU devices. Currently, this repository only supports Chinese mixed with English. Support for [English model](https://huggingface.co/myshell-ai/MeloTTS-English) is coming next.
 
@@ -6,7 +10,7 @@ This repository offers a C++ implementation of [meloTTS](https://github.com/mysh
 
 
 
-The pipeline consists of three models: BERT, TTS, and DeepFilterNet.
+The pipeline design is largely consistent with the [orignal pytorch Version](https://github.com/myshell-ai/MeloTTS), comprising three models (BERT, TTS, and DeepFilterNet), with DeepFilterNet added as an additional component.
 
 
 <img src="images/melotts_design.png" alt="Pipeline Design" title="Pipeline Design" width="800" style="display: block">
