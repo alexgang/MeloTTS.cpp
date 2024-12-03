@@ -257,8 +257,23 @@ namespace melo {
                     tones_list.insert(tones_list.end(), tones.begin(), tones.end());
                 }
                 else{
-                    std::cerr << "cmudict cannot find:" << token <<" in " << word << std::endl;
+                    std::cerr << "[WARNNING] cmudict cannot find:" << token <<" in " << word << std::endl;
                 }
+            }
+            // workaround for abbreviation
+            // We consider English words.size()<=5 as abbreviations.
+            if (tokenized_word.size() == 1 && word.length()<=5 && !phones_list.size()) {
+                for(const char& ch:word){
+                    auto syllables = cmudict->find(std::string(1,ch));
+                    if (syllables.has_value()) {
+                        auto [phones, tones] = refine_syllables(syllables.value().get());
+                        phone_len += phones.size();
+                        phones_list.insert(phones_list.end(), phones.begin(), phones.end());
+                        tones_list.insert(tones_list.end(), tones.begin(), tones.end());
+                    }
+                }
+                if(phones_list.size())
+                    std::cout << "[INFO] "<< word <<" is treated as an abbravation, where each letter is pronounced individually.\n";
             }
             word2ph = distribute_phone(phone_len,word_len);
             return { phones_list, tones_list, word2ph };
