@@ -491,7 +491,7 @@ namespace melo {
                 // Determine if the character is a Simplified Chinese or English character
                 // or if it is a valid punctuation mark
                 if (is_chinese_char(code_point) || is_english_char(code_point) || is_valid_punc(code_point)) {
-                    output.append(input.substr(i, char_len));
+                    output += input.substr(i, char_len);
                 }
                 i += char_len;
 

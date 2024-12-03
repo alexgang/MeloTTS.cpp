@@ -171,7 +171,7 @@ namespace melo {
 
             std::vector<std::vector<float>> phone_level_feature;
             if(!_disable_bert){
-                bert_model.get_bert_feature(text, word2ph, phone_level_feature);
+                bert_model.get_bert_feature(norm_text, word2ph, phone_level_feature);
             }
             else
                 std::cout << " TTS::get_text_for_tts_infer:disable bert infer\n";
