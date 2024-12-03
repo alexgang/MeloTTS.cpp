@@ -9,7 +9,15 @@ This repository offers a C++ implementation of [meloTTS](https://github.com/mysh
 The pipeline consists of three models: BERT, TTS, and DeepFilterNet.
 
 
-<img src="images/melotts_design.png" alt="Pipeline Design" title="Pipeline Design" width="500">
+<img src="images/melotts_design.png" alt="Pipeline Design" title="Pipeline Design" width="800" style="display: block">
+
+
+#### Legend / Terminology
+1. tokenizer and BERT: The tokenizer and BERT model are `bert-base-multilingual-uncased` for Chinese and `bert-base-uncased` for English 
+2. g2p: Grapheme-to-Phoneme conversion
+3. phones and tones: represented as pinyin with four tones for Chinese and phonemes with stress marks for English
+4. tone_sandi: class used for handling Chinese scenarios, correcting tokenization and phones
+5. DeepFilterNet: used for denoising (background noise introduced by int8 quantization)
 
 
 ### Model-Device Compatibility Table
