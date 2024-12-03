@@ -247,6 +247,7 @@ namespace melo {
             }
             int word_len = static_cast<int>(tokenized_word.size());
             int phone_len = 0;
+            bool cmudict_unfound = false;
             for(auto& token:tokenized_word){
                 auto syllables = cmudict->find(token);
                 // if not has value
@@ -257,12 +258,17 @@ namespace melo {
                     tones_list.insert(tones_list.end(), tones.begin(), tones.end());
                 }
                 else{
-                    std::cerr << "[WARNNING] cmudict cannot find:" << token <<" in " << word << std::endl;
+                    cmudict_unfound = true;
+                    std::cout << "[WARNNING] cmudict cannot find:" << token <<" in " << word << std::endl;
                 }
             }
             // workaround for abbreviation
-            // We consider English words.size()<=5 as abbreviations.
-            if (tokenized_word.size() == 1 && word.length()<=5 && !phones_list.size()) {
+            // We consider English words with a length of <= 5 as abbreviations if their existing tokens are not found in cmudict
+            if ( word.length()<=5 && cmudict_unfound) {
+                // some abbreviation may be slit to sevaral tokens (some token can be found in cmudict) . clean them all first.
+                phone_len=0;
+                phones_list.clear();
+                tones_list.clear();
                 for(const char& ch:word){
                     auto syllables = cmudict->find(std::string(1,ch));
                     if (syllables.has_value()) {
@@ -423,7 +429,7 @@ namespace melo {
             return filter_text(norm_text);
         }
         // @brief This functionality cleans up text by retaining only Chinese characters, English letters,
-        //  and valid punctuation symbols, while removing all other characters.
+        //  and valid punctuation symbols (including space), while removing all other characters.
         // UTF-8 is a variable-length encoding that uses 1 to 4 bytes to represent a character. 
         // It is similar to a Huffman tree in structure. The specific mapping relationship with Unicode is as follows:
         // (Adapted from Reference 1)
@@ -489,8 +495,8 @@ namespace melo {
                 }
 
                 // Determine if the character is a Simplified Chinese or English character
-                // or if it is a valid punctuation mark
-                if (is_chinese_char(code_point) || is_english_char(code_point) || is_valid_punc(code_point)) {
+                // or if it is a valid punctuation mark or space
+                if (is_chinese_char(code_point) || is_english_char(code_point) || is_valid_punc(code_point) || char_len == 1 && first_byte == ' ') {
                     output += input.substr(i, char_len);
                 }
                 i += char_len;
