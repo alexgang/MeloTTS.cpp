@@ -247,20 +247,20 @@ namespace melo {
             }
             int word_len = static_cast<int>(tokenized_word.size());
             int phone_len = 0;
-            
-            auto syllables = cmudict->find(word);
-            // if not has value
-            if (syllables.has_value()) {
-                auto [phones, tones] = refine_syllables(syllables.value().get());
-                phone_len = phones.size();
-                phones_list.insert(phones_list.end(), phones.begin(), phones.end());
-                tones_list.insert(tones_list.end(), tones.begin(), tones.end());
+            for(auto& token:tokenized_word){
+                auto syllables = cmudict->find(token);
+                // if not has value
+                if (syllables.has_value()) {
+                    auto [phones, tones] = refine_syllables(syllables.value().get());
+                    phone_len += phones.size();
+                    phones_list.insert(phones_list.end(), phones.begin(), phones.end());
+                    tones_list.insert(tones_list.end(), tones.begin(), tones.end());
+                }
+                else{
+                    std::cerr << "cmudict cannot find:" << token <<" in " << word << std::endl;
+                }
             }
-            else
-                std::cerr << "cmudict cannot find" << word << std::endl;
-
             word2ph = distribute_phone(phone_len,word_len);
-
             return { phones_list, tones_list, word2ph };
         }
 
