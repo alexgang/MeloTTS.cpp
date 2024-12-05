@@ -89,7 +89,10 @@ namespace text_normalization {
         modified_sentence = std::regex_replace(modified_sentence, std::wregex(L"χ"), L"器");
         modified_sentence = std::regex_replace(modified_sentence, std::wregex(L"ψ|Ψ"), L"普赛");
         modified_sentence = std::regex_replace(modified_sentence, std::wregex(L"ω|Ω"), L"欧米伽");
-        modified_sentence = std::regex_replace(modified_sentence, std::wregex(L"([-——《》【】<=>{}()（）#&@“”^_|\\\\])"), L"");
+        modified_sentence = std::regex_replace(modified_sentence, std::wregex(L"@"), L" at ");
+        modified_sentence = std::regex_replace(modified_sentence, std::wregex(L"www."), L" www dot ");
+        modified_sentence = std::regex_replace(modified_sentence, std::wregex(L".com"), L" dot come ");
+        //modified_sentence = std::regex_replace(modified_sentence, std::wregex(L"([-——《》【】<=>{}()（）#&@“”^_|\\\\])"), L"");
         return modified_sentence;
     }
 
@@ -149,17 +152,20 @@ namespace text_normalization {
         while (std::regex_search(modified_sentence, match, re_national_uniform_number) && is_valid_phone_number(modified_sentence, match))
             modified_sentence = process_uniform_number(modified_sentence);
 
-        //范围
-        while (std::regex_search(modified_sentence, match, re_range))
-            modified_sentence = replace_range(match);
 
-        // 处理加减乘除d
-        /*while (std::regex_search(modified_sentence, match, re_asmd))
-            modified_sentence = replace_asmd(match);*/
+
+        // 处理 减 The symbol is checked twice because the minus sign, due to its special case, is used as a dash."
+        //This highlights that the minus sign is treated differently in specific contexts(as a dash), which is why it requires a separate check.
+        while (std::regex_search(modified_sentence, match, re_asmd))
+            modified_sentence = replace_asmd(match);
 
         //  加、减、乘、除、大于、小于、等于, 约等于
         while (std::regex_search(modified_sentence, match, re_math_symbol))
             modified_sentence = replace_math_symbol(match);
+
+        //范围
+        while (std::regex_search(modified_sentence, match, re_range))
+            modified_sentence = replace_range(match);
 
         // 负数
         //while (std::regex_search(modified_sentence, match, re_negative_num))

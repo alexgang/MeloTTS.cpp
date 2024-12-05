@@ -226,6 +226,10 @@ namespace melo {
                     tmp += "."; // Keep the decimal point here for subsequent text normalization processing.
                 i += results.front().length;
             }
+            else if (text[i] == '.' && i + 3 < n && text.substr(i + 1, 3) == "com") {
+                    tmp += ".";// Special workaround for .com
+                i += results.front().length;
+            }
             else if (sentence_splitter.contains(results.front().value)) { // text splitter
                 tmp += static_cast<char>(results.front().value);
                 sentences.emplace_back(std::move(tmp));
