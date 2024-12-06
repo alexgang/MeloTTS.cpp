@@ -236,12 +236,8 @@ namespace melo {
                 tmp.clear();
                 i += results.front().length;
             }
-            else if (results.front().value == 3) { // space it is meaningful to english words
+            else if (results.front().value == 3 || results.front().value == 0) { // space it is meaningful to english words
                 tmp += " ";
-                i += results.front().length;
-            }
-            else if (results.front().value == 0) { // skip certain punctuations
-                tmp += "'"; // Here use ', to align with the replacement logic of chinese_mix.replace_punctuation in python
                 i += results.front().length;
             }
             else {

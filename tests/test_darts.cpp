@@ -53,7 +53,13 @@ int main(int argc, char** argv)
         keys.emplace_back(punctuation[i].c_str());
         length.emplace_back(punctuation[i].size());
         if (rep_map.contains(punctuation[i])) {
-            values[i] = static_cast<int>(rep_map.at(punctuation[i]));
+            /*We are modifying the original Python logic for symbol replacement here. 
+            Previously, both Chinese and English brackets were replaced with a single quote ('), 
+            but this caused issues with clarity in English words, such as "(MB)". Now, we will replace them with spaces instead.*/
+            int val = static_cast<int>(rep_map.at(punctuation[i]));
+            if(val==int('\''))
+                val = int(' ');
+            values[i] = val;
             //std::cout << punctuation[i] << " "<< rep_map.at(punctuation[i])  <<" " << values[i] << std::endl;
         }
         else if (sentence_splitter.contains(punctuation[i])) {
