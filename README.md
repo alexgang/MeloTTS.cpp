@@ -37,12 +37,12 @@ The table below outlines the supported devices for each model:
 ### 1. Download OpenVINO C++ Package
 
 To download the OpenVINO C++ package for Windows, please refer to the following link: [Install OpenVINO for Windows]( https://docs.openvino.ai/2024/get-started/install-openvino/install-openvino-archive-windows.html).
-For **OpenVINO 2024.4** on Windows, you can run the command line in the command prompt (cmd).
+For **OpenVINO 2024.5** on Windows, you can run the command line in the command prompt (cmd).
 ```
-curl -O https://storage.openvinotoolkit.org/repositories/openvino/packages/2024.4/windows/w_openvino_toolkit_windows_2024.4.0.16579.c3152d32c9c_x86_64.zip --ssl-no-revoke
-tar -xvf w_openvino_toolkit_windows_2024.4.0.16579.c3152d32c9c_x86_64.zip
+curl -O https://storage.openvinotoolkit.org/repositories/openvino/packages/2024.5/windows/w_openvino_toolkit_windows_2024.5.0.17288.7975fa5da0c_x86_64.zip --ssl-no-revoke
+tar -xvf w_openvino_toolkit_windows_2024.5.0.17288.7975fa5da0c_x86_64.zip
 ```
-For Linux, you can download the C++ package from this link: [Install OpenVINO for Linux](https://docs.openvino.ai/2024/get-started/install-openvino/install-openvino-archive-linux.html). For **OpenVINO 2024.4** on Linux, simply download it from https://storage.openvinotoolkit.org/repositories/openvino/packages/2024.4/linux and unzip the package.
+For Linux, you can download the C++ package from this link: [Install OpenVINO for Linux](https://docs.openvino.ai/2024/get-started/install-openvino/install-openvino-archive-linux.html). For **OpenVINO 2024.5** on Linux, simply download it from https://storage.openvinotoolkit.org/repositories/openvino/packages/2024.5/linux and unzip the package.
 
 For additional versions and more information about OpenVINO, visit the official OpenVINO Toolkit page: [OpenVINO Toolkit Overview](https://www.intel.com/content/www/us/en/developer/tools/openvino-toolkit/overview.html).
 

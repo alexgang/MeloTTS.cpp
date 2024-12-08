@@ -35,13 +35,13 @@ MeloTTS.cpp的设计与 [原始 PyTorch 版本](https://github.com/myshell-ai/Me
 
 
 要下载适用于 Windows 的 OpenVINO C++ 包，请参考以下链接：[Install OpenVINO for Windows]( https://docs.openvino.ai/2024/get-started/install-openvino/install-openvino-archive-windows.html)。
-对于 OpenVINO 2024.4 在 Windows 上的安装，您可以在命令提示符（cmd）中运行命令行。
+对于 OpenVINO 2024.5 在 Windows 上的安装，您可以在命令提示符（cmd）中运行命令行。
 ```
-curl -O https://storage.openvinotoolkit.org/repositories/openvino/packages/2024.4/windows/w_openvino_toolkit_windows_2024.4.0.16579.c3152d32c9c_x86_64.zip --ssl-no-revoke
-tar -xvf w_openvino_toolkit_windows_2024.4.0.16579.c3152d32c9c_x86_64.zip
+curl -O https://storage.openvinotoolkit.org/repositories/openvino/packages/2024.5/windows/w_openvino_toolkit_windows_2024.5.0.17288.7975fa5da0c_x86_64.zip --ssl-no-revoke
+tar -xvf w_openvino_toolkit_windows_2024.5.0.17288.7975fa5da0c_x86_64.zip
 ```
 
-对于 Linux，您可以从以下链接下载 C++ 包：[Install OpenVINO for Linux](https://docs.openvino.ai/2024/get-started/install-openvino/install-openvino-archive-linux.html)。对于 OpenVINO 2024.4 在 Linux 上的安装，只需从 https://storage.openvinotoolkit.org/repositories/openvino/packages/2024.4/linux 下载并解压该包。
+对于 Linux，您可以从以下链接下载 C++ 包：[Install OpenVINO for Linux](https://docs.openvino.ai/2024/get-started/install-openvino/install-openvino-archive-linux.html)。对于 OpenVINO 2024.5 在 Linux 上的安装，只需从 https://storage.openvinotoolkit.org/repositories/openvino/packages/2024.5/linux 下载并解压该包。
 
 有关其他版本和更多 OpenVINO 信息，请访问 OpenVINO 官方工具包页面：[OpenVINO Toolkit Overview](https://www.intel.com/content/www/us/en/developer/tools/openvino-toolkit/overview.html)
 
