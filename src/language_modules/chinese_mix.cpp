@@ -250,6 +250,15 @@ namespace melo {
             bool cmudict_unfound = false;
             for(auto& token:tokenized_word){
                 auto syllables = cmudict->find(token);
+#ifdef MELO_DEBUG
+                if (syllables.has_value()) {
+                    for (std::cout << "token:" << token<<":"; auto & vec:syllables.value().get()) {
+                        for(auto&x:vec)
+                            std::cout << x<<' ';
+                        std::cout << std::endl;
+                    }
+                }
+#endif
                 // if not has value
                 if (syllables.has_value()) {
                     auto [phones, tones] = refine_syllables(syllables.value().get());
