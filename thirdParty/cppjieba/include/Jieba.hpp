@@ -35,8 +35,10 @@ class Jieba {
           std::filesystem::path USER_DICT_PATH = cppjieba_dict / "user.dict.utf8";
           std::filesystem::path IDF_PATH = cppjieba_dict / "idf.utf8";
           std::filesystem::path STOP_WORD_PATH = cppjieba_dict / "stop_words.utf8";
-          assert(std::filesystem::exists(DICT_PATH) && std::filesystem::exists(HMM_PATH) && std::filesystem::exists(USER_DICT_PATH) && std::filesystem::exists(IDF_PATH)
-              && std::filesystem::exists(STOP_WORD_PATH) && "cppjieba dict path does not exit!");
+          //assert(std::filesystem::exists(DICT_PATH) && std::filesystem::exists(HMM_PATH) && std::filesystem::exists(USER_DICT_PATH) && std::filesystem::exists(IDF_PATH)
+          //    && std::filesystem::exists(STOP_WORD_PATH) && "cppjieba dict path does not exit!");
+          if(!std::filesystem::exists(DICT_PATH) || !std::filesystem::exists(HMM_PATH) || !std::filesystem::exists(USER_DICT_PATH) || !std::filesystem::exists(IDF_PATH)
+              || !std::filesystem::exists(STOP_WORD_PATH)) std::cerr <<"cppjieba dict path does not exit!";
           std::cout << "init cppjieba\n";
       }
   ~Jieba() {

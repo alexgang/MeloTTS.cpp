@@ -123,46 +123,5 @@ namespace melo {
         /*memcpy(wavs.data(), output, output_size * sizeof(float));*/
         return wavs;
     }
-    void OpenVoiceTTS::write_wave(const std::string& filename, int32_t sampling_rate, const float* samples, int32_t n)
-    {
-
-        melo::WaveHeader header;
-        header.chunk_id = 0x46464952;     // FFIR
-        header.format = 0x45564157;       // EVAW
-        header.subchunk1_id = 0x20746d66; // "fmt "
-        header.subchunk1_size = 16;       // 16 for PCM
-        header.audio_format = 1;          // PCM =1
-
-        int32_t num_channels = 1;
-        int32_t bits_per_sample = 16; // int16_t
-        header.num_channels = num_channels;
-        header.sample_rate = sampling_rate;
-        header.byte_rate = sampling_rate * num_channels * bits_per_sample / 8;
-        header.block_align = num_channels * bits_per_sample / 8;
-        header.bits_per_sample = bits_per_sample;
-        header.subchunk2_id = 0x61746164; // atad
-        header.subchunk2_size = n * num_channels * bits_per_sample / 8;
-
-        header.chunk_size = 36 + header.subchunk2_size;
-
-        std::vector<int16_t> samples_int16(n);
-        for (int32_t i = 0; i != n; ++i)
-        {
-            samples_int16[i] = samples[i] * 32676;
-        }
-
-        std::ofstream os(filename, std::ios::binary);
-        if (!os)
-        {
-            std::string msg = "Failed to create " + filename;
-        }
-
-        os.write(reinterpret_cast<const char*>(&header), sizeof(header));
-        os.write(reinterpret_cast<const char*>(samples_int16.data()),
-            samples_int16.size() * sizeof(int16_t));
-
-        std::cout << "write wav to "<< filename << std::endl;
-        return;
-    }
 
 }

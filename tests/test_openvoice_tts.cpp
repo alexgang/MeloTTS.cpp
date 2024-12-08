@@ -1,37 +1,68 @@
 #include <filesystem>
-#include "bert.h"
+#include <fstream>
+#include <memory>
+#include <iostream>
+#include <openvino/openvino.hpp>
+#define USE_DEEPFILTERNET 0
+//#include "bert.h"
 #include "openvoice_tts.h"
+#include "info_data.h"
 #define OV_MODEL_PATH "ov_models"
+/*This file to test openvoice tts model only,
+decoupled with bert and other part 
+The file must compile with -DUSE_DEEPFILTERNET=OFF
+*/
+std::filesystem::path model_dir = "C:\\Users\\gta\\source\\repos\\MeloTTS.cpp\\ov_models";
 
-std::filesystem::path model_dir = OV_MODEL_PATH;
-std::vector<std::vector<float>> prepare_bert() {
-    std::filesystem::path zh_bert_path = model_dir / "bert_zn_mix_en.xml";
-    std::cout << std::filesystem::absolute(zh_bert_path) << std::endl;
-    std::cout << zh_bert_path.string() << std::endl;
+    void write_wave(const std::string& filename, int32_t sampling_rate, const float* samples, int32_t n)
+    {
 
-    std::shared_ptr<melo::Tokenizer> tokenizer_ptr = std::make_shared<melo::Tokenizer>(model_dir / "vocab_bert.txt");
+        melo::WaveHeader header;
+        header.chunk_id = 0x46464952;     // FFIR
+        header.format = 0x45564157;       // EVAW
+        header.subchunk1_id = 0x20746d66; // "fmt "
+        header.subchunk1_size = 16;       // 16 for PCM
+        header.audio_format = 1;          // PCM =1
 
-    //std::unique_ptr<ov::Core> core_ptr = std::make_unique<ov::Core>();
-    std::shared_ptr<ov::Core> core_ptr = std::make_shared<ov::Core>();
-    melo::Bert zh_bert(core_ptr, zh_bert_path.string(), "CPU", "ZH", tokenizer_ptr);
+        int32_t num_channels = 1;
+        int32_t bits_per_sample = 16; // int16_t
+        header.num_channels = num_channels;
+        header.sample_rate = sampling_rate;
+        header.byte_rate = sampling_rate * num_channels * bits_per_sample / 8;
+        header.block_align = num_channels * bits_per_sample / 8;
+        header.bits_per_sample = bits_per_sample;
+        header.subchunk2_id = 0x61746164; // atad
+        header.subchunk2_size = n * num_channels * bits_per_sample / 8;
 
+        header.chunk_size = 36 + header.subchunk2_size;
 
-    std::string text = "编译器compiler会尽可能从函数实参function arguments推导缺失的模板实参template arguments";
-    std::vector<int> word2ph{ 3, 4, 4, 4, 8, 6, 4, 4, 4, 4, 4, 4, 4, 4, 4, 14, 20, 4, 4, 4, 4, 4, 4, 4, 4, 4, 8, 6, 20, 2 };
-   
-    std::vector<std::vector<float>> berts;
-    zh_bert.get_bert_feature(text, word2ph, berts);
-    std::cout << "berts.size():"<<  berts.size() << " " << berts.front().size() << std::endl;
+        std::vector<int16_t> samples_int16(n);
+        for (int32_t i = 0; i != n; ++i)
+        {
+            samples_int16[i] = samples[i] * 32676;
+        }
 
-    return berts;
-}
+        std::ofstream os(filename, std::ios::binary);
+        if (!os)
+        {
+            std::string msg = "Failed to create " + filename;
+        }
+
+        os.write(reinterpret_cast<const char*>(&header), sizeof(header));
+        os.write(reinterpret_cast<const char*>(samples_int16.data()),
+            samples_int16.size() * sizeof(int16_t));
+
+        std::cout << "write wav to "<< filename << std::endl;
+        return;
+    }
 int main() {
-    
+    std::cout <<"model start\n";
     std::unique_ptr<ov::Core> core_ptr = std::make_unique<ov::Core>();
-    std::filesystem::path zh_bert_path = model_dir / "tts_zn_mix_en.xml";
-    melo::OpenVoiceTTS model(core_ptr, zh_bert_path.string(),"CPU", "ZH");
+    std::filesystem::path zh_tts_path = model_dir / "tts_zn_mix_en_int8.xml";
+    std::cout << std::filesystem::absolute(zh_tts_path);
+    melo::OpenVoiceTTS model(core_ptr, zh_tts_path.string(),"CPU", set_tts_config("CPU", true), "ZH");
 
-    std::vector<std::vector<float>> phone_level_feature = prepare_bert();
+    std::vector<std::vector<float>> phone_level_feature;
 
     std::vector<int64_t> phones_ids{ 0,  0,  0, 19,  0, 44,  0, 99,  0, 40,  0, 73,  0, 40,  0, 57,  0, 12,
           0, 60,  0, 71,  0, 18,  0, 59,  0, 32,  0, 37,  0, 89,  0, 55,  0, 49,
@@ -60,11 +91,11 @@ int main() {
      0, 2, 0, 3, 0, 3, 0, 2, 0, 2, 0, 1, 0, 1, 0, 7, 0, 9, 0, 7, 0, 7, 0, 7,
      0, 8, 0, 7, 0, 9, 0, 7, 0, 7, 0, 7, 0, 8, 0, 7, 0, 8, 0, 7, 0, 7, 0, 7,
      0, 0, 0 };
-     std::vector<float> wav_data = model.tts_infer(phones_ids, tones, lang_ids, phone_level_feature);
+     std::vector<float> wav_data = model.tts_infer(phones_ids, tones, lang_ids, phone_level_feature,1.0,1,true);//disable_bert;
      std::cout << "wav infer ok\n";
-     model.write_wave("test_openvoice_tts.wav", 44100, wav_data.data(), wav_data.size());
+     write_wave("test_openvoice_tts.wav", 44100, wav_data.data(),wav_data.size());
      std::cout << "write wav ok\n";
-    //word2ph.push_back({ 3, 4, 4, 4, 8, 6, 4, 4, 4, 4, 4, 4, 4, 4, 4, 14, 20, 4, 4, 4, 4, 4, 4, 4, 4, 4, 8, 6, 20, 2 });
+
 
     return 0;
 }

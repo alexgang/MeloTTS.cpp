@@ -2,9 +2,12 @@ add_executable(test_cmudict ${CMAKE_CURRENT_SOURCE_DIR}/test_cmudict.cpp ${CMAKE
 target_include_directories(test_cmudict PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../src/language_modules/cmudict.h)
 
 
-add_executable(test_openvoice_tts ${CMAKE_CURRENT_SOURCE_DIR}/test_openvoice_tts.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../src/openvino_model_base.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../src/openvoice_tts.cpp  ${CMAKE_CURRENT_SOURCE_DIR}/../src/utils.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../src/tokenizer.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../src/bert.cpp )
+add_executable(test_openvoice_tts ${CMAKE_CURRENT_SOURCE_DIR}/test_openvoice_tts.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../src/openvino_model_base.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../src/openvoice_tts.cpp  ${CMAKE_CURRENT_SOURCE_DIR}/../src/utils.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../src/tokenizer.cpp )
 target_link_libraries(test_openvoice_tts PRIVATE openvino::runtime) 
-target_include_directories(test_openvoice_tts PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../src/openvoice_tts.h ${CMAKE_CURRENT_SOURCE_DIR}/../src/openvino_model_base.h ${CMAKE_CURRENT_SOURCE_DIR}/../src/utils.h ${CMAKE_CURRENT_SOURCE_DIR}/../src/tokenizer.h ${CMAKE_CURRENT_SOURCE_DIR}/../src/bert.h ${CMAKE_CURRENT_SOURCE_DIR}/../src/info_data.h )
+target_include_directories(test_openvoice_tts PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../src/openvoice_tts.h 
+                                                      ${CMAKE_CURRENT_SOURCE_DIR}/../src/openvino_model_base.h
+                                                      ${CMAKE_CURRENT_SOURCE_DIR}/../src/utils.h 
+                                                      ${CMAKE_CURRENT_SOURCE_DIR}/../src/info_data.h )
 
 add_executable(test_chinese_mix ${CMAKE_CURRENT_SOURCE_DIR}/test_chinese_mix.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../src/language_modules/chinese_mix.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../src/tokenizer.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../src/utils.cpp 
                 ${CMAKE_SOURCE_DIR}/thirdParty/cppinyin/csrc/cppinyin.cc 

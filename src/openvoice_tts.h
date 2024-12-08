@@ -31,7 +31,7 @@ namespace melo {
             const int& speaker_id = 1, bool disable_bert = false, const float& sdp_ratio = 0.2f, const float& noise_scale = 0.6f, const float& noise_scale_w = 0.8f);
         virtual void ov_infer() override;
         virtual std::vector<float> get_ouput();
-        void write_wave(const std::string& filename, int32_t sampling_rate, const float* samples, int32_t n);
+
         inline std::string get_language() { return _language; }
         static constexpr size_t BATCH_SIZE = 1;
     private:
