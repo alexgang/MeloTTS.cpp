@@ -154,12 +154,11 @@ namespace text_normalization {
 
 
 
-        // 处理 减 The symbol is checked twice because the minus sign, due to its special case, is used as a dash."
-        //This highlights that the minus sign is treated differently in specific contexts(as a dash), which is why it requires a separate check.
+        // 处理 减号(dash.i.e.) the minus sign (-) can also be used as a dash, so it requires a separate check.
         while (std::regex_search(modified_sentence, match, re_asmd))
             modified_sentence = replace_asmd(match);
 
-        //  加、减、乘、除、大于、小于、等于, 约等于
+        //  加、乘、除、大于、小于、等于, 约等于
         while (std::regex_search(modified_sentence, match, re_math_symbol))
             modified_sentence = replace_math_symbol(match);
 
