@@ -12,7 +12,6 @@
 decoupled with bert and other part 
 The file must compile with -DUSE_DEEPFILTERNET=OFF
 */
-std::filesystem::path model_dir = "C:\\Users\\gta\\source\\repos\\MeloTTS.cpp\\ov_models";
 
     void write_wave(const std::string& filename, int32_t sampling_rate, const float* samples, int32_t n)
     {
@@ -56,7 +55,8 @@ std::filesystem::path model_dir = "C:\\Users\\gta\\source\\repos\\MeloTTS.cpp\\o
         return;
     }
 int main() {
-    std::cout <<"model start\n";
+    std::cout <<"main start\n";
+    std::filesystem::path model_dir = OV_MODEL_PATH;
     std::unique_ptr<ov::Core> core_ptr = std::make_unique<ov::Core>();
     std::filesystem::path zh_tts_path = model_dir / "tts_zn_mix_en_int8.xml";
     std::cout << std::filesystem::absolute(zh_tts_path);
@@ -91,7 +91,13 @@ int main() {
      0, 2, 0, 3, 0, 3, 0, 2, 0, 2, 0, 1, 0, 1, 0, 7, 0, 9, 0, 7, 0, 7, 0, 7,
      0, 8, 0, 7, 0, 9, 0, 7, 0, 7, 0, 7, 0, 8, 0, 7, 0, 8, 0, 7, 0, 7, 0, 7,
      0, 0, 0 };
-     std::vector<float> wav_data = model.tts_infer(phones_ids, tones, lang_ids, phone_level_feature,1.0,1,true);//disable_bert;
+     std::vector<float> wav_data;
+     for(int i =0;i<20;++i){
+        auto startTime  = Time::now();
+        wav_data = model.tts_infer(phones_ids, tones, lang_ids, phone_level_feature,1.0,1,true);//disable_bert;
+        auto inferTime = get_duration_ms_till_now(startTime);
+        std::cout << "model infer time:" << inferTime << " ms" << std::endl;
+    }
      std::cout << "wav infer ok\n";
      write_wave("test_openvoice_tts.wav", 44100, wav_data.data(),wav_data.size());
      std::cout << "write wav ok\n";
