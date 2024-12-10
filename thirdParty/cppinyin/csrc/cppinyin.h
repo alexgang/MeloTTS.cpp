@@ -41,6 +41,7 @@ class PinyinEncoder {
   using DagType = std::vector<std::vector<DagItem>>;
 
 public:
+#ifdef MULTI_THREAD_PINYIN
   PinyinEncoder(const std::string &vocab_path,
                 int32_t num_threads = std::thread::hardware_concurrency()) {
     pool_ = std::make_unique<ThreadPool>(num_threads);
@@ -58,7 +59,18 @@ public:
   PinyinEncoder(int32_t num_threads = std::thread::hardware_concurrency()) {
     pool_ = std::make_unique<ThreadPool>(num_threads);
   }
-  
+#endif 
+  /*
+* Here, we have disabled the thread pool and all multithreading features in cppinyin.
+* The primary reason for this is that cppinyin's Release build requires setting
+* MSVC_RUNTIME_LIBRARY to MT, which is inconsistent with OV's setting of MD.
+* This discrepancy can potentially lead to memory issues due to stack inconsistencies
+* between this executable and the OV DLL
+*/
+  PinyinEncoder(const std::filesystem::path& vocab_path){
+      Load(vocab_path.string());
+      std::cout << "cppinyin::PinyinEncoder Constructed!\n";
+  }
   ~PinyinEncoder() {}
 
   void Encode(const std::string &str, std::vector<std::string> *ostrs,

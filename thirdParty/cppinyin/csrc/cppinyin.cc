@@ -173,6 +173,7 @@ void PinyinEncoder::Encode(const std::string &str,
     substrs.push_back(word);
   }
   std::vector<std::vector<std::string>> subostrs(substrs.size());
+#ifdef MULTI_THREADE_PYININ
   std::vector<std::future<void>> results;
   for (int32_t i = 0; i < subostrs.size(); ++i) {
     results.emplace_back(
@@ -183,6 +184,11 @@ void PinyinEncoder::Encode(const std::string &str,
   for (auto &&result : results) {
     result.get();
   }
+#else
+  for (int32_t i = 0; i < subostrs.size(); ++i) {
+      this->EncodeBase(substrs[i], &(subostrs[i]), tone, partial);
+  }
+#endif
   for (int32_t i = 0; i < subostrs.size(); ++i) {
     ostrs->insert(ostrs->end(), subostrs[i].begin(), subostrs[i].end());
   }
