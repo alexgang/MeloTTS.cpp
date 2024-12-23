@@ -46,7 +46,7 @@ namespace melo {
                 const float& sdp_ratio = 0.2f, const float& noise_scale = 0.6f, const float& noise_scale_w = 0.8f);
             void tts_to_file(const std::string& text, std::vector<float>& output_audio, const int& speaker_id, const float& speed = 1.0f,
                 const float& sdp_ratio = 0.2f, const float& noise_scale = 0.6f, const float& noise_scale_w = 0.8f);
-            void tts_to_file(const std::vector<std::string>& texts, const std::filesystem::path& output_path, const int& speaker_id, const float& speed = 1.0f,
+            void tts_to_file(const std::vector<std::string>& texts, const std::filesystem::path& output_path, const int& speaker_id, const float& speed = 1.0f, const float& volume = 1.0,
                 const float& sdp_ratio = 0.2f, const float& noise_scale = 0.6f, const float& noise_scale_w = 0.8f);
             std::vector<std::string> split_sentences_into_pieces(const std::string& text, bool quiet = false);
             std::vector<std::string> split_sentences_zh(const std::string& text, size_t max_len = 10);
@@ -57,6 +57,10 @@ namespace melo {
         protected:
             std::tuple<std::vector<std::vector<float>>, std::vector<int64_t>, std::vector<int64_t>, std::vector<int64_t>>
                 get_text_for_tts_infer(const std::string& text);
+            // adjust the volume
+            inline void adjust_volume(std::vector<float>& audioData, float volumePercent) {
+                std::for_each(audioData.begin(), audioData.end(), [&](float& x) { x *= volumePercent; });
+            }
         private:
             std::shared_ptr<Tokenizer> tokenizer;
             Bert bert_model;

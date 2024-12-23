@@ -143,13 +143,14 @@ namespace melo {
         }
     }
 
-    void TTS::tts_to_file(const std::vector<std::string>& texts,const std::filesystem::path& output_path, const int& speaker_id, const float& speed,
+    void TTS::tts_to_file(const std::vector<std::string>& texts,const std::filesystem::path& output_path, const int& speaker_id, const float& speed, const float& volume,
         const float& sdp_ratio, const float& noise_scale, const float& noise_scale_w) {
         std::vector<float> audio;
         for (const auto& text : texts) {
             if(text.empty()) continue;
             tts_to_file(text,audio, speaker_id, speed,sdp_ratio,noise_scale,noise_scale_w);
         }
+        adjust_volume(audio, volume);
 #ifdef USE_DEEPFILTERNET
         if (!_disable_nf) {
             std::cout << "TTS::TTS : Process audio by noise filter.\n";

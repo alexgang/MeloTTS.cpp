@@ -90,7 +90,7 @@ int main(int argc, char** argv)
     std::vector<std::string> texts = read_file_lines(input_path);
 
     startTime = Time::now();
-    model.tts_to_file(texts, output_path, 1, args.speed);
+    model.tts_to_file(texts, output_path, 1, args.speed, 1.0);
     auto inferTime = get_duration_ms_till_now(startTime);
     std::cout << "model infer time:" << inferTime << " ms"<< std::endl;
 
