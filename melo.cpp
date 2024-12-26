@@ -88,9 +88,9 @@ int main(int argc, char** argv)
     std::cout << "model init time is" << initTime <<" ms" << std::endl;
 
     std::vector<std::string> texts = read_file_lines(input_path);
-
+    static constexpr int speaker_id = 1;// speaker_id of ZH_MIX_EN
     startTime = Time::now();
-    model.tts_to_file(texts, output_path, 1, args.speed, 1.0);
+    model.tts_to_file(texts, output_path, speaker_id, args.speed, model.norm_dbfs);
     auto inferTime = get_duration_ms_till_now(startTime);
     std::cout << "model infer time:" << inferTime << " ms"<< std::endl;
 

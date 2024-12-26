@@ -59,7 +59,7 @@ namespace melo {
         std::cout << "TTS::TTS : open puncuation dict.\n";
     }
 
-    void TTS::tts_to_file(const std::string& text, const std::filesystem::path& output_path, const int& speaker_id, const float& speed,
+    void TTS::tts_to_file(const std::string& text, const std::filesystem::path& output_path, const int& speaker_id, const float& speed, const float& target_dbfs,
         const float& sdp_ratio, const float& noise_scale, const float& noise_scale_w ){
         std::vector<float> audio;
         try {
@@ -78,6 +78,7 @@ namespace melo {
                 audio_concat(audio, wav_data, speed, sampling_rate_);
                 std::cout << "[INFO] preProcess Time: " << preProcess << "ms\n";
             }
+            normalize_audio(audio,target_dbfs);
 #ifdef USE_DEEPFILTERNET
             if (!_disable_nf) {
                 std::cout << "TTS::TTS : Process audio by noise filter.\n";
@@ -142,15 +143,37 @@ namespace melo {
             std::cerr << "Unknown exception caught" << std::endl;
         }
     }
+    //
+    // Audio Normalization Start
+    //
+    // Function to normalize the audio buffer to the target dBFS
+    void TTS::normalize_audio(std::vector<float>& buffer, float targetDbFS) {
+        auto calculatePeakLevel = [](const std::vector<float>& buffer) -> float {
+            float maxVal = 0.0f;
+            for (float sample : buffer) {
+                if (std::fabs(sample) > maxVal) {
+                    maxVal = std::fabs(sample);
+                }
+            }
+            return 20.0f * std::log10(maxVal);
+        };
+        float targetPeak = std::pow(10.0f, targetDbFS / 20.0f);
+        float currentPeak = calculatePeakLevel(buffer);
+        float gain = targetPeak / std::pow(10.0f, currentPeak / 20.0f);
+        std::cout << "[NORM] Applied Gain: " << gain << std::endl;
+        for (float& sample : buffer) {
+            sample *= gain;
+        }
+    }
 
-    void TTS::tts_to_file(const std::vector<std::string>& texts,const std::filesystem::path& output_path, const int& speaker_id, const float& speed, const float& volume,
+    void TTS::tts_to_file(const std::vector<std::string>& texts,const std::filesystem::path& output_path, const int& speaker_id, const float& speed, const float& target_dbfs,
         const float& sdp_ratio, const float& noise_scale, const float& noise_scale_w) {
         std::vector<float> audio;
         for (const auto& text : texts) {
             if(text.empty()) continue;
             tts_to_file(text,audio, speaker_id, speed,sdp_ratio,noise_scale,noise_scale_w);
         }
-        adjust_volume(audio, volume);
+        normalize_audio(audio,target_dbfs);
 #ifdef USE_DEEPFILTERNET
         if (!_disable_nf) {
             std::cout << "TTS::TTS : Process audio by noise filter.\n";

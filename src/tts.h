@@ -42,25 +42,27 @@ namespace melo {
             TTS& operator=(const TTS&) = delete;
             TTS(TTS&&) = delete;
             TTS& operator=(TTS&& other) = delete;
-            void tts_to_file(const std::string& text, const std::filesystem::path& output_path, const int& speaker_id, const float& speed = 1.0f,
+            void tts_to_file(const std::string& text, const std::filesystem::path& output_path, const int& speaker_id, const float& speed = 1.0f, const float& target_dbfs = -1.0f,
                 const float& sdp_ratio = 0.2f, const float& noise_scale = 0.6f, const float& noise_scale_w = 0.8f);
             void tts_to_file(const std::string& text, std::vector<float>& output_audio, const int& speaker_id, const float& speed = 1.0f,
                 const float& sdp_ratio = 0.2f, const float& noise_scale = 0.6f, const float& noise_scale_w = 0.8f);
-            void tts_to_file(const std::vector<std::string>& texts, const std::filesystem::path& output_path, const int& speaker_id, const float& speed = 1.0f, const float& volume = 1.0,
+            void tts_to_file(const std::vector<std::string>& texts, const std::filesystem::path& output_path, const int& speaker_id, const float& speed = 1.0f, const float& target_dbfs = -1.0f,
                 const float& sdp_ratio = 0.2f, const float& noise_scale = 0.6f, const float& noise_scale_w = 0.8f);
             std::vector<std::string> split_sentences_into_pieces(const std::string& text, bool quiet = false);
             std::vector<std::string> split_sentences_zh(const std::string& text, size_t max_len = 10);
             static void audio_concat(std::vector<float>& output, std::vector<float>& segment, const float& speed, const int32_t& sampling_rate);
             static void write_wave(const std::filesystem::path& output_path, const std::vector<float>& wave, const int32_t& sampling_rate);
             static constexpr int32_t sampling_rate_ = 44100; 
+            static constexpr float norm_dbfs = -1.0f;
             static std::shared_ptr<text_normalization::TextNormalizer> normalizer;
+            void normalize_audio(std::vector<float>& buffer, float targetDbFS = -1.0f);
         protected:
             std::tuple<std::vector<std::vector<float>>, std::vector<int64_t>, std::vector<int64_t>, std::vector<int64_t>>
                 get_text_for_tts_infer(const std::string& text);
             // adjust the volume
-            inline void adjust_volume(std::vector<float>& audioData, float volumePercent) {
-                std::for_each(audioData.begin(), audioData.end(), [&](float& x) { x *= volumePercent; });
-            }
+            //inline void adjust_volume(std::vector<float>& audioData, float volumePercent) {
+            //    std::for_each(audioData.begin(), audioData.end(), [&](float& x) { x *= volumePercent; });
+            //}
         private:
             std::shared_ptr<Tokenizer> tokenizer;
             Bert bert_model;
