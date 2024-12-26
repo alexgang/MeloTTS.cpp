@@ -144,7 +144,7 @@ namespace melo {
         }
     }
     //
-    // Audio Normalization Start
+    // Audio Normalization
     //
     // Function to normalize the audio buffer to the target dBFS
     void TTS::normalize_audio(std::vector<float>& buffer, float targetDbFS) {

@@ -55,14 +55,10 @@ namespace melo {
             static constexpr int32_t sampling_rate_ = 44100; 
             static constexpr float norm_dbfs = -1.0f;
             static std::shared_ptr<text_normalization::TextNormalizer> normalizer;
-            void normalize_audio(std::vector<float>& buffer, float targetDbFS = -1.0f);
+            void normalize_audio(std::vector<float>& buffer, float targetDbFS = -1.0f); // adjust the volume
         protected:
             std::tuple<std::vector<std::vector<float>>, std::vector<int64_t>, std::vector<int64_t>, std::vector<int64_t>>
                 get_text_for_tts_infer(const std::string& text);
-            // adjust the volume
-            //inline void adjust_volume(std::vector<float>& audioData, float volumePercent) {
-            //    std::for_each(audioData.begin(), audioData.end(), [&](float& x) { x *= volumePercent; });
-            //}
         private:
             std::shared_ptr<Tokenizer> tokenizer;
             Bert bert_model;
