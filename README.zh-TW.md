@@ -4,7 +4,21 @@
 </p>
 
 
-**MeloTTS.cpp** 是[MeloTTS](https://github.com/myshell-ai/MeloTTS) 的 C++ 實現，**MeloTTS**是由MyShell.ai 發佈的一個高品質、多語言的文字轉語音(Text To Speech) 函式庫，支援英語、中文以及其他多種語言。這個函式庫是基於**OpenVINO**並且支援在 CPU、GPU 和 NPU 邊緣設備上的部署。目前，僅支援中文(混合英文)。對[MeloTTS 英文模型](https://huggingface.co/myshell-ai/MeloTTS-English)的支援仍處於開發階段。
+**MeloTTS.cpp** 是[MeloTTS](https://github.com/myshell-ai/MeloTTS) 的 C++ 實現，**MeloTTS**是由MyShell.ai 發佈的一個高品質、多語言的文字轉語音(Text To Speech) 函式庫，支援英語、中文以及其他多種語言。這個函式庫是基於**OpenVINO**並且支援在 CPU、GPU 和 NPU 邊緣設備上的部署。目前，僅支援中文(混合英文)及英文。對於 [日文模型](https://huggingface.co/myshell-ai/MeloTTS-Japanese) 的支援計畫推出。
+
+## 針對中英混合的中文 TTS
+
+這個分支專注於為中英混合的中文提供語音合成（TTS）解決方案。
+
+### 需要多語言支援嗎？
+
+若是你需要多語言的 TTS 解決方案，可以切換到 `multilang-develop` 分支。
+
+要切換到這個分支，請執行：
+```bash
+git checkout multilang-develop
+```
+更多詳細資訊，可以到 [MeloTTS.cpp 多語言分支](https://github.com/apinge/MeloTTS.cpp/tree/multilang-develop)
 
 ## Pipeline Design
 
@@ -132,7 +146,7 @@ BERT 和 DeepFilterNet 模型支援將 NPU 作為推理設備，利用 Meteor La
 
 ## 開發計劃
 
-1. **實現MeloTTS英文版本**: 
+1. **實現MeloTTS日文版本**: 
    
 2. **提高量化品質**:
    - 目前的INT8量化模型表現出輕微的背景雜訊。我們整合了 DeepFilterNet 進行後處理。未來的目標是透過量化技術解決噪音問題。
