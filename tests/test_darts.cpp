@@ -32,13 +32,13 @@ int main(int argc, char** argv)
     };
     std::unordered_set<std::string> sentence_splitter = {
       // "，", "。", "！", "？","；",
-       ",", ".", "!", "?", ";",
+       ",", ".", "!", "?", 
     };
     std::unordered_set<std::string> spaces = {
         "\n", "\t", "\r",
     };
     std::unordered_map<std::string, char> rep_map = {
-       {"：", ','},{"；", ','},{"，", ','},{"。", '.'},{"！", '!'},{"？", '?'},{"\n", '.'},{"·", ','},{"、", ','},{"...", '.'},{"$", '.'},{"“", '\''},{"”", '\''},{"‘", '\''},{"’", '\''},{"（", '\''},{"）", '\''},
+       {"：", ','},{"；", ','},{";", ','},{"，", ','},{"。", '.'},{"！", '!'},{"？", '?'},{"\n", '.'},{"·", ','},{"、", ','},{"...", '.'},{"$", '.'},{"“", '\''},{"”", '\''},{"‘", '\''},{"’", '\''},{"（", '\''},{"）", '\''},
        {"(", '\''},{")", '\''},{"《", '\''},{"》", '\''},{"【", '\''},{"】", '\''},{"[", '\''},{"]", '\''},{"—", '-'},{"～", '-'},{"~", '-'},{"「", '\''},{"」", '\''},{"-",'-'},{"\'",'\''}
     };
 
@@ -99,12 +99,12 @@ int main(int argc, char** argv)
     cout << "found:" << num << endl;
 
     // save to file
-    da.save("punc_.dic");
+    da.save("punc_new.dic");
     da.clear();
 
     // load from file and commonPrefixSearch
     Darts::DoubleArray da2;
-    da2.open("punc_.dic");
+    da2.open("punc_new.dic");
     num = da2.commonPrefixSearch("。逗号这种都不要了", result_pair, sizeof(result_pair));
     cout << "found:" << num << endl;
     da2.clear();

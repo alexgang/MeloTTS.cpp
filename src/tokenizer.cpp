@@ -29,7 +29,7 @@ namespace melo
         ReadTokenFile(token_filename.string());
     }
     std::unordered_set<char> Tokenizer::punctuations = {
-            ',', '.', '!', '?', ';','-','\''
+            ',', '.', '!', '?','-','\''
     };
 
     void Tokenizer::ReadTokenFile(const std::string& token_filename) {
