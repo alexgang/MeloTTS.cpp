@@ -28,7 +28,7 @@ int main(int argc, char** argv)
     std::vector<std::string>punctuation = {
     "，", "。", "！", "？", "、", "；", "：", "“", "”", "‘", "’", "（", "）", "【", "】", "《", "》", "——", "……", "·",
     ",", ".", "!", "?", ";", ":", "\"",  "\'", "/","'", "(", ")", "[", "]", "<", ">", "-", "...", ".", "\n", "\t", "\r",
-    "」","「","~","～","—","】","【","$","¥ ",
+    "」","「","~","～","—","】","【","$","¥","\\","_"
     };
     std::unordered_set<std::string> sentence_splitter = {
       // "，", "。", "！", "？","；",
@@ -39,12 +39,13 @@ int main(int argc, char** argv)
     };
     std::unordered_map<std::string, char> rep_map = {
        {"：", ','},{"；", ','},{";", ','},{"，", ','},{"。", '.'},{"！", '!'},{"？", '?'},{"\n", '.'},{"·", ','},{"、", ','},{"...", '.'},{"$", '.'},{"“", '\''},{"”", '\''},{"‘", '\''},{"’", '\''},{"（", '\''},{"）", '\''},
-       {"(", '\''},{")", '\''},{"《", '\''},{"》", '\''},{"【", '\''},{"】", '\''},{"[", '\''},{"]", '\''},{"—", '-'},{"～", '-'},{"~", '-'},{"「", '\''},{"」", '\''},{"-",'-'},{"\'",'\''}
+       {"(", '\''},{")", '\''},{"《", '\''},{"》", '\''},{"【", '\''},{"】", '\''},{"[", '\''},{"]", '\''},{"—", '-'},{"～", '-'},{"~", '-'},{"「", '\''},{"」", '\''},{"-",'-'},{"\'",'\''},
+       {"\\",' '},{"/",' '},{"_",' '},
     };
 
     //std::cout << punctuation[1].size()<<std::endl;
    // std::vector<std::string>chinese_punctuation = { "，", "。" };
-    stable_sort(punctuation.begin(),punctuation.end());
+    std::stable_sort(punctuation.begin(),punctuation.end());
     int n = punctuation.size();
     std::vector<const char*> keys;
     std::vector<size_t> length;
@@ -89,14 +90,14 @@ int main(int argc, char** argv)
 
     // commonPrefixSearch
     Darts::DoubleArray::result_pair_type  result_pair[1024];
-    size_t num = da.commonPrefixSearch("，逗号这种都不要了", result_pair, sizeof(result_pair));
+    size_t num = da.commonPrefixSearch("HKEY_LOCAL_MACHINE", result_pair, sizeof(result_pair));
     std::cout << "found:" << num << endl;
     for (size_t i = 0; i < num; ++i) {
-        cout << "\tvalue:" << result_pair[i].value << " matched key length:" << result_pair[i].length << endl;
+        std::cout << "\tvalue:" << result_pair[i].value << " matched key length:" << result_pair[i].length << endl;
     }
 
-    num = da.commonPrefixSearch("。逗号这种都不要了", result_pair, sizeof(result_pair));
-    cout << "found:" << num << endl;
+    //num = da.commonPrefixSearch("。逗号这种都不要了", result_pair, sizeof(result_pair));
+    //cout << "found:" << num << endl;
 
     // save to file
     da.save("punc_new.dic");
@@ -105,7 +106,7 @@ int main(int argc, char** argv)
     // load from file and commonPrefixSearch
     Darts::DoubleArray da2;
     da2.open("punc_new.dic");
-    num = da2.commonPrefixSearch("。逗号这种都不要了", result_pair, sizeof(result_pair));
+    num = da2.commonPrefixSearch("HKEY_LOCAL_MACHINE", result_pair, sizeof(result_pair));
     cout << "found:" << num << endl;
     da2.clear();
 }
