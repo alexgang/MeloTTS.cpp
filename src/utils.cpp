@@ -42,7 +42,7 @@ std::vector<std::string> read_file_lines(const std::filesystem::path& file_path)
         // Replace backslashes with forward slashes because a backslash is a C++ escape character.
         // If a single backslash is included, it will cause issues in subsequent text segmentation and tokenization.
         std::replace(line.begin(), line.end(), '\\', '/');
-        std::replace(line.begin(), line.end(), '_', ' ');// A temporary strong workaround for the underscore (_) in the registry TODO: make it in punc.dict
+        //std::replace(line.begin(), line.end(), '_', ' ');// A temporary strong workaround for the underscore (_) in the registry TODO: make it in punc.dic
         lines.push_back(line);  // add each line to the vector
     }
 

@@ -25,10 +25,10 @@ int main(int argc, char** argv)
    
 
   //  const Darts::DoubleArray::key_type* str[] = { "ALGOL", "ANSI", "ARCO",  "ARPA", "ARPANET", "ASCII" }; // same as char*
-    std::vector<std::string>punctuation = {
+    std::vector<std::string> punctuation = {
     "，", "。", "！", "？", "、", "；", "：", "“", "”", "‘", "’", "（", "）", "【", "】", "《", "》", "——", "……", "·",
     ",", ".", "!", "?", ";", ":", "\"",  "\'", "/","'", "(", ")", "[", "]", "<", ">", "-", "...", ".", "\n", "\t", "\r",
-    "」","「","~","～","—","】","【","$","¥","\\","_"
+    "」","「","~","～","—","】","【","$","¥","\\","_","™","©","®","℠"
     };
     std::unordered_set<std::string> sentence_splitter = {
       // "，", "。", "！", "？","；",
@@ -72,7 +72,7 @@ int main(int argc, char** argv)
         }
     }
 
-    
+   
     //std::iota(values.begin(),values.end(),1);
     // build 
     Darts::DoubleArray da;
@@ -90,7 +90,7 @@ int main(int argc, char** argv)
 
     // commonPrefixSearch
     Darts::DoubleArray::result_pair_type  result_pair[1024];
-    size_t num = da.commonPrefixSearch("HKEY_LOCAL_MACHINE", result_pair, sizeof(result_pair));
+    size_t num = da.commonPrefixSearch("®RedeonChill", result_pair, sizeof(result_pair));
     std::cout << "found:" << num << endl;
     for (size_t i = 0; i < num; ++i) {
         std::cout << "\tvalue:" << result_pair[i].value << " matched key length:" << result_pair[i].length << endl;
@@ -106,7 +106,7 @@ int main(int argc, char** argv)
     // load from file and commonPrefixSearch
     Darts::DoubleArray da2;
     da2.open("punc_new.dic");
-    num = da2.commonPrefixSearch("HKEY_LOCAL_MACHINE", result_pair, sizeof(result_pair));
+    num = da2.commonPrefixSearch("_HKEY_LOCAL_MACHINE", result_pair, sizeof(result_pair));
     cout << "found:" << num << endl;
     da2.clear();
 }
