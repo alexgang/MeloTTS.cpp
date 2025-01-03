@@ -185,7 +185,7 @@ inline void Args::generate_init_file_paths() {
     punc_dict_path = model_dir / "punc.dic";
 
     //dict
-    cmudict_path = model_dir / "cmudict_cache.txt";
+    cmudict_path = model_dir / "cmudict_cache_order.txt";
 
     //pinyin_to_symbol_map
     pinyin_to_symbol_map_path = model_dir / "opencpop-strict.txt";

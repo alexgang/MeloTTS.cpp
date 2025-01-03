@@ -41,6 +41,8 @@ target_include_directories(test_darts  PRIVATE ${CMAKE_SOURCE_DIR}/thirdParty/cp
 add_executable(test_split_sentence ${CMAKE_CURRENT_SOURCE_DIR}/test_split_sentence.cpp ${CMAKE_SOURCE_DIR}/thirdParty/cppinyin/csrc/darts.h)
 target_include_directories(test_split_sentence  PRIVATE ${CMAKE_SOURCE_DIR}/thirdParty/cppinyin/csrc/)
 
+add_executable(test_wordbreak ${CMAKE_CURRENT_SOURCE_DIR}/test_wordbreak.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../src/language_modules/cmudict.cpp)
+target_include_directories(test_wordbreak PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../src/language_modules ${CMAKE_SOURCE_DIR}/thirdParty/cppinyin/csrc)
 
 include(FetchContent)
 FetchContent_Declare(

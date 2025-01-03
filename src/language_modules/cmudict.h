@@ -22,11 +22,14 @@
 #include <vector>
 #include <optional>
 #include <unordered_map>
+#include <filesystem>
+#include <algorithm>
+#include "darts.h"
 
 namespace melo {
     class CMUDict {
     public:
-        explicit CMUDict(const std::string& filename);
+        explicit CMUDict(const std::filesystem::path& filepath); // cmudict.dic or cmudict_cache_order.txt
         ~CMUDict() = default;
 
         CMUDict() = delete;
@@ -35,19 +38,46 @@ namespace melo {
         CMUDict& operator=(const CMUDict&) = delete;
         CMUDict& operator=(CMUDict&&) = delete;
 
-     
-        inline  std::optional<std::reference_wrapper<const std::vector<std::vector<std::string>>>> find(const std::string& key) const {
-            if ( dict_.contains(key)) {
-                return std::cref(dict_.at(key));
-            }
-            else {
-                return std::nullopt;
-            }
+        void build_dict_from_txt(const std::string& filename);
+
+        inline bool contains(const std::string& word) {
+            auto found = keys_da.exactMatchSearch<Darts::DoubleArray::result_type>(word.c_str());
+            return found != -1;
         }
-    // Friend function for overloading the operator<<
-    friend std::ostream& operator<<(std::ostream& os, const CMUDict& dict);
+        inline std::optional<std::vector<std::vector<std::string>>> find(const std::string& key) {
+            auto res = keys_da.exactMatchSearch<Darts::DoubleArray::result_type>(key.c_str());
+            if (res != -1)
+                return values_data[res];
+
+            std::vector<std::vector<std::string>> words = wordBreak(key);
+            if (!words.empty()) {
+                std::stable_sort(words.begin(), words.end(), [&](const std::vector<std::string>& lhs, const std::vector<std::string>& rhs) { return lhs.size() < rhs.size(); });
+#ifdef MELO_DEBUG
+                for (std::cout << "[INFO] CMUDict:word break:"; auto & x : words.front()) std::cout << x << ' ';
+                std::cout << std::endl;
+#endif
+                std::vector<std::vector<std::string>> symbols;
+                for (const std::string& w : words.front()) {
+                    std::vector<std::vector<std::string>> x = direct_lookup(w);
+                    std::copy(x.begin(), x.end(), std::back_inserter(symbols));
+                }
+                return symbols;
+            }
+            return std::nullopt;
+        }
+        inline const std::vector<std::vector<std::string>> direct_lookup(const std::string& word) {
+            auto res = keys_da.exactMatchSearch<Darts::DoubleArray::result_type>(word.c_str());
+            if (res == -1) return {};
+            return values_data[res];
+        }
+        std::vector<std::vector<std::string>> wordBreak(const std::string& s);
+
+    //friend std::ostream& operator<<(std::ostream& os, const CMUDict& dict);
+    [[maybe_unused]] void test_da(); // intend only for testing
     private:
-        std::unordered_map<std::string, std::vector<std::vector<std::string>>> dict_;
+        //std::unordered_map<std::string, std::vector<std::vector<std::string>>> dict_;
+        Darts::DoubleArray keys_da;
+        std::vector<std::vector<std::vector<std::string>>> values_data;
     };
 }
 

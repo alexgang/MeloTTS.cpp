@@ -240,61 +240,43 @@ namespace melo {
             std::vector<int64_t> tones_list;
             std::vector<int> word2ph;
 
-            //remove ## in suffix
-            for (auto& token : tokenized_word) {
-                if(token.front()=='#')
-                    token = token.substr(2);
-            }
             int word_len = static_cast<int>(tokenized_word.size());
             int phone_len = 0;
-            bool cmudict_unfound = false;
-            for(auto& token:tokenized_word){
-                auto syllables = cmudict->find(token);
+            auto syllables = cmudict->find(word);
 #ifdef MELO_DEBUG
-                if (syllables.has_value()) {
-                    for (std::cout << "token:" << token<<":"; auto & vec:syllables.value().get()) {
-                        for(auto&x:vec)
-                            std::cout << x<<' ';
-                        std::cout << std::endl;
-                    }
-                }
-#endif
-                // if not has value
-                if (syllables.has_value()) {
-                    auto [phones, tones] = refine_syllables(syllables.value().get());
-                    phone_len += phones.size();
-                    phones_list.insert(phones_list.end(), phones.begin(), phones.end());
-                    tones_list.insert(tones_list.end(), tones.begin(), tones.end());
-                }
-                else{
-                    cmudict_unfound = true;
-                    std::cout << "[WARNNING] cmudict cannot find:" << token <<" in " << word << std::endl;
+            if (syllables.has_value()) {
+                for (std::cout << "token:" << token << ":"; auto & vec:syllables.value().get()) {
+                    for (auto& x : vec)
+                        std::cout << x << ' ';
+                    std::cout << std::endl;
                 }
             }
-            // workaround for abbreviation
-            // We consider English words with a length of <= 5 as abbreviations if their existing tokens are not found in cmudict
-            if ( word.length()<=5 && cmudict_unfound) {
-                // some abbreviation may be slit to sevaral tokens (some token can be found in cmudict) . clean them all first.
-                phone_len=0;
-                phones_list.clear();
-                tones_list.clear();
-                for(const char& ch:word){
-                    auto syllables = cmudict->find(std::string(1,ch));
+#endif
+            // if not has value
+            if (syllables.has_value()) {
+                auto [phones, tones] = refine_syllables(syllables.value());
+                phone_len += phones.size();
+                phones_list.insert(phones_list.end(), phones.begin(), phones.end());
+                tones_list.insert(tones_list.end(), tones.begin(), tones.end());
+            }
+            else {
+                std::cout << "[WARNNING] cmudict cannot find:" << word << std::endl;
+                // workaround for abbreviation or some other scenarios
+                for (const char& ch : word) {
+                    auto syllables = cmudict->find(std::string(1, ch));// read char by char
                     if (syllables.has_value()) {
-                        auto [phones, tones] = refine_syllables(syllables.value().get());
+                        auto [phones, tones] = refine_syllables(syllables.value());
                         phone_len += phones.size();
                         phones_list.insert(phones_list.end(), phones.begin(), phones.end());
                         tones_list.insert(tones_list.end(), tones.begin(), tones.end());
                     }
                 }
-                if(phones_list.size())
-                    std::cout << "[INFO] "<< word <<" is treated as an abbravation, where each letter is pronounced individually.\n";
             }
             word2ph = distribute_phone(phone_len,word_len);
             return { phones_list, tones_list, word2ph };
         }
 
-        
+
         std::tuple<std::vector<std::string>, std::vector<int64_t>> refine_syllables(const std::vector<std::vector<std::string>>& syllables) {
             std::vector<std::string> phonemes; 
             std::vector<int64_t> tones;
