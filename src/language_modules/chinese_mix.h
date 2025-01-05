@@ -39,7 +39,7 @@ namespace melo {
         std::tuple<std::vector<std::string>, std::vector<int64_t>, std::vector<int>> _chinese_g2p(std::vector<std::pair<std::string,std::string>>& segment);
         std::tuple<std::vector<std::string>, std::vector<int64_t>, std::vector<int>> g2p_en(const std::string& word, std::vector<std::string>& tokenized);
         std::tuple<std::vector<int64_t>,std::vector<int64_t>,std::vector<int64_t>,std::vector<int>> cleaned_text_to_sequence(const std::vector<std::string>& phones_list, const std::vector<int64_t>tones_list, const std::vector<int>&word2ph_list);
-        std::tuple<std::vector<std::string>, std::vector<int64_t>> refine_syllables(const std::vector<std::vector<std::string>>& syllables);
+        std::tuple<std::vector<std::string>, std::vector<int64_t>> refine_syllables(const std::vector<std::string>& syllables);
         std::vector<int> distribute_phone(const int& n_phone, const int& n_word);
         
         //load pinyin_to_symbol_map

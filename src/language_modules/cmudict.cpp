@@ -55,7 +55,7 @@ namespace melo {
                 continue; // Skip lines that cannot be parsed.
             }
 
-            std::vector<std::vector<std::string>> value;
+            std::vector<std::string> value;
             std::string segment;
 
             while (std::getline(iss, segment, ',')) {
@@ -66,7 +66,7 @@ namespace melo {
                     subValues.push_back(subValue);
                 }
                 if (!subValues.empty()) {
-                    value.push_back(subValues);
+                    value.insert(value.end(),subValues.begin(),subValues.end());
                 }
             }
 

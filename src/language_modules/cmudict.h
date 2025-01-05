@@ -44,7 +44,7 @@ namespace melo {
             auto found = keys_da.exactMatchSearch<Darts::DoubleArray::result_type>(word.c_str());
             return found != -1;
         }
-        inline std::optional<std::vector<std::vector<std::string>>> find(const std::string& key) {
+        inline std::optional<std::vector<std::string>> find(const std::string& key) {
             auto res = keys_da.exactMatchSearch<Darts::DoubleArray::result_type>(key.c_str());
             if (res != -1)
                 return values_data[res];
@@ -56,28 +56,27 @@ namespace melo {
                 for (std::cout << "[INFO] CMUDict:word break:"; auto & x : words.front()) std::cout << x << ' ';
                 std::cout << std::endl;
 #endif
-                std::vector<std::vector<std::string>> symbols;
+                std::vector<std::string> symbols;
                 for (const std::string& w : words.front()) {
-                    std::vector<std::vector<std::string>> x = direct_lookup(w);
+                    std::vector<std::string> x = direct_lookup(w);
                     std::copy(x.begin(), x.end(), std::back_inserter(symbols));
                 }
                 return symbols;
             }
             return std::nullopt;
         }
-        inline const std::vector<std::vector<std::string>> direct_lookup(const std::string& word) {
+        inline const std::vector<std::string> direct_lookup(const std::string& word) {
             auto res = keys_da.exactMatchSearch<Darts::DoubleArray::result_type>(word.c_str());
             if (res == -1) return {};
             return values_data[res];
         }
         std::vector<std::vector<std::string>> wordBreak(const std::string& s);
 
-    //friend std::ostream& operator<<(std::ostream& os, const CMUDict& dict);
     [[maybe_unused]] void test_da(); // intend only for testing
     private:
         //std::unordered_map<std::string, std::vector<std::vector<std::string>>> dict_;
         Darts::DoubleArray keys_da;
-        std::vector<std::vector<std::vector<std::string>>> values_data;
+        std::vector<std::vector<std::string>> values_data;
     };
 }
 

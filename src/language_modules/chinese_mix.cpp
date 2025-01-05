@@ -215,7 +215,11 @@ namespace melo {
                phones_list.insert(phones_list.end(),phone.begin(),phone.end());
                tones_list.insert(tones_list.end(),phone.size(), tone);
             }
-
+#ifdef MELO_DEBUG
+            printVec(phones_list, "phones_list");
+            printVec(tones_list, "tones_list");
+            printVec(word2ph, "wordwph");
+#endif
             return { phones_list, tones_list, word2ph };
         }
         /**
@@ -273,15 +277,19 @@ namespace melo {
                 }
             }
             word2ph = distribute_phone(phone_len,word_len);
+#ifdef MELO_DEBUG
+            printVec(phones_list, "phones_list");
+            printVec(tones_list, "tones_list");
+            printVec(word2ph, "wordwph");
+#endif
             return { phones_list, tones_list, word2ph };
         }
 
 
-        std::tuple<std::vector<std::string>, std::vector<int64_t>> refine_syllables(const std::vector<std::vector<std::string>>& syllables) {
+        std::tuple<std::vector<std::string>, std::vector<int64_t>> refine_syllables(const std::vector<std::string>& syllables) {
             std::vector<std::string> phonemes; 
             std::vector<int64_t> tones;
-            for (const auto& phn_list : syllables) {
-                for (const auto& phn : phn_list) {
+            for (const auto& phn : syllables) {
                     if (phn.size() > 0 && isdigit(phn.back())) {
                         std::string tmp = phn.substr(0,phn.length()-1);
                         phonemes.emplace_back(std::move(tmp));
@@ -291,8 +299,6 @@ namespace melo {
                         phonemes.emplace_back(phn);
                         tones.emplace_back(0);
                     }
-                    
-                }
             }
             return {phonemes, tones};
         }
