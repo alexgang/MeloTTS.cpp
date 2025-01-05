@@ -16,6 +16,7 @@
 
 切换到该分支，请运行：
 ```bash
+git fetch --all
 git checkout multilang-develop
 ```
 更多细节，请访问[MeloTTS.cpp 多语言分支](https://github.com/apinge/MeloTTS.cpp/tree/multilang-develop)

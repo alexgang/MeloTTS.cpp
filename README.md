@@ -16,6 +16,7 @@ If you're looking for TTS solutions for multiple languages, you can switch to th
 
 To switch, run:
 ```bash
+git fetch --all
 git checkout multilang-develop
 ```
 For more details, you can visit the [MeloTTS.cpp for Multilanguage branch](https://github.com/apinge/MeloTTS.cpp/tree/multilang-develop)
